@@ -1,0 +1,33 @@
+# 微信小程序项目 - Git 忽略文件
+
+# 编辑器配置
+.vscode/
+
+# 微信开发者工具生成
+miniprogram_npm/
+
+# 云函数（如未部署可忽略）
+cloudfunctions/
+
+# 私有配置文件（含密钥）
+project.private.config.json
+
+# 日志与缓存
+logs/
+
+# 系统文件（非项目内容）
+AGENTS.md
+
+# Python 虚拟环境（如误包含）
+venv/
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 编译产物（如使用 TypeScript）
+dist/
+build/
+
+# 依赖包
+node_modules/

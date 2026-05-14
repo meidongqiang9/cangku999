@@ -1,0 +1,44 @@
+<view class="container">
+  <view class="header">
+    <text class="title">食易特</text>
+    <text class="subtitle">管理后台</text>
+  </view>
+  
+  <view class="login-form">
+    <view class="form-title">{{isLogin ? '登录' : '注册'}}</view>
+    
+    <view class="input-group">
+      <input class="input" placeholder="手机号" value="{{phone}}" bindinput="onPhoneInput"/>
+    </view>
+    
+    <view class="input-group password-group">
+      <input class="input" password="{{!showPassword}}" placeholder="密码" value="{{password}}" bindinput="onPasswordInput"/>
+      <view class="toggle-eye" bindtap="togglePassword">
+        <text wx:if="{{showPassword}}">👁️</text>
+        <text wx:else>👁️‍🗨️</text>
+      </view>
+    </view>
+    
+    <view class="input-group" wx:if="{{!isLogin}}">
+      <input class="input" placeholder="店铺名称" value="{{shopName}}" bindinput="onShopNameInput"/>
+    </view>
+    
+    <view class="input-group" wx:if="{{!isLogin}}">
+      <input class="input" placeholder="真实姓名" value="{{realName}}" bindinput="onRealNameInput"/>
+    </view>
+    
+    <view class="btn-primary" bindtap="submit">{{isLogin ? '登录' : '注册'}}</view>
+    
+    <view class="toggle-link" bindtap="toggleMode">
+      <text wx:if="{{isLogin}}">没有账号？去注册</text>
+      <text wx:else>已有账号？去登录</text>
+    </view>
+  </view>
+  
+  <view class="bottom-tips">
+    <text>注册即表示同意</text>
+    <text class="link">《服务协议》</text>
+    <text>和</text>
+    <text class="link">《隐私政策》</text>
+  </view>
+</view>

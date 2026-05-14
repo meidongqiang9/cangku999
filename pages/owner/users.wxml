@@ -1,0 +1,32 @@
+<view class="container">
+  <view class="header">用户管理</view>
+  
+  <view class="section">
+    <view class="section-title">发送通知</view>
+    <input class="input" placeholder="请输入通知内容" value="{{noticeText}}" bindinput="onNoticeInput"/>
+    <view class="btn-group">
+      <view class="btn" bindtap="sendToAll">群发全部</view>
+    </view>
+  </view>
+  
+  <view class="user-list">
+    <view class="section-title">用户列表</view>
+    <view wx:for="{{users}}" wx:key="phone" class="user-item" bindtap="selectUser" data-phone="{{item.phone}}">
+      <text class="user-name">{{item.shopName}}</text>
+      <text class="user-phone">{{item.phone}}</text>
+      <text class="user-status {{item.canUse === false ? 'disabled' : ''}}">{{item.canUse === false ? '已禁用' : '正常'}}</text>
+    </view>
+    <view wx:if="{{users.length === 0}}" class="empty">暂无用户</view>
+  </view>
+  
+  <view wx:if="{{selectedUser}}" class="modal">
+    <view class="modal-content">
+      <view class="modal-title">发送给：{{selectedUser.phone}}</view>
+      <input class="input" placeholder="请输入通知内容" value="{{noticeText}}" bindinput="onNoticeInput"/>
+      <view class="btn-group">
+        <view class="btn primary" bindtap="sendToOne">发送</view>
+        <view class="btn" bindtap="closeNotice">取消</view>
+      </view>
+    </view>
+  </view>
+</view>

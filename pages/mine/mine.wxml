@@ -1,0 +1,68 @@
+<view class="container">
+  <view class="page-title">商家设置</view>
+  
+  <view class="section">
+    <view class="section-title">店铺信息</view>
+    <view class="input-row">
+      <text class="label">店铺名称</text>
+      <input class="input" placeholder="请输入店铺名称" value="{{shopName}}" bindinput="onShopNameInput"/>
+    </view>
+  </view>
+  
+  <view class="section">
+    <view class="section-title">收款设置</view>
+    <view class="input-row">
+      <text class="label">商户号</text>
+      <input class="input" placeholder="微信支付商户号" value="{{mchId}}" bindinput="onMchIdInput"/>
+    </view>
+    <view class="input-row">
+      <text class="label">商户密钥</text>
+      <input class="input" password="true" placeholder="API密钥" value="{{mchKey}}" bindinput="onMchKeyInput"/>
+    </view>
+    <view class="input-row">
+      <text class="label">小程序AppID</text>
+      <input class="input" placeholder="关联的小程序AppID" value="{{subAppId}}" bindinput="onSubAppIdInput"/>
+    </view>
+  </view>
+  
+  <view class="section">
+    <view class="section-title">结算账户</view>
+    <view class="input-row">
+      <text class="label">银行账户名</text>
+      <input class="input" placeholder="开户名称" value="{{bankName}}" bindinput="onBankNameInput"/>
+    </view>
+    <view class="input-row">
+      <text class="label">银行账号</text>
+      <input class="input" placeholder="银行卡号" value="{{bankAccount}}" bindinput="onBankAccountInput"/>
+    </view>
+    <view class="input-row">
+      <text class="label">开户银行</text>
+      <input class="input" placeholder="如：中国工商银行" value="{{bankNameFull}}" bindinput="onBankNameFullInput"/>
+    </view>
+  </view>
+  
+  <view class="section">
+    <view class="section-title">店铺二维码</view>
+    <view class="qrcode-area">
+      <text class="qrcode-hint">店铺链接</text>
+      <text class="qrcode-link">https://yourdomain.com/shop/{{shopId}}</text>
+      <view class="btn-small" bindtap="generateQrCode">生成二维码</view>
+    </view>
+  </view>
+  
+  <view class="btn-save" bindtap="saveSettings">保存设置</view>
+  
+  <view class="section" wx:if="{{orderCount > 0}}">
+    <view class="section-title">今日数据</view>
+    <view class="data-row">
+      <view class="data-item">
+        <text class="data-value">{{orderCount}}</text>
+        <text class="data-label">订单数</text>
+      </view>
+      <view class="data-item">
+        <text class="data-value">{{todayAmount}}</text>
+        <text class="data-label">今日营收</text>
+      </view>
+    </view>
+  </view>
+</view>

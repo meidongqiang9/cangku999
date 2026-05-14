@@ -1,0 +1,71 @@
+<view class="container">
+  <view class="header">
+    <view class="shop-info">
+      <text class="shop-name">{{shopName}}</text>
+    </view>
+  </view>
+  
+  <view class="stats-grid">
+    <view class="stat-item">
+      <text class="stat-value">{{todayOrders}}</text>
+      <text class="stat-label">今日桌数</text>
+    </view>
+    <view class="stat-item">
+      <text class="stat-value">{{todayAmount}}</text>
+      <text class="stat-label">今日米袋</text>
+    </view>
+    <view class="stat-item">
+      <text class="stat-value">{{monthOrders}}</text>
+      <text class="stat-label">本月桌数</text>
+    </view>
+    <view class="stat-item">
+      <text class="stat-value">{{monthAmount}}</text>
+      <text class="stat-label">本月米袋</text>
+    </view>
+  </view>
+  
+  <view class="menu-list">
+    <view class="menu-item" bindtap="goMenu">
+      <text class="menu-icon">📋</text>
+      <text class="menu-title">菜单管理</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="goTables">
+      <text class="menu-icon">🪑</text>
+      <text class="menu-title">餐桌管理</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="goOrders">
+      <text class="menu-icon">📑</text>
+      <text class="menu-title">米袋统计</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="goSettings">
+      <text class="menu-icon">⚙️</text>
+      <text class="menu-title">店铺设置</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="goContact">
+      <text class="menu-icon">📱</text>
+      <text class="menu-title">联系作者</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="clearData">
+      <text class="menu-icon">🗑️</text>
+      <text class="menu-title">数据清理</text>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+  
+  <view class="logout-btn" bindtap="logout">退出登录</view>
+  
+  <view class="mask" wx:if="{{showPasswordModal}}" bindtap="closePasswordModal"></view>
+  <view class="popup" wx:if="{{showPasswordModal}}">
+    <view class="popup-title">验证密码</view>
+    <input class="password-input" password="true" placeholder="请输入密码" bindinput="onPasswordInput"/>
+    <view class="popup-btns">
+      <view class="popup-btn cancel" bindtap="closePasswordModal">取消</view>
+      <view class="popup-btn confirm" bindtap="confirmPassword">确定</view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,39 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/menu/menu",
+    "pages/menu/ordered/ordered",
+    "pages/order/order",
+    "pages/order/receipt/receipt",
+    "pages/menuStatus/menuStatus",
+    "pages/mine/mine",
+    "pages/owner/login",
+    "pages/owner/home",
+    "pages/owner/menu",
+    "pages/owner/tables",
+    "pages/owner/orders",
+    "pages/owner/stats",
+    "pages/owner/settings",
+    "pages/owner/contact",
+    "pages/owner/tableDetail/tableDetail"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#5B8C5A",
+    "navigationBarTitleText": "食易特 Eat",
+    "tabBar": {
+      "color": "#999999",
+      "selectedColor": "#5B8C5A",
+      "backgroundColor": "#ffffff",
+      "borderStyle": "white",
+      "list": []
+    },
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f5f5"
+  },
+  "sitemap": {
+    "desc": "食易特 Eat"
+  },
+  "style": "v2",
+  "componentFramework": "glass-easel"
+}

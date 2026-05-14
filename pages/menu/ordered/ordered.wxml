@@ -1,0 +1,28 @@
+<view class="container">
+  <view class="page-title">已点菜品</view>
+  
+  <view class="section" wx:if="{{orderedItems.length > 0}}">
+    <view class="section-title">已点菜品</view>
+    <view wx:for="{{orderedItems}}" wx:key="id" class="item-row">
+      <text class="item-name">{{item.name}}</text>
+      <text class="item-qty">x{{item.quantity}}</text>
+      <text class="item-subtotal">{{item.price * item.quantity}}</text>
+    </view>
+  </view>
+  
+  <view class="section" wx:if="{{ownerItems.length > 0}}">
+    <view class="section-title">协助点单</view>
+    <view wx:for="{{ownerItems}}" wx:key="id" class="item-row owner">
+      <text class="item-name">{{item.name}}</text>
+      <text class="item-qty">x{{item.quantity}}</text>
+      <text class="item-subtotal">{{item.price * item.quantity}}</text>
+    </view>
+  </view>
+  
+  <view class="total-row">
+    <text>米总计</text>
+    <text class="total">{{totalPrice}}</text>
+  </view>
+  
+  <view class="btn-add" bindtap="goAddDish">+ 加菜</view>
+</view>

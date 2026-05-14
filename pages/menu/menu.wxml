@@ -1,0 +1,65 @@
+<view class="container">
+  <view class="page-title">菜单</view>
+  
+  <view class="wrapper">
+    <view class="sidebar">
+      <view wx:for="{{categories}}" wx:key="id" 
+            class="sidebar-item {{currentCategory === item.id ? 'active' : ''}}"
+            data-id="{{item.id}}" bindtap="switchCategory">
+        {{item.name}}
+      </view>
+    </view>
+    
+    <scroll-view class="content" scroll-y="true" scroll-into-view="{{scrollIntoViewId}}" scroll-with-animation="true">
+      <view wx:for="{{categories}}" wx:key="id" id="cat-{{item.id}}" class="section">
+        <view class="section-title">{{item.name}}</view>
+        <view wx:for="{{categoryItems[item.id]}}" wx:key="id" class="dish-item">
+          <view class="dish-img"></view>
+          <view class="dish-info">
+            <view class="dish-name">{{item.name}}</view>
+            <view class="dish-desc">{{item.description}}</view>
+            <view class="dish-bottom">
+              <text class="dish-price">{{item.price}}米</text>
+              <view class="add-btn" data-item="{{item}}" bindtap="addToCart">+</view>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view style="height:200rpx"></view>
+    </scroll-view>
+  </view>
+  
+  <view class="cart-overlay" wx:if="{{showCart}}" bindtap="closeCart"></view>
+  <view class="cart-popup" wx:if="{{showCart}}">
+    <view class="cart-header">
+      <text class="cart-title">购物车</text>
+      <text class="cart-clear" bindtap="clearCart">清空</text>
+    </view>
+    <scroll-view scroll-y="true" class="cart-body">
+      <view wx:for="{{cartItems}}" wx:key="id" class="cart-item">
+        <text class="item-name">{{item.name}}</text>
+        <view class="item-actions">
+          <view class="qty-btn" data-id="{{item.id}}" bindtap="decreaseQty">-</view>
+          <text class="qty-num">{{item.quantity}}</text>
+          <view class="qty-btn" data-id="{{item.id}}" bindtap="increaseQty">+</view>
+        </view>
+      </view>
+      <view wx:if="{{cartItems.length === 0}}" class="empty-tip">购物车空空如也~</view>
+    </scroll-view>
+    <view class="cart-footer">
+      <view class="submit-btn" bindtap="confirmOrder">走菜</view>
+    </view>
+  </view>
+  
+  <view class="cart-bar">
+    <view class="bar-left">
+      <text class="bar-icon">🛒</text>
+      <text class="bar-badge" wx:if="{{cartCount > 0}}">{{cartCount}}</text>
+      <text class="bar-total">{{totalPrice}}</text>
+    </view>
+    <view class="bar-btns">
+      <view class="bar-btn ordered" bindtap="viewOrdered">已点菜品</view>
+      <view class="bar-btn" bindtap="openCart">购物车</view>
+    </view>
+  </view>
+</view>

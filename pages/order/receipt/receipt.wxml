@@ -1,0 +1,26 @@
+<view class="container">
+  <view class="header">请凭此水单到前台结账</view>
+  
+  <view class="section">
+    <text class="table-label">桌号</text>
+    <text class="table-no">{{tableNo}}</text>
+  </view>
+  
+  <block wx:for="{{allItems}}" wx:for-item="group">
+    <view class="section" wx:if="{{group.items.length > 0}}">
+      <view class="section-title">{{group.title}}</view>
+      <view wx:for="{{group.items}}" wx:key="id" class="item-row">
+        <text class="item-name">{{item.name}}</text>
+        <text class="item-qty">x{{item.quantity}}</text>
+        <text class="item-price">{{item.price * item.quantity}}</text>
+      </view>
+    </view>
+  </block>
+  
+  <view class="section total">
+    <text>总计</text>
+    <text class="total-price">{{totalPrice}}</text>
+  </view>
+  
+  <view class="btn-home" bindtap="goHome">返回首页</view>
+</view>

@@ -1,0 +1,38 @@
+<view class="container">
+  <view class="header">
+    <text class="title">{{table.name}}</text>
+  </view>
+  
+  <view class="total-row">
+    <text>总计</text>
+    <text class="total">{{totalPrice}}</text>
+  </view>
+  
+  <scroll-view scroll-y class="item-list">
+    <block wx:for="{{allItems}}" wx:for-item="group">
+      <view class="group-section" wx:if="{{group.items.length > 0}}">
+        <view class="section-title">{{group.title}} <text class="subtotal">{{group.subtotal}}</text></view>
+        <view wx:for="{{group.items}}" wx:key="id" class="item-row {{group.title === '终端协助' ? 'owner-item' : ''}}">
+          <view class="item-info">
+            <text class="item-name">{{item.name}}</text>
+          </view>
+          <text class="item-qty">x{{item.quantity}}</text>
+          <block wx:if="{{group.title === '终端协助'}}">
+            <view class="price-btns">
+              <text class="price-btn minus" bindtap="changePrice" data-type="minus" data-itemid="{{item.id}}">-</text>
+              <text class="item-price">{{item.price}}</text>
+              <text class="price-btn plus" bindtap="changePrice" data-type="plus" data-itemid="{{item.id}}">+</text>
+            </view>
+          </block>
+          <block wx:else>
+            <text class="item-price">{{item.price}}</text>
+          </block>
+          <text class="item-subtotal">{{item.price * item.quantity}}</text>
+        </view>
+      </view>
+    </block>
+  </scroll-view>
+  
+  <view class="btn-add" bindtap="addDish">+ 加菜</view>
+  <view class="btn-reset" bindtap="resetTable">翻台清台</view>
+</view>

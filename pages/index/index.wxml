@@ -1,0 +1,25 @@
+<view class="container">
+  <swiper class="banner-swiper" autoplay="{{true}}" interval="{{2000}}" circular="{{true}}">
+    <swiper-item wx:for="{{banners}}" wx:key="*this">
+      <image class="banner-img" src="{{item}}" mode="aspectFill" />
+    </swiper-item>
+    <swiper-item wx:if="{{banners.length === 0}}">
+      <view class="banner-placeholder">{{homeTitle}}</view>
+    </swiper-item>
+  </swiper>
+  
+  <view class="input-section">
+    <view class="input-item">
+      <view class="label">桌号/包房号</view>
+      <input class="input" placeholder="请输入桌号或包房号" bindinput="onTableInput" />
+    </view>
+    <view class="input-item">
+      <view class="label">就餐人数</view>
+      <input class="input" placeholder="请输入就餐人数" bindinput="onGuestInput" type="number" />
+    </view>
+  </view>
+  
+  <view class="btn-primary" bindtap="startOrder">查看食单</view>
+  
+  <view class="owner-entry" bindtap="goOwnerLogin">管理入口</view>
+</view>

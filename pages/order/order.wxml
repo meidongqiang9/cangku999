@@ -1,0 +1,39 @@
+<view class="container">
+  <view class="page-title">订单详情</view>
+  
+  <view class="order-card">
+    <view class="info-row">
+      <text>桌号</text>
+      <text>{{order.tableNo}}</text>
+    </view>
+    <view class="info-row">
+      <text>人数</text>
+      <text>{{order.guestCount}}人</text>
+    </view>
+    <view class="info-row">
+      <text>状态</text>
+      <text class="status">未结账</text>
+    </view>
+  </view>
+  
+  <block wx:for="{{allItems}}" wx:for-item="group">
+    <view class="order-card" wx:if="{{group.items.length > 0}}">
+      <view class="card-title">{{group.title}}</view>
+      <view wx:for="{{group.items}}" wx:key="id" class="item-row {{group.title === '终端协助' ? 'owner' : ''}}">
+        <view class="item-info">
+          <text class="item-name">{{item.name}}</text>
+          <text class="item-qty">x{{item.quantity}}</text>
+        </view>
+        <text class="item-price">{{item.price * item.quantity}}</text>
+      </view>
+    </view>
+  </block>
+  
+  <view class="total-row">
+    <text>总计</text>
+    <text class="total-price">{{totalPrice}}</text>
+  </view>
+  
+  <view class="btn-primary" bindtap="addDish">加菜</view>
+  <view class="btn-primary" bindtap="checkout" wx:if="{{order.status === 'pending'}}">结账</view>
+</view>
