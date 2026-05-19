@@ -1,0 +1,244 @@
+page {
+  background: #f5f5f5;
+}
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 160rpx;
+}
+
+/* 顶部 */
+.page-title {
+  background: #5B8C5A;
+  color: #fff;
+  padding: 24rpx;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+/* 状态概览 */
+.status-summary {
+  display: flex;
+  background: #fff;
+  padding: 32rpx 0;
+  margin: 0 24rpx;
+  border-radius: 0 0 16rpx 16rpx;
+}
+
+.status-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.status-num {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #5B8C5A;
+}
+
+.status-num.served {
+  color: #4A90D9;
+}
+
+.status-num.total {
+  color: #FF8C42;
+}
+
+.status-label {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 4rpx;
+}
+
+.status-divider {
+  width: 2rpx;
+  height: 60rpx;
+  background: #f0f0f0;
+  align-self: center;
+}
+
+/* 桌号信息 */
+.table-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 28rpx;
+  margin-top: 24rpx;
+}
+
+.total-price-text {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #5B8C5A;
+}
+
+/* 菜品列表 */
+.order-scroll {
+  flex: 1;
+  padding: 0 24rpx;
+}
+
+.order-group {
+  margin-bottom: 24rpx;
+}
+
+.group-title {
+  padding: 24rpx 0 16rpx;
+  font-size: 26rpx;
+  color: #999;
+  font-weight: 500;
+}
+
+.dish-row {
+  background: #fff;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  margin-bottom: 12rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dish-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.status-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  margin-right: 16rpx;
+  flex-shrink: 0;
+}
+
+.status-dot.submitted {
+  background: #FF8C42;
+}
+
+.status-dot.served {
+  background: #5B8C5A;
+}
+
+.status-dot.returned {
+  background: #E74C3C;
+}
+
+.dish-info-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.dish-name {
+  font-size: 30rpx;
+  color: #1a1a1a;
+}
+
+.dish-name.returned-text {
+  color: #ccc;
+  text-decoration: line-through;
+}
+
+.dish-qty {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.dish-right {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.dish-price-text {
+  font-size: 28rpx;
+  color: #5B8C5A;
+  font-weight: 500;
+}
+
+.dish-status-tag {
+  font-size: 22rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 6rpx;
+}
+
+.dish-status-tag.submitted {
+  background: #fff3e0;
+  color: #FF8C42;
+}
+
+.dish-status-tag.served {
+  background: #e8f5e9;
+  color: #5B8C5A;
+}
+
+.dish-status-tag.returned {
+  background: #ffebee;
+  color: #E74C3C;
+}
+
+/* 底部操作栏 */
+.bottom-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  background: #fff;
+  box-shadow: 0 -4rpx 16rpx rgba(0,0,0,0.08);
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 100;
+}
+
+.action-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20rpx 0;
+  font-size: 22rpx;
+  color: #666;
+}
+
+.action-btn.add {
+  background: #fff;
+  color: #5B8C5A;
+  border-right: 1rpx solid #f0f0f0;
+}
+
+.action-btn.checkout {
+  background: #5B8C5A;
+  color: #fff;
+}
+
+.action-btn.checkout.disabled {
+  background: #ddd;
+  color: #999;
+}
+
+.action-btn:active {
+  opacity: 0.8;
+}
+
+.action-icon {
+  font-size: 36rpx;
+  margin-bottom: 4rpx;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80rpx 0;
+  color: #999;
+  gap: 8rpx;
+}

@@ -1,0 +1,18 @@
+.container { padding: 30rpx; }
+.header { font-size: 36rpx; font-weight: bold; padding: 20rpx 0; border-bottom: 1rpx solid #eee; margin-bottom: 20rpx; }
+.section { margin-bottom: 30rpx; }
+.section-title { font-size: 28rpx; color: #666; margin-bottom: 15rpx; }
+.input { border: 1rpx solid #ddd; padding: 20rpx; border-radius: 8rpx; margin-bottom: 15rpx; }
+.btn-group { display: flex; gap: 20rpx; }
+.btn { flex: 1; background: #f5f5f5; padding: 25rpx; text-align: center; border-radius: 8rpx; font-size: 28rpx; }
+.btn.primary { background: #5B8C5A; color: #fff; }
+.user-list { margin-top: 40rpx; }
+.user-item { display: flex; justify-content: space-between; padding: 25rpx; border-bottom: 1rpx solid #f5f5f5; }
+.user-name { font-size: 28rpx; }
+.user-phone { color: #999; font-size: 24rpx; }
+.user-status { font-size: 24rpx; }
+.user-status.disabled { color: #f00; }
+.empty { text-align: center; color: #999; padding: 40rpx; }
+.modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; }
+.modal-content { background: #fff; padding: 40rpx; border-radius: 16rpx; width: 80%; }
+.modal-title { font-size: 32rpx; font-weight: bold; margin-bottom: 30rpx; }

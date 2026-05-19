@@ -1,0 +1,15 @@
+<view class="container">
+  <view class="header">联系作者</view>
+  <view class="content">
+    <view class="info-item">
+      <text class="label">微信</text>
+      <text class="value">AI_19526099897</text>
+    </view>
+    <view class="info-item">
+      <text class="label">公众号</text>
+      <text class="value">食易特</text>
+    </view>
+  </view>
+  <view class="tips">添加请备注"食易特"</view>
+  <view class="tips">有任何建议或要求请联系作者</view>
+</view>

@@ -1,0 +1,20 @@
+<view class="container">
+  <view class="tabs">
+    <view class="tab {{tab === 'dish' ? 'active' : ''}}" bindtap="switchTab" data-tab="dish">菜品</view>
+  </view>
+  
+  <view wx:if="{{tab === 'dish'}}" class="chart-area">
+    <view class="filter-row">
+      <view class="filter {{dishFilter === 'today' ? 'active' : ''}}" bindtap="setDishFilter" data-filter="today">日</view>
+      <view class="filter {{dishFilter === 'month' ? 'active' : ''}}" bindtap="setDishFilter" data-filter="month">月</view>
+      <view class="filter {{dishFilter === 'year' ? 'active' : ''}}" bindtap="setDishFilter" data-filter="year">年</view>
+    </view>
+    <view class="chart-title">菜品排行</view>
+    <view wx:for="{{dishStats}}" wx:key="name" class="stat-row">
+      <text class="rank">{{index + 1}}</text>
+      <text class="name">{{item.name}}</text>
+      <text class="value">{{item.quantity}}份</text>
+    </view>
+    <view wx:if="{{dishStats.length === 0}}" class="empty">暂无数据</view>
+  </view>
+</view>

@@ -1,0 +1,133 @@
+page { background: #f5f5f5 }
+
+.container { min-height: 100vh }
+
+.tabs {
+  display: flex;
+  background: #fff;
+  border-bottom: 1rpx solid #eee;
+}
+
+.tab {
+  flex: 1;
+  padding: 24rpx;
+  text-align: center;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.tab.active {
+  color: #5B8C5A;
+  border-bottom: 4rpx solid #5B8C5A;
+}
+
+.chart-area { padding: 24rpx }
+
+.filter-row { display: flex; margin-bottom: 16rpx }
+
+.filter {
+  padding: 12rpx 24rpx;
+  font-size: 24rpx;
+  color: #666;
+  background: #fff;
+  border-radius: 8rpx;
+  margin-right: 12rpx;
+}
+
+.filter.active { background: #5B8C5A; color: #fff }
+
+.chart-title { font-size: 32rpx; font-weight: 600; margin-bottom: 16rpx }
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  padding: 20rpx;
+  margin-bottom: 12rpx;
+  border-radius: 8rpx;
+}
+
+.rank { font-size: 28rpx; font-weight: 600; color: #5B8C5A }
+
+.name { flex: 1; font-size: 28rpx; margin-left: 16rpx }
+
+.value { font-size: 28rpx; color: #5B8C5A; font-weight: 600 }
+
+.bar {
+  height: 32rpx;
+  background: linear-gradient(90deg, #5B8C5A 0%, #7BA37B 100%);
+  border-radius: 4rpx;
+  margin: 0 16rpx;
+}
+
+.chart-scroll { overflow-x: auto }
+
+.line-chart {
+  height: 240rpx;
+  position: relative;
+  padding-bottom: 90rpx;
+}
+
+.chart-point {
+  position: absolute;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+}
+
+.point-value {
+  font-size: 20rpx;
+  color: #5B8C5A;
+  font-weight: 600;
+  white-space: nowrap;
+  margin-bottom: 4rpx;
+}
+
+.point-dot {
+  width: 16rpx;
+  height: 16rpx;
+  background: #5B8C5A;
+  border-radius: 50%;
+  border: 4rpx solid #fff;
+}
+
+.chart-line {
+  position: absolute;
+  bottom: 14rpx;
+  left: 0;
+  height: 4rpx;
+  background: #5B8C5A;
+  z-index: 1;
+}
+
+.chart-line-bg {
+  position: absolute;
+  bottom: 14rpx;
+  left: 0;
+  height: 4rpx;
+  background: #5B8C5A;
+  z-index: 1;
+}
+
+.y-grid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2rpx;
+  background: #f0f0f0;
+}
+
+.x-label {
+  position: absolute;
+  bottom: -60rpx;
+  transform: translateX(-50%);
+  font-size: 22rpx;
+  color: #999;
+  white-space: nowrap;
+}
+
+.hour { width: 100rpx; font-size: 24rpx; color: #666 }
+
+.empty { text-align: center; padding: 60rpx; color: #999 }

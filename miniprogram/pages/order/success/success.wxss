@@ -1,0 +1,72 @@
+page {
+  background: #f5f5f5;
+}
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 120rpx;
+}
+
+/* 成功图标 */
+.success-icon-wrap {
+  margin-bottom: 32rpx;
+}
+
+.success-icon {
+  width: 140rpx;
+  height: 140rpx;
+  background: #5B8C5A;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 72rpx;
+  color: #fff;
+  animation: success-scale 300ms ease-out;
+}
+
+@keyframes success-scale {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
+}
+
+.success-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 12rpx;
+}
+
+.success-desc {
+  font-size: 28rpx;
+  color: #999;
+  margin-bottom: 48rpx;
+}
+
+/* 提示卡片 */
+.tip-card {
+  width: 80%;
+  text-align: center;
+  padding: 32rpx;
+  margin-bottom: 48rpx;
+}
+
+.tip-card text {
+  display: block;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.tip-sub {
+  margin-top: 12rpx;
+  font-size: 24rpx !important;
+  color: #999 !important;
+}
+
+/* 返回按钮 */
+.btn-primary {
+  width: 80%;
+}

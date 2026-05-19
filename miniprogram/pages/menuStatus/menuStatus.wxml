@@ -1,0 +1,30 @@
+<view class="container">
+  <view class="page-title">厨房后台</view>
+  
+  <view class="tabs">
+    <view class="tab {{currentTab === 'pending' ? 'active' : ''}}" bindtap="switchTab" data-tab="pending">待制作</view>
+    <view class="tab {{currentTab === 'cooking' ? 'active' : ''}}" bindtap="switchTab" data-tab="cooking">制作中</view>
+    <view class="tab {{currentTab === 'completed' ? 'active' : ''}}" bindtap="switchTab" data-tab="completed">已完成</view>
+  </view>
+  
+  <scroll-view scroll-y class="order-list">
+    <view wx:for="{{orders}}" wx:key="createdAt" class="order-item">
+      <view class="order-header">
+        <text class="table-no">桌{{item.tableNo}}</text>
+        <text class="time">{{item.createdAt}}</text>
+      </view>
+      <view class="order-items">
+        <view wx:for="{{item.items}}" wx:for-item="dish" wx:key="id" class="dish-item {{dish.status === 'served' ? 'served' : ''}}">
+          <text>{{dish.name}} x{{dish.quantity}}</text>
+          <view wx:if="{{!dish.status || dish.status !== 'served'}}" class="btn-serve" catchtap="updateItemStatus" data-orderid="{{item.createdAt}}" data-itemid="{{dish.id}}" data-status="served">标记走菜</view>
+          <text wx:if="{{dish.status === 'served'}}" class="served-tag">已走菜</text>
+        </view>
+      </view>
+      <view class="action-btns">
+        <view wx:if="{{item.status === 'pending'}}" class="btn-action" bindtap="updateStatus" data-id="{{item.createdAt}}" data-status="cooking">开始制作</view>
+        <view wx:if="{{item.status === 'cooking'}}" class="btn-action" bindtap="updateStatus" data-id="{{item.createdAt}}" data-status="completed">已完成</view>
+      </view>
+    </view>
+    <view wx:if="{{orders.length === 0}}" class="empty">暂无订单</view>
+  </scroll-view>
+</view>

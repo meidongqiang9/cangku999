@@ -1,0 +1,50 @@
+<view class="container">
+  <!-- 顶部 -->
+  <view class="page-title">结账</view>
+
+  <!-- 桌号 -->
+  <view class="card table-header">
+    <text>桌号：{{tableNo}}</text>
+  </view>
+
+  <!-- 菜品汇总表 -->
+  <view class="card receipt-table">
+    <!-- 表头 -->
+    <view class="table-head">
+      <text class="col-name">菜品</text>
+      <text class="col-qty">数量</text>
+      <text class="col-price">单价</text>
+      <text class="col-subtotal">小计</text>
+    </view>
+
+    <!-- 表体 -->
+    <view wx:for="{{allGroups}}" wx:key="label" class="table-group">
+      <view class="group-label">{{item.label}}</view>
+      <view wx:for="{{item.items}}" wx:for-item="dish" wx:key="dishName" class="table-row">
+        <text class="col-name">{{dish.dishName}}</text>
+        <text class="col-qty">x{{dish.quantity}}</text>
+        <text class="col-price">{{dish.price}}米</text>
+        <text class="col-subtotal">{{dish.subtotal || dish.price * dish.quantity}}米</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 总计 -->
+  <view class="card total-card">
+    <text class="total-label">合计</text>
+    <text class="total-value">{{totalPrice}}</text>
+  </view>
+
+  <!-- 确定结账按钮 -->
+  <view class="btn-primary pay-btn {{paying ? 'disabled' : ''}}" bindtap="pay">
+    {{paying ? '支付中...' : '确定结账'}}
+  </view>
+
+  <!-- 返回订单 -->
+  <view class="back-link" bindtap="goBackToOrder">返回订单</view>
+
+  <!-- 安全提示 -->
+  <view class="safety-tip">
+    <text>支付由微信支付提供安全保障</text>
+  </view>
+</view>

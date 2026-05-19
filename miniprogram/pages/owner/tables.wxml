@@ -1,0 +1,37 @@
+<view class="container">
+  <view class="header">
+    <text class="title">餐桌管理</text>
+    <view class="add-btn" bindtap="addTable">+ 添加餐桌</view>
+  </view>
+  
+  <view class="table-grid">
+    <view wx:for="{{tables}}" wx:key="id" 
+          class="table-item {{item.status === 'occupied' ? 'occupied' : ''}}"
+          bindtap="viewTableDetail" data-id="{{item.id}}">
+      <text class="table-name">{{item.name}}</text>
+      <text class="table-status">{{item.statusText}}</text>
+      <text wx:if="{{item.status === 'occupied' && item.guestCount}}" class="table-guest">{{item.guestCount}}人</text>
+      <text wx:if="{{item.status === 'occupied'}}" class="table-amount">{{item.orders}}</text>
+    </view>
+    
+    <view class="table-item add" bindtap="addTable">
+      <text class="table-name">+</text>
+    </view>
+  </view>
+  
+  <!-- 自定义输入弹窗 -->
+  <view class="input-mask" wx:if="{{showInputModal}}" bindtap="closeInputModal"></view>
+  <view class="input-popup" wx:if="{{showInputModal}}">
+    <view class="popup-title">添加餐桌</view>
+    <input class="popup-input" 
+           placeholder="请输入桌号（例：01桌）"
+           placeholder-class="placeholder"
+           value="{{inputValue}}"
+           bindinput="onInputValueChange"
+           auto-focus="true"/>
+    <view class="popup-btns">
+      <view class="popup-cancel" bindtap="closeInputModal">取消</view>
+      <view class="popup-confirm" bindtap="confirmInput">确定</view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,147 @@
+page { background: #f5f5f5 }
+
+.container { min-height: 100vh }
+
+.header {
+  background: linear-gradient(135deg, #5B8C5A 0%, #7BA37B 100%);
+  padding: 48rpx 32rpx;
+}
+
+.shop-info { display: flex; align-items: center; justify-content: space-between }
+
+.shop-name { font-size: 36rpx; font-weight: 600; color: #fff }
+
+.membership {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+}
+
+.stats-grid {
+  display: flex;
+  flex-wrap: wrap;
+  background: #fff;
+  margin: -40rpx 24rpx 24rpx;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.08);
+}
+
+.stat-item {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24rpx 0;
+}
+
+.stat-value {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #5B8C5A;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 8rpx;
+}
+
+.menu-list {
+  background: #fff;
+  margin: 24rpx;
+  border-radius: 16rpx;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 28rpx 24rpx;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.menu-item:last-child { border-bottom: none }
+
+.menu-icon { font-size: 36rpx; margin-right: 16rpx }
+
+.menu-title {
+  flex: 1;
+  font-size: 30rpx;
+  color: #333;
+}
+
+.menu-arrow {
+  font-size: 32rpx;
+  color: #ccc;
+}
+
+.logout-btn {
+  margin: 48rpx 24rpx;
+  background: #fff;
+  color: #5B8C5A;
+  height: 88rpx;
+  border-radius: 44rpx;
+  font-size: 30rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+}
+
+.popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 40rpx;
+  width: 70%;
+}
+
+.popup-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 30rpx;
+}
+
+.password-input {
+  border: 1rpx solid #ddd;
+  padding: 20rpx;
+  border-radius: 8rpx;
+  margin-bottom: 30rpx;
+}
+
+.popup-btns {
+  display: flex;
+  gap: 20rpx;
+}
+
+.popup-btn {
+  flex: 1;
+  padding: 24rpx;
+  text-align: center;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+}
+
+.popup-btn.cancel {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.popup-btn.confirm {
+  background: #5B8C5A;
+  color: #fff;
+}

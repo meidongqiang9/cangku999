@@ -1,0 +1,85 @@
+.container {
+  padding: 40rpx;
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 60rpx;
+  padding-top: 40rpx;
+}
+
+.title {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.form {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 40rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.1);
+}
+
+.input-item {
+  margin-bottom: 30rpx;
+  position: relative;
+}
+
+.input {
+  border: 2rpx solid #ddd;
+  border-radius: 10rpx;
+  padding: 20rpx;
+  font-size: 28rpx;
+}
+
+.toggle-pwd {
+  position: absolute;
+  right: 20rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #5B8C5A;
+  font-size: 24rpx;
+}
+
+.btn-submit {
+  background: #5B8C5A;
+  color: #fff;
+  border-radius: 10rpx;
+  margin-top: 40rpx;
+  font-size: 32rpx;
+}
+
+.toggle-mode {
+  text-align: center;
+  margin-top: 30rpx;
+  color: #5B8C5A;
+  font-size: 28rpx;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 40rpx 0;
+}
+
+.line {
+  flex: 1;
+  height: 2rpx;
+  background: #ddd;
+}
+
+.or {
+  padding: 0 20rpx;
+  color: #999;
+  font-size: 24rpx;
+}
+
+.btn-wechat {
+  background: #07c160;
+  color: #fff;
+  border-radius: 10rpx;
+  font-size: 32rpx;
+}

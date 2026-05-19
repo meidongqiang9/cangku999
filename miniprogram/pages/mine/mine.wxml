@@ -1,0 +1,62 @@
+<view class="container">
+  <!-- 未登录 -->
+  <view wx:if="{{!isLoggedIn}}" class="login-card card">
+    <view class="avatar-placeholder">
+      <text class="avatar-icon">👤</text>
+    </view>
+    <text class="nickname-placeholder">点击登录，享受完整服务</text>
+    <view class="btn-primary login-btn" bindtap="handleLogin">微信一键登录</view>
+  </view>
+
+  <!-- 已登录 -->
+  <block wx:if="{{isLoggedIn}}">
+    <!-- 用户信息卡片 -->
+    <view class="profile-card">
+      <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill" />
+      <view class="profile-info">
+        <text class="nickname">{{userInfo.nickname}}</text>
+        <text class="last-order" wx:if="{{lastOrderTime}}">最近下单：{{lastOrderTime}}</text>
+      </view>
+    </view>
+
+    <!-- 快捷入口 -->
+    <view class="quick-actions card">
+      <view class="action-row">
+        <text class="action-label">历史订单</text>
+        <text class="action-value">{{totalOrders}} 单</text>
+      </view>
+      <view class="action-row">
+        <text class="action-label">消费总计</text>
+        <text class="action-value highlight">{{totalSpent}}</text>
+      </view>
+      <view class="action-row" bindtap="contactMerchant">
+        <text class="action-label">联系商家</text>
+        <text class="action-arrow">›</text>
+      </view>
+    </view>
+
+    <!-- 订单历史列表 -->
+    <view class="history-section" wx:if="{{orderHistory.length > 0}}">
+      <view class="section-title">最近订单</view>
+      <view wx:for="{{orderHistory}}" wx:key="*this" class="order-card card">
+        <view class="order-card-header">
+          <text class="order-table">{{item.tableName}}桌</text>
+          <text class="order-status {{item.statusClass}}">{{item.status}}</text>
+        </view>
+        <text class="order-items">{{item.itemNames}}</text>
+        <view class="order-card-footer">
+          <text class="order-time">{{item.time}}</text>
+          <text class="order-total">{{item.totalPrice}}</text>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <!-- 退出登录 -->
+  <view class="logout-btn" wx:if="{{isLoggedIn}}" bindtap="handleLogout">退出登录</view>
+
+  <!-- 底部隐私声明 -->
+  <view class="privacy-footer">
+    <text>使用本小程序即代表已阅读并同意隐私政策</text>
+  </view>
+</view>

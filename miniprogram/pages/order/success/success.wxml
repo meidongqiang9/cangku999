@@ -1,0 +1,18 @@
+<view class="container">
+  <!-- 成功动画 -->
+  <view class="success-icon-wrap">
+    <view class="success-icon">✓</view>
+  </view>
+
+  <view class="success-title">支付成功</view>
+  <view class="success-desc">感谢您的惠顾，欢迎再次光临</view>
+
+  <!-- 订单提示 -->
+  <view class="card tip-card">
+    <text>您的菜品正在准备中，请稍候</text>
+    <text class="tip-sub">如有疑问请联系餐厅工作人员</text>
+  </view>
+
+  <!-- 返回首页 -->
+  <view class="btn-primary" bindtap="goHome">返回首页</view>
+</view>

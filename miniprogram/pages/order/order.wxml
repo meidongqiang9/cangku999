@@ -1,0 +1,71 @@
+<view class="container">
+  <!-- 顶部 -->
+  <view class="page-title">菜品状态</view>
+
+  <!-- 状态概览 -->
+  <view class="status-summary">
+    <view class="status-item">
+      <text class="status-num">{{submittedCount}}</text>
+      <text class="status-label">已走菜</text>
+    </view>
+    <view class="status-divider"></view>
+    <view class="status-item">
+      <text class="status-num served">{{servedCount}}</text>
+      <text class="status-label">已上菜</text>
+    </view>
+    <view class="status-divider"></view>
+    <view class="status-item">
+      <text class="status-num total">{{submittedCount + servedCount + returnedCount}}</text>
+      <text class="status-label">合计</text>
+    </view>
+  </view>
+
+  <!-- 桌号信息 -->
+  <view class="table-info card">
+    <text>桌号：{{tableNo}}</text>
+  </view>
+
+  <!-- 菜品列表（按批次分组） -->
+  <scroll-view scroll-y class="order-scroll">
+    <view wx:for="{{orderGroups}}" wx:key="key" class="order-group">
+      <!-- 批次标题 -->
+      <view class="group-title">
+        <text>{{item.title}}</text>
+      </view>
+
+      <!-- 该批次的菜品 -->
+      <view wx:for="{{item.items}}" wx:for-item="dish" wx:key="dishId" class="dish-row">
+        <view class="dish-left">
+          <view class="status-dot {{dish.status === 'served' ? 'served' : dish.status === 'returned' ? 'returned' : 'submitted'}}"></view>
+          <view class="dish-info-wrap">
+            <text class="dish-name {{dish.status === 'returned' ? 'returned-text' : ''}}">{{dish.dishName}}</text>
+            <text class="dish-qty">x{{dish.quantity}}</text>
+          </view>
+        </view>
+        <view class="dish-right">
+          <view class="dish-status-tag {{dish.status}}">
+            {{dish.status === 'submitted' ? '已走菜' : dish.status === 'served' ? '已上菜' : '已回炉'}}
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view wx:if="{{orderGroups.length === 0}}" class="empty-state">
+      <text>暂无菜品</text>
+      <text class="text-placeholder">扫码点餐后菜品将显示在这里</text>
+    </view>
+  </scroll-view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-actions">
+    <view class="action-btn add" bindtap="addDish">
+      <text class="action-icon">＋</text>
+      <text>追加点单</text>
+    </view>
+    <view class="action-btn checkout {{hasUnpaidOrder ? '' : 'disabled'}}" bindtap="checkout">
+      <text class="action-icon">💳</text>
+      <text>结账</text>
+    </view>
+  </view>
+</view>

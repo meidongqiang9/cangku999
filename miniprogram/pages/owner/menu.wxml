@@ -1,0 +1,96 @@
+<view class="container">
+  <view class="header">
+    <text class="title">菜单管理</text>
+    <view class="add-btn" bindtap="addCategory">+ 添加品类</view>
+  </view>
+  
+  <view class="category-list">
+    <view wx:for="{{categories}}" wx:key="id" 
+          class="category-item {{currentCategory === item.id ? 'active' : ''}}"
+          bindtap="switchCategory" data-id="{{item.id}}">
+      <text>{{item.name}}</text>
+      <text class="delete-btn" catchtap="deleteCategory" data-id="{{item.id}}">×</text>
+    </view>
+  </view>
+  
+  <view class="dish-list">
+    <view wx:for="{{currentDishes}}" wx:key="id" class="dish-item">
+      <view class="dish-img" bindtap="uploadImage" data-id="{{item.id}}">
+        <image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill" class="dish-image"/>
+        <view wx:else class="dish-img-placeholder">📷</view>
+      </view>
+      <view class="dish-info">
+        <view class="dish-name">{{item.name}}</view>
+        <view class="dish-desc">{{item.description}}</view>
+        <view class="dish-price">{{item.price}}</view>
+      </view>
+      <view class="dish-actions">
+        <view class="action-btn" bindtap="editDish" data-id="{{item.id}}">编辑</view>
+        <view class="action-btn delete" catchtap="deleteDish" data-id="{{item.id}}">删除</view>
+      </view>
+    </view>
+    
+    <view class="add-dish" bindtap="addDish">
+      <text>+ 添加菜品</text>
+    </view>
+  </view>
+  
+  <!-- 自定义输入弹窗 -->
+  <view class="input-mask" wx:if="{{showInputModal}}" bindtap="closeInputModal"></view>
+  <view class="input-popup" wx:if="{{showInputModal}}">
+    <view class="popup-title">{{inputTitle}}</view>
+    
+    <block wx:if="{{inputAction === 'editDish'}}">
+      <view class="edit-dish-name">{{editingDishName}}</view>
+      <view class="dish-image-upload" bindtap="chooseImage">
+        <image wx:if="{{tempImage}}" src="{{tempImage}}" mode="aspectFill" class="uploaded-image"/>
+        <view wx:else class="image-upload-placeholder">📷 上传/拍照</view>
+      </view>
+      <input class="popup-input" 
+              placeholder="请输入价格"
+             placeholder-class="placeholder"
+             value="{{inputValue}}"
+             bindinput="onInputValueChange"/>
+      <input class="popup-input" 
+             placeholder="请输入简介（10字以内）"
+             placeholder-class="placeholder"
+             value="{{inputValue2}}"
+             bindinput="onInputValue2Change"/>
+    </block>
+    
+    <block wx:if="{{inputAction === 'addCategory'}}">
+      <input class="popup-input" 
+             placeholder="请输入品类名称"
+             placeholder-class="placeholder"
+             value="{{inputValue}}"
+             bindinput="onInputValueChange"/>
+    </block>
+    
+    <block wx:if="{{inputAction === 'addDish'}}">
+      <view class="dish-image-upload" bindtap="chooseImage">
+        <image wx:if="{{tempImage}}" src="{{tempImage}}" mode="aspectFill" class="uploaded-image"/>
+        <view wx:else class="image-upload-placeholder">📷 上传/拍照</view>
+      </view>
+      <input class="popup-input" 
+             placeholder="请输入名称"
+             placeholder-class="placeholder"
+             value="{{inputValue}}"
+             bindinput="onInputValueChange"/>
+      <input class="popup-input" 
+              placeholder="请填入价格"
+             placeholder-class="placeholder"
+             value="{{inputPrice}}"
+             bindinput="onInputPriceChange"/>
+      <input class="popup-input" 
+             placeholder="请输入简介（10字以内）"
+             placeholder-class="placeholder"
+             value="{{inputValue2}}"
+             bindinput="onInputValue2Change"/>
+    </block>
+    
+    <view class="popup-btns">
+      <view class="popup-cancel" bindtap="closeInputModal">取消</view>
+      <view class="popup-confirm" bindtap="confirmInput">确定</view>
+    </view>
+  </view>
+</view>

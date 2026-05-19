@@ -1,0 +1,54 @@
+<view class="container">
+  <view class="tabs">
+    <view class="tab {{filter === 'today' ? 'active' : ''}}" bindtap="setFilter" data-filter="today">今日</view>
+    <view class="tab {{filter === 'month' ? 'active' : ''}}" bindtap="setFilter" data-filter="month">本月</view>
+    <view class="tab {{filter === 'year' ? 'active' : ''}}" bindtap="setFilter" data-filter="year">本年</view>
+  </view>
+  
+  <view class="summary">
+    <view class="summary-row">
+      <view class="summary-item">
+        <text class="label">桌数</text>
+        <text class="value">{{orderCount}}桌</text>
+      </view>
+      <view class="summary-item">
+        <text class="label">总额</text>
+        <text class="value">{{totalAmount}}</text>
+      </view>
+      <view class="summary-item">
+        <text class="label">已结桌</text>
+        <text class="value completed">{{completedCount}}桌</text>
+      </view>
+    </view>
+    <view class="summary-row">
+      <view class="summary-item">
+        <text class="label">已结金额</text>
+        <text class="value completed">{{completedAmount}}</text>
+      </view>
+      <view class="summary-item">
+        <text class="label">人流</text>
+        <text class="value">{{guestCount}}人</text>
+      </view>
+      <view class="summary-item">
+      </view>
+    </view>
+  </view>
+  
+  <view class="order-list">
+    <view wx:for="{{orders}}" wx:key="createdAt" class="order-item">
+      <view class="order-header">
+        <text class="order-no">{{item.tableNo}}桌 <text class="guest-count">{{item.guestCount}}人</text></text>
+        <text class="order-time">{{item.timeText}}</text>
+      </view>
+      <view class="order-dishes">
+        <text wx:for="{{item.items}}" wx:key="id" wx:for-item="dish">{{dish.name}} x{{dish.quantity}} </text>
+      </view>
+      <view class="order-footer">
+        <text class="status {{item.status}}">{{item.statusText}}</text>
+        <text class="amount">{{item.totalPrice}}</text>
+      </view>
+    </view>
+    
+    <view wx:if="{{orders.length === 0}}" class="empty">暂无订单</view>
+  </view>
+</view>

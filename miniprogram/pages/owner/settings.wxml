@@ -1,0 +1,74 @@
+<view class="container">
+  <view class="header">
+    <text class="title">店铺设置</text>
+  </view>
+  
+  <view class="section">
+    <view class="section-title">基本信息</view>
+    <view class="input-row">
+      <text class="label">店铺名称</text>
+      <input class="input" value="{{shopName}}" bindinput="onShopNameInput"/>
+    </view>
+    <view class="input-row">
+      <text class="label">联系电话</text>
+      <input class="input" value="{{phone}}" bindinput="onPhoneInput"/>
+    </view>
+  </view>
+  
+  <view class="section">
+    <view class="section-title">首页轮播图 <text class="hint-text">({{banners.length}}张)</text></view>
+    <view class="input-row">
+      <text class="label">首页标题</text>
+      <input class="input" value="{{homeTitle}}" bindinput="onHomeTitleInput" placeholder="首页显示标题"/>
+    </view>
+    <view class="banner-list">
+      <view wx:for="{{banners}}" wx:key="*this" class="banner-item">
+        <image class="banner-thumb" src="{{item}}" mode="aspectFill" />
+        <view class="banner-remove" bindtap="removeBanner" data-index="{{index}}">×</view>
+      </view>
+      <view class="banner-add" bindtap="addBanner">+</view>
+    </view>
+  </view>
+  
+  <view class="section">
+    <view class="section-title">金额设置</view>
+    <view class="input-row">
+      <text class="label">收款通道</text>
+      <picker bindchange="onPayTypeChange" value="{{payType}}" range="{{['微信支付商户', '个人收款码']}}">
+        <view class="picker-value">{{payType === 0 ? '微信支付商户' : '个人收款码'}}</view>
+      </picker>
+    </view>
+    
+    <block wx:if="{{payType === 0}}">
+      <view class="input-row">
+        <text class="label">商户号</text>
+        <input class="input" value="{{mchId}}" bindinput="onMchIdInput" placeholder="微信支付商户号"/>
+      </view>
+      <view class="input-row">
+        <text class="label">商户密钥</text>
+        <input class="input" password="true" value="{{mchKey}}" bindinput="onMchKeyInput" placeholder="API密钥"/>
+      </view>
+    </block>
+    
+    <block wx:if="{{payType === 1}}">
+      <view class="input-row">
+        <text class="label">个人收款码</text>
+        <view class="qrcode-upload" bindtap="uploadQrcode">
+          <image wx:if="{{personalQrcode}}" src="{{personalQrcode}}" mode="aspectFill" class="qrcode-img"/>
+          <view wx:else class="qrcode-placeholder">+ 上传收款码</view>
+        </view>
+      </view>
+    </block>
+  </view>
+  
+  <view class="section">
+    <view class="section-title">二维码</view>
+    <view class="qrcode-area">
+      <text class="hint">店铺链接：</text>
+      <text class="link">{{qrcodeUrl}}</text>
+      <view class="btn-copy" bindtap="copyLink">复制链接</view>
+    </view>
+  </view>
+  
+  <view class="btn-save" bindtap="saveSettings">保存设置</view>
+</view>

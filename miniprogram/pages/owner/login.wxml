@@ -1,0 +1,38 @@
+<view class="container">
+  <view class="header">
+    <text class="title">{{isLogin ? '老板登录' : '店铺注册'}}</text>
+  </view>
+  
+  <view class="form">
+    <view class="input-item">
+      <input class="input" placeholder="请输入手机号" type="number" maxlength="11" bindinput="onPhoneInput" value="{{phone}}" />
+    </view>
+    
+    <view class="input-item">
+      <input class="input" placeholder="请输入密码" type="{{showPassword ? 'text' : 'password'}}" bindinput="onPasswordInput" value="{{password}}" />
+      <view class="toggle-pwd" bindtap="togglePassword">{{showPassword ? '隐藏' : '显示'}}</view>
+    </view>
+    
+    <view class="input-item" wx:if="{{!isLogin}}">
+      <input class="input" placeholder="请输入店铺名称" bindinput="onShopNameInput" value="{{shopName}}" />
+    </view>
+    
+    <view class="input-item" wx:if="{{!isLogin}}">
+      <input class="input" placeholder="请输入真实姓名(选填)" bindinput="onRealNameInput" value="{{realName}}" />
+    </view>
+    
+    <button class="btn-submit" bindtap="submit">{{isLogin ? '登录' : '注册'}}</button>
+    
+    <view class="toggle-mode" bindtap="toggleMode">
+      <text>{{isLogin ? '没有账号？去注册' : '已有账号？去登录'}}</text>
+    </view>
+    
+    <view class="divider">
+      <view class="line"></view>
+      <text class="or">或</text>
+      <view class="line"></view>
+    </view>
+    
+    <button class="btn-wechat" bindtap="onWechatLogin">微信一键登录</button>
+  </view>
+</view>

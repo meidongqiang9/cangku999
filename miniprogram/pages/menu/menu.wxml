@@ -1,0 +1,166 @@
+<view class="container">
+  <!-- 顶部标题栏 -->
+  <view class="header">
+    <text class="header-title">
+      {{fromOwner ? '代客加菜 (' + tableNo + '桌)' : (isAdditional ? '追加点单 (' + tableNo + '桌)' : '点餐 (' + tableNo + '桌)')}}
+    </text>
+    <text class="header-guest">{{guestCount}}人</text>
+  </view>
+  <view class="owner-bar" wx:if="{{fromOwner}}">
+    <text>老板代客加菜模式 — 完成后自动返回</text>
+  </view>
+
+  <!-- 追加模式：查看已点菜单 -->
+  <view class="ordered-bar" wx:if="{{isAdditional}}" bindtap="toggleOrderedPopup">
+    <text>查看已点菜单（{{orderedItems.length}}道） ›</text>
+  </view>
+
+  <!-- 主体：左品类导航 + 右菜品列表 -->
+  <view class="main-body">
+    <!-- 左侧品类导航 -->
+    <scroll-view scroll-y class="category-nav">
+      <view
+        wx:for="{{categories}}"
+        wx:key="_id"
+        class="category-item {{currentCategory === (item._id || item.id) ? 'active' : ''}}"
+        bindtap="switchCategory"
+        data-id="{{item._id || item.id}}"
+      >
+        <text>{{item.name}}</text>
+        <view class="category-dot" wx:if="{{currentCategory === (item._id || item.id)}}"></view>
+      </view>
+    </scroll-view>
+
+    <!-- 右侧菜品瀑布流 -->
+    <scroll-view
+      scroll-y
+      class="dish-scroll"
+      scroll-into-view="{{scrollToCategory}}"
+      scroll-with-animation
+    >
+      <view wx:for="{{categoryDishes}}" wx:key="_id" class="dish-card"
+            bindtap="showDishDetail" data-id="{{item._id || item.id}}">
+        <!-- 菜品图片 -->
+        <view class="dish-image-wrap">
+          <image
+            wx:if="{{item.image}}"
+            class="dish-image"
+            src="{{item.image}}"
+            mode="aspectFill"
+            lazy-load
+          />
+          <view wx:else class="dish-image-placeholder">🍽️</view>
+          <!-- 叠加数量标签 -->
+          <view class="dish-badge" wx:if="{{cartItems.length > 0}}">
+            <block wx:for="{{cartItems}}" wx:for-item="ci" wx:key="id">
+              <view wx:if="{{ci.id === (item._id || item.id)}}" class="badge-count">
+                {{ci.quantity}}
+              </view>
+            </block>
+          </view>
+        </view>
+
+        <!-- 菜品信息 -->
+        <view class="dish-info">
+          <text class="dish-name">{{item.name}}</text>
+          <text class="dish-price">{{item.price ? '¥' + item.price : ''}}</text>
+        </view>
+
+        <!-- 加号按钮 -->
+        <view
+          class="add-btn"
+          wx:if="{{!orderedItemIds.includes(item._id || item.id)}}"
+          catchtap="addToCart"
+          data-id="{{item._id || item.id}}"
+        >+</view>
+        <view
+          wx:else
+          class="added-tag"
+        >已走菜</view>
+      </view>
+
+      <!-- 空状态 -->
+      <view wx:if="{{categoryDishes.length === 0}}" class="empty-state">
+        <text>暂无菜品</text>
+        <text class="text-placeholder">老板正在努力上架中...</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 底部提交按钮 -->
+  <view class="submit-bar" wx:if="{{cartCount > 0 || isAdditional}}">
+    <view class="submit-btn" wx:if="{{cartCount > 0}}" bindtap="confirmSubmit">
+      选好了（{{cartCount}}件）
+    </view>
+    <view class="back-order-btn" wx:if="{{isAdditional}}" bindtap="goBackToOrder">
+      返回订单
+    </view>
+  </view>
+
+  <!-- 菜品详情弹层 -->
+  <view class="detail-mask" wx:if="{{showDishDetail}}" bindtap="closeDishDetail"></view>
+  <view class="detail-panel {{showDishDetail ? 'show' : ''}}" catchtap="stopPropagation">
+    <view class="detail-close" bindtap="closeDishDetail">✕</view>
+    <image
+      wx:if="{{detailDish.image}}"
+      class="detail-image"
+      src="{{detailDish.image}}"
+      mode="aspectFill"
+    />
+    <view wx:else class="detail-image-placeholder">🍽️</view>
+    <view class="detail-body">
+      <view class="detail-name">{{detailDish.name}}</view>
+      <view class="detail-price">{{detailDish.price ? '¥' + detailDish.price : ''}}</view>
+      <view class="detail-desc" wx:if="{{detailDish.description}}">
+        <text class="detail-label">简介</text>
+        <text>{{detailDish.description}}</text>
+      </view>
+      <view class="detail-ingredients" wx:if="{{detailDish.ingredients}}">
+        <text class="detail-label">配料</text>
+        <text>{{detailDish.ingredients}}</text>
+      </view>
+      <view class="detail-add-btn btn-primary" bindtap="addFromDetail">
+        加入购物车
+      </view>
+    </view>
+  </view>
+
+  <!-- 确定走菜确认弹窗 -->
+  <view class="confirm-mask" wx:if="{{showConfirmPopup}}" bindtap="closeConfirmPopup"></view>
+  <view class="confirm-popup" wx:if="{{showConfirmPopup}}" catchtap="stopPropagation">
+    <view class="confirm-title">确认走菜</view>
+    <view class="confirm-body">
+      <text class="confirm-count">共 {{cartCount}} 件菜品</text>
+      <view class="confirm-dish-list">
+        <view wx:for="{{cartItems}}" wx:key="id" class="confirm-dish">
+          <text class="confirm-dish-name">{{item.name}}</text>
+          <text class="confirm-dish-qty">x{{item.quantity}}</text>
+        </view>
+      </view>
+      <text class="confirm-hint">确认后将发送到厨房</text>
+    </view>
+    <view class="confirm-btns">
+      <view class="confirm-btn cancel" bindtap="closeConfirmPopup">再想想</view>
+      <view class="confirm-btn ok" bindtap="submitOrder">确定，马上走菜</view>
+    </view>
+  </view>
+
+  <!-- 已点菜品弹窗 -->
+  <view class="ordered-popup-mask" wx:if="{{showOrderedPopup}}" bindtap="toggleOrderedPopup"></view>
+  <view class="ordered-popup" wx:if="{{showOrderedPopup}}">
+    <view class="ordered-popup-title">已点菜单</view>
+    <scroll-view scroll-y class="ordered-popup-body">
+      <view wx:for="{{orderedItems}}" wx:key="*this" class="ordered-popup-item">
+        <text class="ordered-popup-name">{{item.name}}</text>
+        <view class="ordered-popup-right">
+          <text class="ordered-popup-qty">x{{item.quantity}}</text>
+          <text class="ordered-popup-status {{item.status === 'served' ? 'served' : ''}}">
+            {{item.status === 'served' ? '已上菜' : '已走菜'}}
+          </text>
+        </view>
+      </view>
+      <view wx:if="{{orderedItems.length === 0}}" class="empty-state">暂无已点菜品</view>
+    </scroll-view>
+    <view class="ordered-popup-close" bindtap="toggleOrderedPopup">关闭</view>
+  </view>
+</view>
