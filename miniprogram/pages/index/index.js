@@ -12,12 +12,27 @@ Page({
     hasActiveSession: false,
     shopId: '',
     tableDisabled: false,
-    loading: true
+    tableLocked: false,
+    loading: true,
+    showNotice: false,
+    noticeTitle: '通知',
+    noticeContent: ''
   },
 
   onLoad: function(options) {
     var that = this
-    var shopId = options.shopId || options.scene || ''
+    var shopId = options.shopId || ''
+    var tableNo = options.tableNo || ''
+
+    // 解析 getUnlimited 的 scene 参数（格式: s<shopId24位>t<tableNo>）
+    if (!shopId && options.scene) {
+      var scene = decodeURIComponent(options.scene)
+      // scene 格式: s + 24位hex shopId + t + tableNo
+      if (scene.charAt(0) === 's' && scene.length > 25) {
+        shopId = scene.substring(1, 25)  // 24位 shopId
+        tableNo = scene.substring(26)     // t 之后的部分
+      }
+    }
 
     if (shopId) {
       wx.setStorageSync('currentShopId', shopId)
@@ -34,10 +49,30 @@ Page({
       }
     }
 
-    // 尝试从扫码参数提取桌号
-    if (options.tableNo) {
-      that.setData({ tableNo: options.tableNo })
-      that.checkActiveSession(options.tableNo)
+    // 尝试从扫码参数提取桌号（扫码进入则锁定桌号）
+    if (tableNo) {
+      that.setData({ tableNo: tableNo, tableLocked: true })
+      that.checkActiveSession(tableNo)
+    }
+
+    // 厨师扫码进入（通过小程序码）
+    var chefId = options.chefId || ''
+    var chefName = options.chefName ? decodeURIComponent(options.chefName) : ''
+    if (chefId && chefName) {
+      var chefShopId = options.shopId || shopId || ''
+      wx.setStorageSync('currentShopId', chefShopId)
+      wx.setStorageSync('currentChef', { id: chefId, name: chefName })
+      wx.navigateTo({
+        url: '/pages/menuStatus/menuStatus?chefId=' + chefId + '&chefName=' + encodeURIComponent(chefName),
+        fail: function() {
+          wx.showToast({ title: '后厨页面不可用', icon: 'none' })
+        }
+      })
+    }
+
+    // 扫码进入时弹出店铺通知
+    if (tableNo || options.scene) {
+      that.checkShopNotice()
     }
   },
 
@@ -80,6 +115,8 @@ Page({
             wx.setStorageSync('shopBanners', shop.banners || [])
             wx.setStorageSync('homeTitle', shop.homeTitle || '食易特 Eat')
             wx.setStorageSync('shopName', shop.shopName || '')
+            // 加载完店铺信息后检查通知
+            that.checkShopNotice()
           } else {
             that.loadFromCache()
             that.setData({ loading: false })
@@ -96,13 +133,59 @@ Page({
     }
   },
 
+  // 检查店铺通知（扫码进入时弹出）
+  checkShopNotice: function() {
+    var that = this
+    var shopId = that.data.shopId || wx.getStorageSync('currentShopId') || ''
+
+    // 先从本地配置读（保证有内容显示）
+    var config = wx.getStorageSync('shopConfig') || {}
+    if (config.noticeContent) {
+      that.setData({
+        showNotice: true,
+        noticeTitle: config.noticeTitle || '通知',
+        noticeContent: config.noticeContent
+      })
+    }
+
+    // 再从云端同步最新通知
+    if (shopId) {
+      try {
+        var db = getDb()
+        db.collection('shops').doc(shopId).get({
+          success: function(res) {
+            if (res.data && res.data.noticeContent) {
+              var noticeTitle = res.data.noticeTitle || '通知'
+              var noticeContent = res.data.noticeContent
+              // 更新本地缓存
+              config.noticeTitle = noticeTitle
+              config.noticeContent = noticeContent
+              wx.setStorageSync('shopConfig', config)
+              // 如果云端内容不同，更新显示
+              that.setData({
+                showNotice: true,
+                noticeTitle: noticeTitle,
+                noticeContent: noticeContent
+              })
+            }
+          }
+        })
+      } catch (e) {}
+    }
+  },
+
+  closeNotice: function() {
+    this.setData({ showNotice: false })
+  },
+
   // 检查是否已有活跃的点餐会话
   checkActiveSession: function(tableNo) {
     var that = this
+    var shopId = that.data.shopId || wx.getStorageSync('currentShopId') || ''
     try {
       var db = getDb()
       db.collection('sessions')
-        .where({ tableName: tableNo, status: 'active' })
+        .where({ tableName: tableNo, status: 'active', shopId: shopId })
         .get({
           success: function(res) {
             if (res.data && res.data.length > 0) {
@@ -143,10 +226,11 @@ Page({
   // 校验桌号是否存在且可用
   validateTable: function(tableNo) {
     var that = this
+    var shopId = that.data.shopId || wx.getStorageSync('currentShopId') || ''
     try {
       var db = getDb()
       db.collection('tables')
-        .where({ name: tableNo })
+        .where({ name: tableNo, shopId: shopId })
         .get({
           success: function(res) {
             if (res.data && res.data.length > 0) {
@@ -230,18 +314,67 @@ Page({
       onlyFromCamera: true,
       success: function(res) {
         var result = res.result
-        // 解析扫码结果：支持从链接中提取 tableNo
         var tableNo = ''
+        var shopId = ''
+        var chefId = ''
+        var chefName = ''
+
+        // 检测厨师扫码
+        if (result.indexOf('chefId=') !== -1) {
+          var chefMatch = result.match(/chefId=([^&]+)/)
+          if (chefMatch) chefId = decodeURIComponent(chefMatch[1])
+          var chefNameMatch = result.match(/chefName=([^&]+)/)
+          if (chefNameMatch) chefName = decodeURIComponent(chefNameMatch[1])
+        }
+
+        // 解析 shopId
+        if (result.indexOf('shopId=') !== -1) {
+          var shopMatch = result.match(/shopId=([^&]+)/)
+          if (shopMatch) shopId = decodeURIComponent(shopMatch[1])
+        }
+
+        // 解析 tableNo
         if (result.indexOf('tableNo=') !== -1) {
           var match = result.match(/tableNo=([^&]+)/)
           if (match) tableNo = decodeURIComponent(match[1])
-        } else {
+        } else if (!chefId) {
           tableNo = result.trim()
         }
-        that.setData({ tableNo: tableNo })
-        if (tableNo) {
-          that.checkActiveSession(tableNo)
+
+        // 厨师扫码 → 跳转后厨
+        if (chefId && shopId) {
+          wx.setStorageSync('currentShopId', shopId)
+          wx.setStorageSync('currentChef', { id: chefId, name: chefName || '厨师' })
+          wx.showToast({ title: chefName + ' 登录成功', icon: 'success' })
+          setTimeout(function() {
+            wx.navigateTo({ url: '/pages/menuStatus/menuStatus?chefId=' + chefId + '&chefName=' + encodeURIComponent(chefName) })
+          }, 600)
+          return
         }
+
+        // 如果扫到了 shopId，更新店铺信息
+        if (shopId) {
+          wx.setStorageSync('currentShopId', shopId)
+          that.setData({ shopId: shopId })
+          that.loadShopInfo(shopId)
+        }
+
+        if (tableNo) {
+          that.setData({ tableNo: tableNo, tableLocked: true })
+          // 自动进入点餐：存桌号信息后直接跳转菜单页
+          wx.setStorageSync('currentTable', {
+            tableNo: tableNo,
+            guestCount: '1'
+          })
+          wx.showToast({ title: '扫码成功，进入点餐', icon: 'success' })
+          setTimeout(function() {
+            wx.navigateTo({
+              url: '/pages/menu/menu?tableNo=' + tableNo + '&guestCount=1'
+            })
+          }, 500)
+          return
+        }
+
         wx.showToast({ title: '扫码成功', icon: 'success' })
       },
       fail: function() {

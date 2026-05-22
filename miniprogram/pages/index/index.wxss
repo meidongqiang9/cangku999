@@ -1,5 +1,7 @@
+@import '../../theme.wxss';
+
 page {
-  background: #f5f5f5;
+  background: var(--bg-page);
 }
 
 .container {
@@ -7,10 +9,10 @@ page {
   position: relative;
 }
 
-/* 轮播海报 */
+/* —— 轮播海报 —— */
 .banner-swiper {
   width: 100%;
-  height: 340rpx;
+  height: 380rpx;
 }
 
 .banner-img {
@@ -20,49 +22,52 @@ page {
 
 .banner-placeholder {
   width: 100%;
-  height: 340rpx;
-  background: linear-gradient(135deg, #5B8C5A, #7BA37B);
+  height: 380rpx;
+  background: linear-gradient(160deg, #E8784A 0%, #F09060 40%, #F5A623 100%);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 
 .banner-title {
-  font-size: 52rpx;
-  font-weight: 700;
+  font-size: 56rpx;
+  font-weight: 800;
   color: #fff;
   letter-spacing: 8rpx;
 }
 
-/* 扫码区域 */
+/* —— 扫码区域 —— */
 .scan-area {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24rpx;
-  margin: 0 24rpx;
-  background: #fff;
-  border-radius: 0 0 16rpx 16rpx;
-  border-top: 2rpx dashed #eee;
+  padding: 20rpx var(--space-md);
+  margin: -8rpx var(--space-md) 0;
+  background: var(--bg-card);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  box-shadow: var(--shadow-card);
 }
 
 .scan-icon {
-  font-size: 36rpx;
-  margin-right: 12rpx;
+  font-size: 40rpx;
+  margin-right: var(--space-sm);
 }
 
 .scan-text {
   font-size: 28rpx;
-  color: #5B8C5A;
+  color: var(--primary);
+  font-weight: 600;
 }
 
-/* 输入区域 */
+/* —— 输入区域 —— */
 .input-section {
-  margin: 32rpx 24rpx;
+  margin: var(--space-lg) var(--space-md);
+  padding: var(--space-lg);
 }
 
 .input-item {
-  margin-bottom: 24rpx;
+  margin-bottom: 20rpx;
 }
 
 .input-item:last-child {
@@ -71,92 +76,165 @@ page {
 
 .label {
   display: block;
-  font-size: 28rpx;
-  color: #666;
-  margin-bottom: 12rpx;
-  font-weight: 500;
+  font-size: 26rpx;
+  color: var(--text-secondary);
+  margin-bottom: 10rpx;
+  font-weight: 600;
 }
 
 .input {
   width: 100%;
-  height: 88rpx;
-  background: #f5f5f5;
-  border-radius: 16rpx;
-  padding: 0 24rpx;
+  height: 92rpx;
+  background: var(--bg-page);
+  border-radius: var(--radius-md);
+  padding: 0 var(--space-md);
   font-size: 34rpx;
   box-sizing: border-box;
-  color: #1a1a1a;
+  color: var(--text-primary);
+  border: 2rpx solid transparent;
+  transition: border-color 200ms, background 200ms;
 }
 
 .input:focus {
-  background: #eef5ee;
-  border: 2rpx solid #5B8C5A;
+  border-color: var(--primary);
+  background: var(--bg-card);
 }
 
-/* 继续点餐 */
+/* 桌号锁定态 */
+.table-locked-wrap {
+  position: relative;
+}
+
+.table-locked-wrap.locked .input {
+  background: #F5F2EE;
+  color: var(--text-secondary);
+}
+
+.input-locked {
+  padding-right: 60rpx !important;
+}
+
+.lock-icon {
+  position: absolute;
+  right: 20rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 28rpx;
+}
+
+/* —— 继续点餐 —— */
 .continue-btn {
-  margin: 0 24rpx 16rpx;
-  padding: 24rpx;
-  background: #fff;
-  border-radius: 16rpx;
+  margin: 0 var(--space-md) var(--space-sm);
+  padding: var(--space-md);
+  background: var(--accent-light);
+  border-radius: var(--radius-md);
   text-align: center;
-  border: 2rpx solid #FF8C42;
 }
 
 .continue-btn text {
-  color: #FF8C42;
+  color: #B87A14;
   font-size: 28rpx;
-  font-weight: 500;
+  font-weight: 600;
 }
 
-/* 开始点餐按钮 */
+/* —— 开始点餐按钮 —— */
 .start-btn {
-  margin: 8rpx 24rpx 32rpx;
+  margin: var(--space-lg) var(--space-md);
 }
 
 .start-btn.disabled {
-  background: #ccc;
+  background: #D5CFC8;
+  box-shadow: none;
 }
 
-/* 底部入口 */
+/* —— 底部入口 —— */
 .bottom-entries {
   display: flex;
   justify-content: center;
-  padding: 24rpx;
-  gap: 48rpx;
+  padding: var(--space-lg);
+  gap: 60rpx;
 }
 
 .entry-item {
   padding: 12rpx 32rpx;
-  font-size: 26rpx;
-  color: #999;
+  font-size: 28rpx;
+  color: var(--text-tertiary);
+  font-weight: 500;
 }
 
-/* 骨架屏 */
+/* —— 骨架屏 —— */
 .loading-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: #f5f5f5;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--bg-page);
   z-index: 999;
-  padding: 24rpx;
+  padding: var(--space-md);
 }
 
-.banner-skeleton {
-  height: 340rpx;
-  border-radius: 0;
+.banner-skeleton { height: 380rpx; border-radius: 0; }
+.input-skeleton { height: 240rpx; margin: var(--space-lg) 0; border-radius: var(--radius-md); }
+.btn-skeleton { height: 88rpx; margin-top: var(--space-lg); border-radius: var(--radius-full); }
+
+/* —— 通知弹窗 —— */
+.notice-mask {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1100;
 }
 
-.input-skeleton {
-  height: 200rpx;
-  margin: 32rpx 0;
-  border-radius: 16rpx;
+.notice-popup {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 580rpx;
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  z-index: 1200;
+  overflow: hidden;
+  box-shadow: var(--shadow-elevated);
+  animation: notice-pop 250ms ease-out;
 }
 
-.btn-skeleton {
-  height: 88rpx;
-  margin-top: 32rpx;
-  border-radius: 44rpx;
+@keyframes notice-pop {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.88); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.notice-title {
+  background: linear-gradient(160deg, #E8784A, #F09060);
+  color: #fff;
+  padding: 28rpx;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.notice-body {
+  padding: 40rpx 32rpx;
+  text-align: center;
+  font-size: 30rpx;
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.notice-btn {
+  margin: 0 32rpx 32rpx;
+  background: linear-gradient(135deg, #E8784A, #F09060);
+  color: #fff;
+  padding: 22rpx;
+  border-radius: var(--radius-full);
+  text-align: center;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.notice-btn:active {
+  opacity: 0.85;
 }

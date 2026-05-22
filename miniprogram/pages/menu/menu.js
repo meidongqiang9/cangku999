@@ -9,8 +9,9 @@ Page({
     categoryDishes: [],
     currentCategory: '',
     cartItems: [],
+    cartMap: {},
     cartCount: 0,
-    totalPrice: '0.00米',
+    totalPrice: '¥0.00',
     showCart: false,
     showDishDetail: false,
     showConfirmPopup: false,
@@ -51,10 +52,11 @@ Page({
     var orderedIds = []
     var orderedItems = []
     var orderCount = 0
+    var shopId = wx.getStorageSync('currentShopId') || ''
     try {
       var db = getDb()
       db.collection('order_items')
-        .where({ tableName: tableNo })
+        .where({ tableName: tableNo, shopId: shopId, status: 'submitted' })
         .get({
           success: function(res) {
             if (res.data) {
@@ -78,9 +80,10 @@ Page({
     } catch (e) {
       var orders = wx.getStorageSync('allOrders') || []
       var orderedItems = []
-      orderCount = orders.length
+      orderCount = 0
       orders.forEach(function(o) {
-        if (String(o.tableNo) === String(tableNo) && o.items) {
+        if (String(o.tableNo) === String(tableNo) && o.items && o.status !== 'paid') {
+          orderCount += o.items.length
           o.items.forEach(function(item) {
             orderedIds.push(item.id)
             orderedItems.push({
@@ -151,11 +154,14 @@ Page({
   loadDishes: function(categoryId) {
     var that = this
     that.setData({ currentCategory: categoryId })
+    var shopId = wx.getStorageSync('currentShopId') || ''
 
     try {
       var db = getDb()
+      var query = { categoryId: categoryId, available: true }
+      if (shopId) query.shopId = shopId
       db.collection('dishes')
-        .where({ categoryId: categoryId, available: true })
+        .where(query)
         .get({
           success: function(res) {
             var dishes = res.data || []
@@ -265,16 +271,36 @@ Page({
   updateCart: function(cartItems) {
     var totalPrice = 0
     var cartCount = 0
+    var cartMap = {}
     cartItems.forEach(function(item) {
       totalPrice += item.price * item.quantity
       cartCount += item.quantity
+      cartMap[item.id] = item.quantity
     })
     this.setData({
       cartItems: cartItems,
+      cartMap: cartMap,
       totalPrice: formatPrice(totalPrice),
       cartCount: cartCount,
       showCart: cartCount > 0
     })
+  },
+
+  // 直接输入数量
+  onQtyBlur: function(e) {
+    var id = e.currentTarget.dataset.id
+    var val = parseInt(e.detail.value) || 0
+    var cartItems = this.data.cartItems.slice()
+
+    if (val <= 0) {
+      // 数量归零则移除
+      cartItems = cartItems.filter(function(c) { return c.id !== id })
+    } else {
+      var item = cartItems.find(function(c) { return c.id === id })
+      if (item) item.quantity = Math.min(val, 99)
+    }
+
+    this.updateCart(cartItems)
   },
 
   toggleCart: function() {
@@ -312,9 +338,10 @@ Page({
     that.setData({ submitting: true, showConfirmPopup: false })
 
     var fromOwner = that.data.fromOwner
+    var batchTime = Date.now()  // 同一批次共享时间戳，确保归为一次点单
 
     var orderItems = that.data.cartItems.map(function(item) {
-      return {
+      var orderItem = {
         dishId: item.id,
         dishName: item.name,
         price: item.price,
@@ -322,6 +349,11 @@ Page({
         image: item.image,
         status: 'submitted'
       }
+      // 终端协助：保存原价作为后续调价上限
+      if (fromOwner) {
+        orderItem.originalPrice = item.price
+      }
+      return orderItem
     })
 
     try {
@@ -334,7 +366,7 @@ Page({
           tableName: that.data.tableNo,
           guestCount: parseInt(that.data.guestCount) || 1,
           status: 'active',
-          createdAt: Date.now()
+          createdAt: batchTime
         },
         success: function(sessionRes) {
           var sessionId = sessionRes._id
@@ -350,13 +382,24 @@ Page({
                 dishId: item.dishId,
                 dishName: item.dishName,
                 price: item.price,
+                originalPrice: item.originalPrice || item.price,
                 quantity: item.quantity,
                 image: item.image,
                 status: 'submitted',
                 fromOwner: fromOwner,
-                createdAt: Date.now()
+                createdAt: batchTime
               }
             })
+          })
+
+          // 构建菜品明细快照（供营收统计使用）
+          var itemsSnapshot = orderItems.map(function(item) {
+            return {
+              dishId: item.dishId,
+              name: item.dishName,
+              price: item.price,
+              quantity: item.quantity
+            }
           })
 
           db.collection('orders').add({
@@ -366,13 +409,14 @@ Page({
               tableName: that.data.tableNo,
               guestCount: parseInt(that.data.guestCount) || 1,
               totalPrice: totalPrice,
+              items: itemsSnapshot,
               status: 'pending',
               fromOwner: fromOwner,
               createdAt: Date.now()
             },
             success: function() {
               wx.showToast({ title: fromOwner ? '已加菜' : '已走菜', icon: 'success' })
-              that.setData({ submitting: false, cartItems: [], cartCount: 0, totalPrice: '0.00米', showCart: false })
+              that.setData({ submitting: false, cartItems: [], cartMap: {}, cartCount: 0, totalPrice: '¥0.00', showCart: false })
               setTimeout(function() {
                 if (fromOwner) {
                   wx.navigateBack()
@@ -409,7 +453,7 @@ Page({
       wx.setStorageSync('needRefreshOrder', true)
 
       wx.showToast({ title: fromOwner ? '已加菜(本地)' : '已走菜(本地)', icon: 'success' })
-      that.setData({ submitting: false, cartItems: [], cartCount: 0, totalPrice: '0.00米', showCart: false })
+      that.setData({ submitting: false, cartItems: [], cartMap: {}, cartCount: 0, totalPrice: '¥0.00', showCart: false })
       setTimeout(function() {
         if (fromOwner) {
           wx.navigateBack()

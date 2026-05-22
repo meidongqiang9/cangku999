@@ -11,7 +11,10 @@ Page({
     homeTitle: '',
     payType: 0,
     personalQrcode: '',
-    shopId: ''
+    shopId: '',
+    noticeTitle: '',
+    noticeContent: '',
+    showPreview: false
   },
 
   onLoad: function() {
@@ -42,7 +45,9 @@ Page({
                 mchId: shop.mchId || '',
                 mchKey: shop.mchKey || '',
                 payType: shop.payType || 0,
-                personalQrcode: shop.personalQrcode || ''
+                personalQrcode: shop.personalQrcode || '',
+                noticeTitle: shop.noticeTitle || '',
+                noticeContent: shop.noticeContent || ''
               })
               wx.setStorageSync('shopBanners', shop.banners || [])
               wx.setStorageSync('homeTitle', shop.homeTitle || '食易特 Eat')
@@ -57,6 +62,8 @@ Page({
                 personalQrcode: shop.personalQrcode || '',
                 banners: shop.banners || [],
                 homeTitle: shop.homeTitle || '食易特 Eat',
+                noticeTitle: shop.noticeTitle || '',
+                noticeContent: shop.noticeContent || '',
                 qrcodeUrl: 'pages/index/index?shopId=' + shopId
               })
             } else {
@@ -90,6 +97,8 @@ Page({
       personalQrcode: shopConfig.personalQrcode || '',
       banners: banners,
       homeTitle: homeTitle,
+      noticeTitle: shopConfig.noticeTitle || '',
+      noticeContent: shopConfig.noticeContent || '',
       qrcodeUrl: 'pages/index/index?shopId=' + shopId
     })
   },
@@ -99,6 +108,16 @@ Page({
   onPhoneInput: function(e) { this.setData({ phone: e.detail.value }) },
   onMchIdInput: function(e) { this.setData({ mchId: e.detail.value }) },
   onMchKeyInput: function(e) { this.setData({ mchKey: e.detail.value }) },
+  onNoticeTitleInput: function(e) { this.setData({ noticeTitle: e.detail.value }) },
+  onNoticeContentInput: function(e) { this.setData({ noticeContent: e.detail.value }) },
+
+  previewNotice: function() {
+    this.setData({ showPreview: true })
+  },
+
+  closePreview: function() {
+    this.setData({ showPreview: false })
+  },
 
   onPayTypeChange: function(e) {
     this.setData({ payType: parseInt(e.detail.value) })
@@ -126,13 +145,13 @@ Page({
   },
 
   addBanner: function() {
-    if (this.data.banners.length >= 5) {
-      wx.showToast({ title: '最多5张图片', icon: 'none' })
+    if (this.data.banners.length >= 8) {
+      wx.showToast({ title: '最多8张图片', icon: 'none' })
       return
     }
     var that = this
     wx.chooseImage({
-      count: 5 - that.data.banners.length,
+      count: 8 - that.data.banners.length,
       success: function(res) {
         var files = res.tempFilePaths
         var uploaded = []
@@ -148,14 +167,14 @@ Page({
               uploaded.push(uploadRes.fileID)
               remaining--
               if (remaining === 0) {
-                that.setData({ banners: that.data.banners.concat(uploaded).slice(0, 5) })
+                that.setData({ banners: that.data.banners.concat(uploaded).slice(0, 8) })
               }
             },
             fail: function() {
               uploaded.push(filePath)
               remaining--
               if (remaining === 0) {
-                that.setData({ banners: that.data.banners.concat(uploaded).slice(0, 5) })
+                that.setData({ banners: that.data.banners.concat(uploaded).slice(0, 8) })
               }
             }
           })
@@ -193,6 +212,8 @@ Page({
       personalQrcode: that.data.personalQrcode,
       banners: that.data.banners,
       homeTitle: that.data.homeTitle,
+      noticeTitle: that.data.noticeTitle,
+      noticeContent: that.data.noticeContent,
       updatedAt: Date.now()
     }
 
@@ -206,6 +227,8 @@ Page({
     shopConfig.mchKey = that.data.mchKey
     shopConfig.payType = that.data.payType
     shopConfig.personalQrcode = that.data.personalQrcode
+    shopConfig.noticeTitle = that.data.noticeTitle
+    shopConfig.noticeContent = that.data.noticeContent
     wx.setStorageSync('shopConfig', shopConfig)
 
     wx.setStorageSync('shopBanners', that.data.banners)

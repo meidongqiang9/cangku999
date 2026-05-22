@@ -1,4 +1,5 @@
 const { getDb } = require('../../utils/cloud')
+const { isSameDay, isSameMonth, isSameYear } = require('../../utils/time')
 
 Page({
   data: {
@@ -37,9 +38,12 @@ Page({
 
   loadStats: function() {
     var that = this
+    var shopId = wx.getStorageSync('currentShopId') || ''
     try {
       var db = getDb()
-      db.collection('orders').get({
+      db.collection('orders')
+        .where(shopId ? { shopId: shopId } : {})
+        .get({
         success: function(res) {
           var orders = res.data || []
           if (orders.length === 0) {
@@ -66,14 +70,12 @@ Page({
 
   loadDishStats: function(orders) {
     var filter = this.data.dishFilter
-    var now = new Date()
 
     var filtered = orders.filter(function(o) {
       if (o.status === 'cancelled') return false
-      var d = new Date(o.createdAt)
-      if (filter === 'today') return d.toDateString() === now.toDateString()
-      if (filter === 'month') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
-      if (filter === 'year') return d.getFullYear() === now.getFullYear()
+      if (filter === 'today') return isSameDay(o.createdAt, Date.now())
+      if (filter === 'month') return isSameMonth(o.createdAt, Date.now())
+      if (filter === 'year') return isSameYear(o.createdAt, Date.now())
       return true
     })
 
@@ -99,9 +101,8 @@ Page({
 
     var filtered = orders.filter(function(o) {
       if (o.status === 'cancelled') return false
-      var d = new Date(o.createdAt)
-      if (filter === 'month') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
-      if (filter === 'year') return d.getFullYear() === now.getFullYear()
+      if (filter === 'month') return isSameMonth(o.createdAt, Date.now())
+      if (filter === 'year') return isSameYear(o.createdAt, Date.now())
       return true
     })
 

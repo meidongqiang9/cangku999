@@ -21,13 +21,17 @@
   <view class="input-section card">
     <view class="input-item">
       <view class="label">桌号/包房号</view>
-      <input
-        class="input"
-        placeholder="请输入桌号或包房号"
-        value="{{tableNo}}"
-        bindinput="onTableInput"
-        maxlength="10"
-      />
+      <view class="table-locked-wrap {{tableLocked ? 'locked' : ''}}">
+        <input
+          class="input {{tableLocked ? 'input-locked' : ''}}"
+          placeholder="请扫描桌面二维码"
+          value="{{tableNo}}"
+          bindinput="onTableInput"
+          maxlength="10"
+          disabled="{{tableLocked}}"
+        />
+        <text wx:if="{{tableLocked}}" class="lock-icon">🔒</text>
+      </view>
     </view>
     <view class="input-item">
       <view class="label">就餐人数</view>
@@ -38,6 +42,7 @@
         bindinput="onGuestInput"
         type="number"
         maxlength="2"
+        focus="{{tableLocked && !guestCount}}"
       />
     </view>
   </view>
@@ -63,6 +68,14 @@
     <view class="entry-item" bindtap="goOwnerLogin">
       <text>管理入口</text>
     </view>
+  </view>
+
+  <!-- 通知弹窗 -->
+  <view class="notice-mask" wx:if="{{showNotice}}" bindtap="closeNotice"></view>
+  <view class="notice-popup" wx:if="{{showNotice}}">
+    <view class="notice-title">{{noticeTitle}}</view>
+    <view class="notice-body">{{noticeContent}}</view>
+    <view class="notice-btn" bindtap="closeNotice">我知道了</view>
   </view>
 
   <!-- 骨架屏 -->

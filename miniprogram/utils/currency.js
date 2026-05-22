@@ -1,6 +1,6 @@
-// 金额格式化 - 统一使用「米」
+// 金额格式化 - 统一使用「¥」
 function formatPrice(price) {
-  return Number(price).toFixed(2) + '米'
+  return '¥' + Number(price).toFixed(2)
 }
 
 function parsePrice(str) {

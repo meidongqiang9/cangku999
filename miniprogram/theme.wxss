@@ -1,0 +1,71 @@
+/* ═══════════════════════════════════════════════════════════════
+   食易特 Eat — 设计 Token 系统
+   "暖食·鲜味" 餐饮行业设计语言
+   参考：白色背景 + 珊瑚橙点缀 + 卡片式布局
+   ═══════════════════════════════════════════════════════════════ */
+
+page {
+  /* —— 主色系：珊瑚橙 — 温暖、食欲感 —— */
+  --primary: #E8784A;
+  --primary-dark: #D06538;
+  --primary-light: #FFF0E8;
+
+  /* —— 辅助色：草本绿 — 新鲜、食材感 —— */
+  --secondary: #6BAF6E;
+  --secondary-light: #EDF7EE;
+
+  /* —— 强调色：金黄 — 亮点、活力 —— */
+  --accent: #F5A623;
+  --accent-light: #FFF6E8;
+
+  /* —— 背景色：纯白系（参考图均为白色背景）—— */
+  --bg-page: #FAFAFA;
+  --bg-card: #FFFFFF;
+
+  /* —— 文字色 —— */
+  --text-primary: #1A1A1A;
+  --text-secondary: #8B7355;
+  --text-tertiary: #B8A899;
+
+  /* —— 边框/分割线 —— */
+  --border: #F0EDE8;
+  --border-light: #F5F2EE;
+
+  /* —— 功能色 —— */
+  --danger: #E86C6C;
+  --danger-light: #FFF0F0;
+  --warning: #F0AD4E;
+  --warning-light: #FFF8EE;
+  --success: #5CB85C;
+  --success-light: #EDF7ED;
+
+  /* —— 圆角 —— */
+  --radius-sm: 8rpx;
+  --radius-md: 16rpx;
+  --radius-lg: 20rpx;
+  --radius-xl: 24rpx;
+  --radius-full: 999rpx;
+
+  /* —— 阴影 —— */
+  --shadow-card: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+  --shadow-elevated: 0 8rpx 24rpx rgba(0, 0, 0, 0.08);
+  --shadow-bottom: 0 -4rpx 16rpx rgba(0, 0, 0, 0.04);
+  --shadow-button: 0 4rpx 16rpx rgba(232, 120, 74, 0.3);
+
+  /* —— 间距 —— */
+  --space-xs: 12rpx;
+  --space-sm: 16rpx;
+  --space-md: 24rpx;
+  --space-lg: 32rpx;
+  --space-xl: 40rpx;
+  --space-2xl: 48rpx;
+
+  /* —— 菜品卡片 —— */
+  --food-card-radius: 16rpx;
+  --food-card-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  --food-img-ratio: 56.25%;  /* 16:9 */
+
+  /* —— 底部栏 —— */
+  --bottom-bar-height: 100rpx;
+  --bottom-bar-bg: #FFFFFF;
+}

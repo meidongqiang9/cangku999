@@ -1,6 +1,7 @@
 const { getUser, setUser, isLoggedIn, wechatLogin, logout } = require('../../utils/auth')
 const { getDb } = require('../../utils/cloud')
 const { formatPrice } = require('../../utils/currency')
+const { formatDateTime, formatDate } = require('../../utils/time')
 
 Page({
   data: {
@@ -8,7 +9,7 @@ Page({
     userInfo: null,
     orderHistory: [],
     totalOrders: 0,
-    totalSpent: '0.00米',
+    totalSpent: '¥0.00',
     lastOrderTime: ''
   },
 
@@ -57,9 +58,11 @@ Page({
 
   loadOrderHistory: function() {
     var that = this
+    var shopId = wx.getStorageSync('currentShopId') || ''
     try {
       var db = getDb()
       db.collection('orders')
+        .where(shopId ? { shopId: shopId } : {})
         .orderBy('createdAt', 'desc')
         .limit(20)
         .get({
@@ -94,8 +97,7 @@ Page({
 
     var lastOrderTime = ''
     if (orders.length > 0) {
-      var d = new Date(orders[0].createdAt || Date.now())
-      lastOrderTime = d.toLocaleDateString('zh-CN') + ' ' + d.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+      lastOrderTime = formatDateTime(orders[0].createdAt)
     }
 
     var history = orders.map(function(o) {
@@ -112,7 +114,7 @@ Page({
         totalPrice: formatPrice(o.totalPrice || 0),
         status: o.status === 'paid' ? '已结账' : o.status === 'pending' ? '进行中' : '已完成',
         statusClass: o.status === 'paid' ? 'paid' : 'pending',
-        time: new Date(o.createdAt || Date.now()).toLocaleDateString('zh-CN')
+        time: formatDate(o.createdAt)
       }
     })
 
@@ -139,7 +141,7 @@ Page({
             userInfo: null,
             orderHistory: [],
             totalOrders: 0,
-            totalSpent: '0.00米'
+            totalSpent: '¥0.00'
           })
           wx.showToast({ title: '已退出', icon: 'success' })
         }

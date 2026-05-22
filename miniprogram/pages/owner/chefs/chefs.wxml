@@ -1,0 +1,63 @@
+<view class="container">
+  <view class="header">
+    <text class="title">厨师管理</text>
+    <view class="add-btn" bindtap="addChef">+ 添加厨师</view>
+  </view>
+
+  <view class="chef-list">
+    <view wx:for="{{chefs}}" wx:key="id" class="chef-card">
+      <view class="chef-avatar">👨‍🍳</view>
+      <view class="chef-info">
+        <text class="chef-name">{{item.name}}</text>
+        <text class="chef-position">{{item.position}}</text>
+      </view>
+      <view class="chef-actions">
+        <view class="chef-action-btn" bindtap="viewChefQR" data-id="{{item.id}}" data-qrcode="{{item.qrcode}}" data-name="{{item.name}}">◻</view>
+        <view class="chef-action-btn delete" bindtap="deleteChef" data-id="{{item.id}}" data-name="{{item.name}}">×</view>
+      </view>
+    </view>
+
+    <view wx:if="{{chefs.length === 0}}" class="empty-state">
+      <text>暂无厨师，点击上方按钮添加</text>
+    </view>
+  </view>
+
+  <!-- 添加厨师弹窗 -->
+  <view class="input-mask" wx:if="{{showInputModal}}" bindtap="closeInputModal"></view>
+  <view class="input-popup" wx:if="{{showInputModal}}">
+    <view class="popup-title">添加厨师</view>
+    <input class="popup-input"
+           placeholder="请输入姓名"
+           placeholder-class="placeholder"
+           value="{{inputName}}"
+           bindinput="onNameInput"
+           auto-focus="true"/>
+    <input class="popup-input"
+           placeholder="请输入岗位（如：炒锅、凉菜、面点）"
+           placeholder-class="placeholder"
+           value="{{inputPosition}}"
+           bindinput="onPositionInput"/>
+    <view class="popup-btns">
+      <view class="popup-cancel" bindtap="closeInputModal">取消</view>
+      <view class="popup-confirm" bindtap="confirmInput">确定</view>
+    </view>
+  </view>
+
+  <!-- 二维码预览弹窗 -->
+  <view class="input-mask" wx:if="{{showQRPopup}}" bindtap="closeQRPopup"></view>
+  <view class="qr-popup" wx:if="{{showQRPopup}}">
+    <view class="popup-title">厨师 {{qrChefName}} 二维码</view>
+    <image wx:if="{{qrImage}}" src="{{qrImage}}" mode="aspectFit" class="qr-full"/>
+    <view wx:if="{{!qrImage}}" class="qr-generating">
+      <text>二维码生成中...</text>
+    </view>
+    <view class="qr-btns">
+      <view class="qr-btn-close" bindtap="closeQRPopup">关闭</view>
+      <view class="qr-btn-regen" bindtap="regenerateQR">
+        <text class="regen-line">重新</text>
+        <text class="regen-line">生成</text>
+      </view>
+    </view>
+  </view>
+</view>
+<canvas type="2d" id="qrCanvas" style="position:fixed;left:-9999rpx;top:-9999rpx;width:600rpx;height:600rpx;"></canvas>

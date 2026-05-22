@@ -1,6 +1,7 @@
 const { getDb } = require('../../utils/cloud')
 const { formatPrice } = require('../../utils/currency')
 const { debounce } = require('../../utils/debounce')
+const { formatTime, formatDateTime } = require('../../utils/time')
 
 Page({
   data: {
@@ -9,7 +10,7 @@ Page({
     orderGroups: [],       // 按批次分组的菜品
     servedCount: 0,
     submittedCount: 0,
-    totalPrice: '0.00米',
+    totalPrice: '¥0.00',
     allItems: [],          // 所有菜品扁平列表
     hasUnpaidOrder: false,
     watcher: null
@@ -51,12 +52,13 @@ Page({
   loadOrderData: function() {
     var that = this
     var tableNo = that.data.tableNo
+    var shopId = wx.getStorageSync('currentShopId') || ''
 
     try {
       var db = getDb()
-      // 实时监听该桌的菜品状态变化
+      // 只监听未结账的菜品（翻台后已结账的不再显示）
       var watcher = db.collection('order_items')
-        .where({ tableName: tableNo })
+        .where({ tableName: tableNo, shopId: shopId, status: 'submitted' })
         .watch({
           onChange: function() {
             that.fetchOrderItems(tableNo)
@@ -76,10 +78,12 @@ Page({
   // 从云数据库取数据
   fetchOrderItems: function(tableNo) {
     var that = this
+    var shopId = wx.getStorageSync('currentShopId') || ''
     try {
       var db = getDb()
+      // 只查未结账的菜品，已结账（paid）的不显示
       db.collection('order_items')
-        .where({ tableName: tableNo })
+        .where({ tableName: tableNo, shopId: shopId, status: 'submitted' })
         .orderBy('createdAt', 'asc')
         .get({
           success: function(res) {
@@ -99,7 +103,7 @@ Page({
   loadFromStorage: function(tableNo) {
     var orders = wx.getStorageSync('allOrders') || []
     var tableOrders = orders.filter(function(o) {
-      return String(o.tableNo) === String(tableNo)
+      return String(o.tableNo) === String(tableNo) && o.status !== 'paid'
     }).sort(function(a, b) { return a.createdAt - b.createdAt })
 
     var allItems = []
@@ -159,21 +163,22 @@ Page({
       })
 
       // 生成批次标题
+      var time = new Date(parseInt(key) || Date.now())
       var title = ''
       if (batchIndex === 1) {
-        title = '首次点单'
+        title = '第1次点单'
       } else {
-        title = '第' + that.numToChinese(batchIndex) + '次加菜'
+        title = '第' + batchIndex + '次加菜'
       }
-      var time = new Date(parseInt(key) || Date.now())
-      title += '  ' + that.formatTime(time)
+      title += '  ' + formatTime(time)
 
       orderGroups.push({
         key: key,
         title: title,
         items: batchItems,
         subtotal: formatPrice(batchSubtotal),
-        timeText: that.formatTime(time)
+        timeText: formatTime(time),
+        fromOwner: batchItems.length > 0 && batchItems[0].fromOwner
       })
     })
 
@@ -186,17 +191,6 @@ Page({
       totalPrice: formatPrice(totalPrice),
       hasUnpaidOrder: items.length > 0
     })
-  },
-
-  numToChinese: function(num) {
-    var nums = ['零','一','二','三','四','五','六','七','八','九','十']
-    if (num <= 10) return nums[num]
-    return String(num)
-  },
-
-  formatTime: function(date) {
-    if (!date || !date.toLocaleTimeString) date = new Date(date || Date.now())
-    return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
   },
 
   // 追加点单

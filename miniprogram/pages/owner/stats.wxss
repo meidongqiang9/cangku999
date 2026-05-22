@@ -1,133 +1,84 @@
-page { background: #f5f5f5 }
+@import '../../theme.wxss';
 
+page { background: var(--bg-page) }
 .container { min-height: 100vh }
 
+/* —— 标签栏 —— */
 .tabs {
   display: flex;
-  background: #fff;
-  border-bottom: 1rpx solid #eee;
+  background: var(--bg-card);
+  border-bottom: 1rpx solid var(--border-light);
+  box-shadow: var(--shadow-card);
 }
 
 .tab {
-  flex: 1;
-  padding: 24rpx;
-  text-align: center;
-  font-size: 28rpx;
-  color: #666;
+  flex: 1; padding: var(--space-md); text-align: center;
+  font-size: 28rpx; color: var(--text-secondary); position: relative; font-weight: 500;
 }
 
-.tab.active {
-  color: #5B8C5A;
-  border-bottom: 4rpx solid #5B8C5A;
+.tab.active { color: var(--primary); font-weight: 700 }
+
+.tab.active::after {
+  content: ''; position: absolute; bottom: 0; left: 50%;
+  transform: translateX(-50%); width: 52rpx; height: 5rpx;
+  background: var(--primary); border-radius: 3rpx;
 }
 
-.chart-area { padding: 24rpx }
+/* —— 图表区 —— */
+.chart-area { padding: var(--space-md) }
+.chart-title { font-size: 32rpx; font-weight: 700; margin-bottom: var(--space-sm); color: var(--text-primary) }
 
-.filter-row { display: flex; margin-bottom: 16rpx }
+.filter-row { display: flex; margin-bottom: var(--space-sm) }
 
 .filter {
-  padding: 12rpx 24rpx;
-  font-size: 24rpx;
-  color: #666;
-  background: #fff;
-  border-radius: 8rpx;
-  margin-right: 12rpx;
+  padding: 12rpx 20rpx; font-size: 24rpx; color: var(--text-secondary);
+  background: var(--bg-card); border-radius: var(--radius-sm);
+  margin-right: var(--space-xs); font-weight: 500;
 }
 
-.filter.active { background: #5B8C5A; color: #fff }
+.filter.active { background: var(--primary); color: #fff }
 
-.chart-title { font-size: 32rpx; font-weight: 600; margin-bottom: 16rpx }
-
+/* —— 排行 —— */
 .stat-row {
-  display: flex;
-  align-items: center;
-  background: #fff;
-  padding: 20rpx;
-  margin-bottom: 12rpx;
-  border-radius: 8rpx;
+  display: flex; align-items: center;
+  background: var(--bg-card); padding: 22rpx var(--space-md);
+  margin-bottom: var(--space-xs); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
 }
 
-.rank { font-size: 28rpx; font-weight: 600; color: #5B8C5A }
-
-.name { flex: 1; font-size: 28rpx; margin-left: 16rpx }
-
-.value { font-size: 28rpx; color: #5B8C5A; font-weight: 600 }
+.rank { font-size: 28rpx; font-weight: 700; color: var(--primary); min-width: 48rpx }
+.name { flex: 1; font-size: 28rpx; margin-left: var(--space-sm); color: var(--text-primary); font-weight: 500 }
+.value { font-size: 28rpx; color: var(--primary); font-weight: 700 }
 
 .bar {
-  height: 32rpx;
-  background: linear-gradient(90deg, #5B8C5A 0%, #7BA37B 100%);
-  border-radius: 4rpx;
-  margin: 0 16rpx;
+  height: 32rpx; background: linear-gradient(90deg, #E8784A, #F5A623);
+  border-radius: 4rpx; margin: 0 var(--space-sm);
 }
 
+/* —— 图表 —— */
 .chart-scroll { overflow-x: auto }
-
-.line-chart {
-  height: 240rpx;
-  position: relative;
-  padding-bottom: 90rpx;
-}
+.line-chart { height: 240rpx; position: relative; padding-bottom: 90rpx }
 
 .chart-point {
-  position: absolute;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  z-index: 2;
+  position: absolute; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; z-index: 2;
 }
 
-.point-value {
-  font-size: 20rpx;
-  color: #5B8C5A;
-  font-weight: 600;
-  white-space: nowrap;
-  margin-bottom: 4rpx;
-}
+.point-value { font-size: 20rpx; color: var(--primary); font-weight: 700; white-space: nowrap; margin-bottom: 4rpx }
+.point-dot { width: 16rpx; height: 16rpx; background: var(--primary); border-radius: 50%; border: 4rpx solid var(--bg-card) }
 
-.point-dot {
-  width: 16rpx;
-  height: 16rpx;
-  background: #5B8C5A;
-  border-radius: 50%;
-  border: 4rpx solid #fff;
-}
-
-.chart-line {
-  position: absolute;
-  bottom: 14rpx;
-  left: 0;
-  height: 4rpx;
-  background: #5B8C5A;
-  z-index: 1;
-}
-
-.chart-line-bg {
-  position: absolute;
-  bottom: 14rpx;
-  left: 0;
-  height: 4rpx;
-  background: #5B8C5A;
-  z-index: 1;
+.chart-line, .chart-line-bg {
+  position: absolute; bottom: 14rpx; left: 0; height: 4rpx; background: var(--primary); z-index: 1;
 }
 
 .y-grid {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 2rpx;
-  background: #f0f0f0;
+  position: absolute; left: 0; right: 0; height: 2rpx; background: var(--border-light);
 }
 
 .x-label {
-  position: absolute;
-  bottom: -60rpx;
-  transform: translateX(-50%);
-  font-size: 22rpx;
-  color: #999;
-  white-space: nowrap;
+  position: absolute; bottom: -60rpx; transform: translateX(-50%);
+  font-size: 22rpx; color: var(--text-tertiary); white-space: nowrap;
 }
 
-.hour { width: 100rpx; font-size: 24rpx; color: #666 }
-
-.empty { text-align: center; padding: 60rpx; color: #999 }
+.hour { width: 100rpx; font-size: 24rpx; color: var(--text-secondary) }
+.empty { text-align: center; padding: 80rpx; color: var(--text-tertiary) }

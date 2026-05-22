@@ -14,9 +14,23 @@
       <input class="input" value="{{phone}}" bindinput="onPhoneInput"/>
     </view>
   </view>
+
+  <view class="section">
+    <view class="section-title">扫码通知 <text class="hint-text">(顾客扫码后弹出)</text></view>
+    <view class="input-row">
+      <text class="label">通知标题</text>
+      <input class="input" value="{{noticeTitle}}" bindinput="onNoticeTitleInput" placeholder="通知"/>
+    </view>
+    <view class="input-row">
+      <text class="label">通知内容</text>
+      <textarea class="textarea" value="{{noticeContent}}" bindinput="onNoticeContentInput" placeholder="请输入欢迎语或通知内容" maxlength="100"/>
+    </view>
+    <view class="preview-btn" bindtap="previewNotice">预览通知弹窗</view>
+  </view>
   
   <view class="section">
-    <view class="section-title">首页轮播图 <text class="hint-text">({{banners.length}}张)</text></view>
+    <view class="section-title">首页轮播图 <text class="hint-text">({{banners.length}}/8张 · 每行4张)</text></view>
+    <text class="banner-tip">点击 + 添加图片，支持多张自动轮播</text>
     <view class="input-row">
       <text class="label">首页标题</text>
       <input class="input" value="{{homeTitle}}" bindinput="onHomeTitleInput" placeholder="首页显示标题"/>
@@ -26,7 +40,9 @@
         <image class="banner-thumb" src="{{item}}" mode="aspectFill" />
         <view class="banner-remove" bindtap="removeBanner" data-index="{{index}}">×</view>
       </view>
-      <view class="banner-add" bindtap="addBanner">+</view>
+      <view wx:if="{{banners.length < 8}}" class="banner-add" bindtap="addBanner">
+        <text class="banner-add-icon">+</text>
+      </view>
     </view>
   </view>
   
@@ -71,4 +87,12 @@
   </view>
   
   <view class="btn-save" bindtap="saveSettings">保存设置</view>
+
+  <!-- 通知预览弹窗 -->
+  <view class="preview-mask" wx:if="{{showPreview}}" bindtap="closePreview"></view>
+  <view class="preview-popup" wx:if="{{showPreview}}">
+    <view class="preview-title-bar">{{noticeTitle || '通知'}}</view>
+    <view class="preview-body">{{noticeContent || '顾客扫码后将看到此内容'}}</view>
+    <view class="preview-btn-close" bindtap="closePreview">我知道了</view>
+  </view>
 </view>

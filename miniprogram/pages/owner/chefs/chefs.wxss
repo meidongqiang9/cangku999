@@ -1,0 +1,151 @@
+@import '../../../theme.wxss';
+
+page { background: var(--bg-page) }
+.container { min-height: 100vh; padding-bottom: 40rpx }
+
+/* —— 顶部 —— */
+.header {
+  background: linear-gradient(160deg, #E8784A, #F09060);
+  padding: var(--space-md) var(--space-lg);
+  display: flex; justify-content: space-between; align-items: center;
+}
+
+.title { font-size: 34rpx; color: #fff; font-weight: 700 }
+.add-btn { color: #fff; font-size: 28rpx; font-weight: 600 }
+
+/* —— 厨师卡片 —— */
+.chef-list { padding: var(--space-md) }
+
+.chef-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  margin-bottom: var(--space-sm);
+  display: flex; align-items: center;
+  box-shadow: var(--shadow-card);
+}
+
+.chef-avatar {
+  width: 84rpx; height: 84rpx; border-radius: 50%;
+  background: var(--primary-light);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 40rpx; margin-right: var(--space-md); flex-shrink: 0;
+}
+
+.chef-info { flex: 1 }
+
+.chef-name {
+  font-size: 30rpx; font-weight: 700; color: var(--text-primary);
+}
+
+.chef-position {
+  font-size: 24rpx; color: var(--text-secondary); margin-top: 4rpx;
+  background: var(--bg-page); display: inline-block;
+  padding: 4rpx 14rpx; border-radius: var(--radius-sm); font-weight: 500;
+}
+
+.chef-actions {
+  display: flex; flex-direction: column; gap: 10rpx; flex-shrink: 0;
+}
+
+.chef-action-btn {
+  width: 52rpx; height: 52rpx; display: flex;
+  align-items: center; justify-content: center;
+  font-size: 28rpx; border-radius: 50%;
+  background: var(--bg-page); color: var(--text-secondary);
+}
+
+.chef-action-btn.delete { color: var(--danger) }
+
+/* —— 弹窗 —— */
+.input-mask {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.45); z-index: 100;
+}
+
+.input-popup {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600rpx; background: var(--bg-card);
+  border-radius: var(--radius-xl); padding: var(--space-lg);
+  z-index: 101; box-shadow: var(--shadow-elevated);
+}
+
+.popup-title {
+  font-size: 34rpx; font-weight: 700; text-align: center;
+  margin-bottom: var(--space-lg); color: var(--text-primary);
+}
+
+.popup-input {
+  height: 84rpx; background: var(--bg-page);
+  border-radius: var(--radius-md); padding: 0 var(--space-md);
+  font-size: 28rpx; margin-bottom: var(--space-sm);
+  border: 2rpx solid transparent; width: 100%; box-sizing: border-box;
+}
+
+.popup-input:focus { border-color: var(--primary); background: var(--bg-card) }
+
+.popup-btns { display: flex; margin-top: var(--space-md) }
+
+.popup-cancel, .popup-confirm {
+  flex: 1; height: 84rpx; border-radius: var(--radius-full);
+  font-size: 28rpx; display: flex; align-items: center; justify-content: center;
+  font-weight: 600;
+}
+
+.popup-cancel {
+  background: var(--bg-page); color: var(--text-secondary);
+  margin-right: var(--space-sm);
+}
+
+.popup-confirm {
+  background: linear-gradient(135deg, var(--primary), #F09060); color: #fff;
+}
+
+/* —— QR 弹窗 —— */
+.qr-popup {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 560rpx; background: var(--bg-card);
+  border-radius: var(--radius-xl); padding: var(--space-lg);
+  z-index: 101; box-shadow: var(--shadow-elevated);
+  display: flex; flex-direction: column; align-items: center;
+}
+
+.qr-full { width: 380rpx; height: 380rpx; margin-bottom: var(--space-md) }
+
+.qr-generating {
+  width: 380rpx; height: 380rpx;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg-page); border-radius: var(--radius-md);
+  margin-bottom: var(--space-md); color: var(--text-tertiary); font-size: 26rpx;
+}
+
+.qr-hint { font-size: 24rpx; color: var(--text-tertiary); margin-bottom: var(--space-md) }
+
+.qr-btns {
+  display: flex; align-items: center; gap: 36rpx;
+  width: 100%; justify-content: center;
+}
+
+.qr-btn-close {
+  padding: 18rpx 44rpx; font-size: 28rpx; color: var(--text-secondary);
+  background: var(--bg-page); border-radius: var(--radius-full); font-weight: 500;
+}
+
+.qr-btn-regen {
+  width: 124rpx; height: 124rpx; border-radius: 50%;
+  background: linear-gradient(135deg, #E8784A, #F09060); color: #fff;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  box-shadow: 0 6rpx 24rpx rgba(232,120,74,0.35);
+}
+
+.regen-line {
+  font-size: 26rpx; font-weight: 700; line-height: 1.3; letter-spacing: 4rpx;
+}
+
+/* —— 空状态 —— */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 80rpx 0; color: var(--text-tertiary); font-size: 28rpx;
+}

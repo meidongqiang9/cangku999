@@ -1,85 +1,111 @@
+@import '../../theme.wxss';
+
+page { background: var(--bg-page) }
+
 .container {
-  padding: 40rpx;
+  padding: var(--space-xl);
   min-height: 100vh;
-  background: #f5f5f5;
 }
 
+/* —— 标题 —— */
 .header {
   text-align: center;
-  margin-bottom: 60rpx;
-  padding-top: 40rpx;
+  margin-bottom: 50rpx;
+  padding-top: var(--space-lg);
 }
 
 .title {
   font-size: 48rpx;
-  font-weight: bold;
-  color: #333;
+  font-weight: 800;
+  color: var(--text-primary);
 }
 
+/* —— 表单卡片 —— */
 .form {
-  background: #fff;
-  border-radius: 20rpx;
-  padding: 40rpx;
-  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.1);
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-card);
 }
 
 .input-item {
-  margin-bottom: 30rpx;
+  margin-bottom: 28rpx;
   position: relative;
 }
 
 .input {
-  border: 2rpx solid #ddd;
-  border-radius: 10rpx;
-  padding: 20rpx;
-  font-size: 28rpx;
+  border: 2rpx solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 22rpx var(--space-md);
+  font-size: 30rpx;
+  background: var(--bg-page);
+  width: 100%;
+  box-sizing: border-box;
+  color: var(--text-primary);
+}
+
+.input:focus {
+  border-color: var(--primary);
+  background: var(--bg-card);
 }
 
 .toggle-pwd {
   position: absolute;
-  right: 20rpx;
+  right: 24rpx;
   top: 50%;
   transform: translateY(-50%);
-  color: #5B8C5A;
+  color: var(--primary);
   font-size: 24rpx;
+  font-weight: 500;
 }
 
+/* —— 按钮 —— */
 .btn-submit {
-  background: #5B8C5A;
+  background: linear-gradient(135deg, var(--primary), #F09060);
   color: #fff;
-  border-radius: 10rpx;
-  margin-top: 40rpx;
+  border-radius: var(--radius-full);
+  margin-top: var(--space-lg);
   font-size: 32rpx;
+  font-weight: 700;
+  box-shadow: var(--shadow-button);
+  text-align: center;
+  padding: 24rpx;
 }
 
 .toggle-mode {
   text-align: center;
-  margin-top: 30rpx;
-  color: #5B8C5A;
+  margin-top: 28rpx;
+  color: var(--primary);
   font-size: 28rpx;
+  font-weight: 600;
 }
 
+/* —— 分割线 —— */
 .divider {
   display: flex;
   align-items: center;
-  margin: 40rpx 0;
+  margin: var(--space-xl) 0;
 }
 
 .line {
   flex: 1;
   height: 2rpx;
-  background: #ddd;
+  background: var(--border);
 }
 
 .or {
-  padding: 0 20rpx;
-  color: #999;
-  font-size: 24rpx;
+  padding: 0 24rpx;
+  color: var(--text-tertiary);
+  font-size: 26rpx;
 }
 
+/* —— 微信登录 —— */
 .btn-wechat {
   background: #07c160;
   color: #fff;
-  border-radius: 10rpx;
+  border-radius: var(--radius-full);
   font-size: 32rpx;
+  font-weight: 700;
+  text-align: center;
+  padding: 24rpx;
 }

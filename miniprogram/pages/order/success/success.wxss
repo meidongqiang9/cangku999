@@ -1,5 +1,7 @@
+@import '../../../theme.wxss';
+
 page {
-  background: #f5f5f5;
+  background: var(--bg-page);
 }
 
 .container {
@@ -7,66 +9,67 @@ page {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 120rpx;
+  padding-top: 140rpx;
 }
 
-/* 成功图标 */
+/* —— 成功图标 —— */
 .success-icon-wrap {
-  margin-bottom: 32rpx;
+  margin-bottom: var(--space-lg);
 }
 
 .success-icon {
-  width: 140rpx;
-  height: 140rpx;
-  background: #5B8C5A;
+  width: 150rpx;
+  height: 150rpx;
+  background: linear-gradient(135deg, var(--secondary), #7DC87F);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 72rpx;
+  font-size: 76rpx;
   color: #fff;
-  animation: success-scale 300ms ease-out;
+  box-shadow: 0 8rpx 36rpx rgba(107, 175, 110, 0.3);
+  animation: success-pop 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-@keyframes success-scale {
-  from { transform: scale(0); }
-  to { transform: scale(1); }
+@keyframes success-pop {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 .success-title {
-  font-size: 40rpx;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 12rpx;
+  font-size: 44rpx;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 10rpx;
 }
 
 .success-desc {
   font-size: 28rpx;
-  color: #999;
-  margin-bottom: 48rpx;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-2xl);
 }
 
-/* 提示卡片 */
+/* —— 提示卡片 —— */
 .tip-card {
-  width: 80%;
+  width: 82%;
   text-align: center;
-  padding: 32rpx;
-  margin-bottom: 48rpx;
+  padding: var(--space-lg);
+  margin-bottom: var(--space-2xl);
 }
 
 .tip-card text {
   display: block;
   font-size: 28rpx;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .tip-sub {
-  margin-top: 12rpx;
-  font-size: 24rpx !important;
-  color: #999 !important;
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: var(--text-tertiary);
 }
 
-/* 返回按钮 */
+/* —— 返回按钮 —— */
 .btn-primary {
-  width: 80%;
+  width: 82%;
 }

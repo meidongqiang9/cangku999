@@ -1,4 +1,5 @@
 const { getDb } = require('../../utils/cloud')
+const { formatDateTime, isSameDay, isSameMonth, isSameYear } = require('../../utils/time')
 
 Page({
   data: {
@@ -8,7 +9,9 @@ Page({
     totalAmount: '0.00',
     completedCount: 0,
     completedAmount: '0.00',
-    guestCount: 0
+    guestCount: 0,
+    showDetailPopup: false,
+    detailOrder: {}
   },
 
   onLoad: function() {
@@ -27,9 +30,11 @@ Page({
 
   loadOrders: function() {
     var that = this
+    var shopId = wx.getStorageSync('currentShopId') || ''
     try {
       var db = getDb()
       db.collection('orders')
+        .where(shopId ? { shopId: shopId } : {})
         .orderBy('createdAt', 'desc')
         .get({
           success: function(res) {
@@ -52,19 +57,14 @@ Page({
 
   processOrders: function(orders) {
     var filter = this.data.filter
-    var now = new Date()
-    var today = now.toDateString()
-    var thisMonth = now.getMonth()
-    var thisYear = now.getFullYear()
 
     var filtered = orders.filter(function(o) {
-      var d = new Date(o.createdAt)
       if (filter === 'today') {
-        return d.toDateString() === today
+        return isSameDay(o.createdAt, Date.now())
       } else if (filter === 'month') {
-        return d.getMonth() === thisMonth && d.getFullYear() === thisYear
+        return isSameMonth(o.createdAt, Date.now())
       } else if (filter === 'year') {
-        return d.getFullYear() === thisYear
+        return isSameYear(o.createdAt, Date.now())
       }
       return true
     })
@@ -78,68 +78,105 @@ Page({
       'cancelled': '已取消'
     }
 
+    // 按翻台批次合并：pending 按桌号合并，paid 按桌号+翻台时间(paidAt)合并
+    var tableMap = {}
+    filtered.forEach(function(o) {
+      var orderStatus = o.status || 'pending'
+      // pending: 同一次就餐合并；paid: 同一次翻台（相同paidAt）合并
+      var groupKey
+      if (orderStatus === 'pending') {
+        groupKey = (o.tableName || o.tableNo || '') + '_pending'
+      } else if (orderStatus === 'paid' || orderStatus === 'completed') {
+        groupKey = (o.tableName || o.tableNo || '') + '_' + (o.paidAt || o.createdAt || '')
+      } else {
+        groupKey = (o.tableName || o.tableNo || '') + '_' + (o._id || orderStatus)
+      }
+      if (!groupKey) return
+
+      if (!tableMap[groupKey]) {
+        tableMap[groupKey] = {
+          tableNo: o.tableName || o.tableNo || '',
+          guestCount: 0,
+          totalPrice: 0,
+          status: orderStatus,
+          createdAt: o.createdAt || Date.now(),
+          allItems: [],
+          detailItems: []
+        }
+      }
+
+      var entry = tableMap[groupKey]
+
+      // 取最大客人数
+      entry.guestCount = Math.max(entry.guestCount, parseInt(o.guestCount) || 0)
+
+      // 取最新创建时间
+      if ((o.createdAt || 0) > entry.createdAt) {
+        entry.createdAt = o.createdAt
+      }
+
+      // 同组状态取最高（已结账 > 未结账）
+      if (orderStatus === 'completed' || orderStatus === 'paid') {
+        entry.status = 'paid'
+      }
+
+      // 合并菜品
+      var items = o.items || []
+      items.forEach(function(item) {
+        var dishName = item.name || item.dishName || ''
+        var qty = item.quantity || 1
+        var price = item.price || 0
+        entry.allItems.push({
+          name: dishName,
+          quantity: qty
+        })
+        entry.detailItems.push({
+          name: dishName,
+          quantity: qty,
+          price: price,
+          fromOwner: !!o.fromOwner
+        })
+      })
+
+      // 累加金额
+      var orderAmount = o.totalPrice || 0
+      if (!orderAmount && o.items) {
+        o.items.forEach(function(item) {
+          orderAmount += (item.price || 0) * (item.quantity || 1)
+        })
+      }
+      entry.totalPrice += orderAmount
+    })
+
+    // 计算统计数据
     var orderCount = 0
     var totalAmount = 0
     var completedCount = 0
     var completedAmount = 0
     var guestCount = 0
-    var sessionSet = {}
 
-    filtered.forEach(function(o) {
-      // 按 sessionId 去重统计桌数
-      var key = o.sessionId || o.tableName || o.tableNo
-      if (key && !sessionSet[key]) {
-        sessionSet[key] = true
-        orderCount++
-        guestCount += parseInt(o.guestCount) || 0
+    var displayOrders = []
+    Object.keys(tableMap).sort().forEach(function(key) {
+      var entry = tableMap[key]
+      orderCount++
+      guestCount += entry.guestCount
+      totalAmount += entry.totalPrice
 
-        var amount = o.totalPrice || 0
-        // 如果 totalPrice 不存在，从 items 计算
-        if (!amount && o.items) {
-          o.items.forEach(function(item) {
-            amount += (item.price || 0) * (item.quantity || 1)
-          })
-        }
-
-        if (o.status === 'completed' || o.status === 'paid') {
-          completedCount++
-          completedAmount += amount
-        }
-        totalAmount += amount
+      if (entry.status === 'paid') {
+        completedCount++
+        completedAmount += entry.totalPrice
       }
-    })
 
-    // 格式化订单列表
-    var displayOrders = filtered.map(function(o) {
-      var d = new Date(o.createdAt || Date.now())
-      var timeText = d.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
-      var dateText = d.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' })
-
-      // 归一化 items
-      var items = (o.items || []).map(function(item) {
-        return {
-          name: item.name || item.dishName || '',
-          quantity: item.quantity || 1
-        }
+      displayOrders.push({
+        tableNo: entry.tableNo,
+        guestCount: entry.guestCount,
+        timeText: formatDateTime(entry.createdAt),
+        statusText: statusMap[entry.status] || '未结账',
+        status: entry.status,
+        totalPrice: entry.totalPrice.toFixed(2),
+        items: entry.allItems,
+        detailItems: entry.detailItems
       })
-
-      var orderAmount = o.totalPrice || 0
-      if (!orderAmount && items.length > 0) {
-        o.items.forEach(function(item) {
-          orderAmount += (item.price || 0) * (item.quantity || 1)
-        })
-      }
-
-      return {
-        tableNo: o.tableName || o.tableNo || '',
-        guestCount: o.guestCount || 0,
-        timeText: dateText + ' ' + timeText,
-        statusText: statusMap[o.status] || '未知',
-        status: o.status || 'pending',
-        totalPrice: orderAmount.toFixed(2),
-        items: items,
-        createdAt: o.createdAt
-      }
     })
 
     this.setData({
@@ -150,5 +187,17 @@ Page({
       completedAmount: completedAmount.toFixed(2),
       guestCount: guestCount
     })
+  },
+
+  showDetail: function(e) {
+    var index = e.currentTarget.dataset.index
+    var order = this.data.orders[index]
+    if (order) {
+      this.setData({ showDetailPopup: true, detailOrder: order })
+    }
+  },
+
+  closeDetail: function() {
+    this.setData({ showDetailPopup: false, detailOrder: {} })
   }
 })

@@ -7,7 +7,8 @@ Page({
     tableNo: '',
     items: [],
     allGroups: [],
-    totalPrice: '0.00米',
+    totalPrice: '¥0.00',
+    rawTotal: 0,
     paying: false,
     paid: false
   },
@@ -24,10 +25,12 @@ Page({
 
   loadItems: function(tableNo) {
     var that = this
+    var shopId = wx.getStorageSync('currentShopId') || ''
     try {
       var db = getDb()
+      // 只查未结账的菜品
       db.collection('order_items')
-        .where({ tableName: tableNo })
+        .where({ tableName: tableNo, shopId: shopId, status: 'submitted' })
         .orderBy('createdAt', 'asc')
         .get({
           success: function(res) {
@@ -50,7 +53,7 @@ Page({
     var groupIndex = 0
 
     orders.filter(function(o) {
-      return String(o.tableNo) === String(tableNo)
+      return String(o.tableNo) === String(tableNo) && o.status !== 'paid'
     }).sort(function(a, b) { return a.createdAt - b.createdAt }).forEach(function(order) {
       groupIndex++
       if (order.items) {
@@ -79,39 +82,69 @@ Page({
     this.setData({
       items: flatItems,
       allGroups: allGroups,
-      totalPrice: formatPrice(totalPrice)
+      totalPrice: formatPrice(totalPrice),
+      rawTotal: totalPrice
     })
   },
 
   summarize: function(items) {
     var that = this
-    // 按 dishName 合并（同名同价菜品合并数量）
-    var mergedMap = {}
+
+    // 按 createdAt 分组为批次
+    var batchMap = {}
     items.forEach(function(item) {
-      var key = item.dishName + '_' + (item.price || 0)
-      if (!mergedMap[key]) {
-        mergedMap[key] = {
-          dishName: item.dishName,
-          price: item.price,
-          quantity: 0
-        }
-      }
-      mergedMap[key].quantity += item.quantity || 1
+      var key = item.createdAt || item._createTime || 'single'
+      if (!batchMap[key]) batchMap[key] = []
+      batchMap[key].push({
+        dishName: item.dishName,
+        price: item.price || 0,
+        quantity: item.quantity || 1,
+        fromOwner: item.fromOwner
+      })
     })
 
-    var mergedItems = []
+    var batches = Object.keys(batchMap).sort()
+    var allGroups = []
+    var flatItems = []
     var totalPrice = 0
-    for (var k in mergedMap) {
-      var m = mergedMap[k]
-      m.subtotal = m.price * m.quantity
-      totalPrice += m.subtotal
-      mergedItems.push(m)
-    }
+    var batchIndex = 0
+
+    batches.forEach(function(key) {
+      batchIndex++
+      var batchItems = batchMap[key]
+      var isOwner = batchItems[0] && batchItems[0].fromOwner
+
+      var label
+      if (isOwner) {
+        label = '终端协助'
+      } else if (batchIndex === 1) {
+        label = '首次点单'
+      } else {
+        label = '第' + batchIndex + '次加菜'
+      }
+
+      var subtotal = 0
+      var grouped = batchItems.map(function(dish) {
+        var dishSubtotal = dish.price * dish.quantity
+        subtotal += dishSubtotal
+        totalPrice += dishSubtotal
+        return {
+          dishName: dish.dishName,
+          price: dish.price,
+          quantity: dish.quantity,
+          subtotal: dishSubtotal
+        }
+      })
+
+      allGroups.push({ label: label, items: grouped, subtotal: subtotal })
+      flatItems = flatItems.concat(grouped)
+    })
 
     that.setData({
-      items: mergedItems,
-      allGroups: [{ label: '全部菜品', items: mergedItems, subtotal: totalPrice }],
-      totalPrice: formatPrice(totalPrice)
+      items: flatItems,
+      allGroups: allGroups,
+      totalPrice: formatPrice(totalPrice),
+      rawTotal: totalPrice
     })
   },
 
@@ -122,8 +155,7 @@ Page({
 
     that.setData({ paying: true })
 
-    var totalPrice = that.data.totalPrice
-    var amount = parseFloat(totalPrice)
+    var amount = that.data.rawTotal
     if (isNaN(amount) || amount <= 0) {
       wx.showToast({ title: '金额错误', icon: 'none' })
       that.setData({ paying: false })
@@ -149,7 +181,7 @@ Page({
     // 已配置商户号 → 走微信支付
     wx.showModal({
       title: '确认结账',
-      content: '共计 ' + totalPrice,
+      content: '共计 ' + that.data.totalPrice,
       confirmText: '确认支付',
       cancelText: '取消',
       success: function(res) {
@@ -175,7 +207,7 @@ Page({
       data: {
         orderData: {
           tableNo: that.data.tableNo,
-          totalPrice: parseFloat(that.data.totalPrice),
+          totalPrice: that.data.rawTotal,
           items: that.data.items
         },
         shopId: wx.getStorageSync('currentShopId') || ''
@@ -225,15 +257,16 @@ Page({
     // 更新云数据库订单状态
     try {
       var db = getDb()
+      var shopId = wx.getStorageSync('currentShopId') || ''
       // 关闭会话
       db.collection('sessions')
-        .where({ tableName: tableNo, status: 'active' })
+        .where({ tableName: tableNo, status: 'active', shopId: shopId })
         .update({
           data: { status: 'closed', paidAt: Date.now() }
         })
       // 更新订单状态
       db.collection('orders')
-        .where({ tableName: tableNo, status: 'pending' })
+        .where({ tableName: tableNo, status: 'pending', shopId: shopId })
         .update({
           data: { status: 'paid', paidAt: Date.now() }
         })

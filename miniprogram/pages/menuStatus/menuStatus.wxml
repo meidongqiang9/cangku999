@@ -1,5 +1,7 @@
 <view class="container">
-  <view class="page-title">厨房后台</view>
+  <view class="page-title">厨房后台
+    <text wx:if="{{chefName}}" class="chef-badge">👨‍🍳 {{chefName}}</text>
+  </view>
   
   <view class="tabs">
     <view class="tab {{currentTab === 'pending' ? 'active' : ''}}" bindtap="switchTab" data-tab="pending">待制作</view>

@@ -99,6 +99,20 @@ exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
   const openid = wxContext.OPENID
 
+  // 验证 shopId 有效
+  if (!shopId) {
+    return { code: -1, msg: '店铺ID不能为空' }
+  }
+
+  try {
+    var shopRes = await db.collection('shops').doc(shopId).get()
+    if (!shopRes.data) {
+      return { code: -1, msg: '店铺不存在' }
+    }
+  } catch (e) {
+    return { code: -1, msg: '店铺验证失败' }
+  }
+
   try {
     const tradeNo = 'ET' + Date.now() + Math.random().toString(36).substr(2, 6).toUpperCase()
 

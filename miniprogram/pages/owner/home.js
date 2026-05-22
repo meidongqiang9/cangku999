@@ -1,4 +1,5 @@
 const { getDb } = require('../../utils/cloud')
+const { isSameDay, isSameMonth, isSameYear, todayStart, monthStart, yearStart } = require('../../utils/time')
 
 Page({
   data: {
@@ -67,9 +68,12 @@ Page({
 
   loadStats: function() {
     var that = this
+    var shopId = wx.getStorageSync('currentShopId') || ''
     try {
       var db = getDb()
-      db.collection('orders').get({
+      db.collection('orders')
+        .where(shopId ? { shopId: shopId } : {})
+        .get({
         success: function(res) {
           that.calcStats(res.data || [])
         },
@@ -83,36 +87,35 @@ Page({
   },
 
   calcStats: function(orders) {
-    var today = new Date().toDateString()
-    var thisMonth = new Date().getMonth()
-    var thisYear = new Date().getFullYear()
-
-    var todaySet = {}
-    var monthSet = {}
+    var todayCleared = {}
+    var monthCleared = {}
     var todayAmount = 0
     var monthAmount = 0
 
     orders.forEach(function(o) {
-      var d = new Date(o.createdAt)
-      var isToday = d.toDateString() === today
-      var isThisMonth = d.getMonth() === thisMonth && d.getFullYear() === thisYear
+      // 只统计已结账（清台翻台）的订单
+      if (o.status !== 'paid' && o.status !== 'completed') return
+
+      var isToday = isSameDay(o.paidAt || o.createdAt, Date.now())
+      var isThisMonth = isSameMonth(o.paidAt || o.createdAt, Date.now())
       var amount = o.totalPrice || 0
 
-      var sessionKey = o.sessionId || o.tableName
-      if (isToday && sessionKey) {
-        todaySet[sessionKey] = true
+      // 按桌号+结账时间排重（同一次翻台可能有多条订单：顾客+协助）
+      var clearKey = (o.tableName || o.tableNo || '') + '_' + (o.paidAt || o.createdAt || '')
+      if (isToday && clearKey) {
+        todayCleared[clearKey] = true
         todayAmount += amount
       }
-      if (isThisMonth && sessionKey) {
-        monthSet[sessionKey] = true
+      if (isThisMonth && clearKey) {
+        monthCleared[clearKey] = true
         monthAmount += amount
       }
     })
 
     this.setData({
-      todayOrders: Object.keys(todaySet).length,
+      todayOrders: Object.keys(todayCleared).length,
       todayAmount: todayAmount.toFixed(2),
-      monthOrders: Object.keys(monthSet).length,
+      monthOrders: Object.keys(monthCleared).length,
       monthAmount: monthAmount.toFixed(2)
     })
   },
@@ -127,7 +130,7 @@ Page({
   goOrders: function() { wx.navigateTo({ url: '/pages/owner/orders' }) },
   goSettings: function() { wx.navigateTo({ url: '/pages/owner/settings' }) },
   goContact: function() { wx.navigateTo({ url: '/pages/owner/contact' }) },
-  goUsers: function() { wx.navigateTo({ url: '/pages/owner/users' }) },
+  goChefs: function() { wx.navigateTo({ url: '/pages/owner/chefs/chefs' }) },
 
   clearData: function() {
     var that = this
@@ -152,6 +155,7 @@ Page({
     var pwd = that.data.password || ''
     var users = wx.getStorageSync('ownerUsers') || []
     var user = wx.getStorageSync('ownerUser')
+    var shopId = wx.getStorageSync('currentShopId') || ''
 
     var valid = false
     if (user && pwd === '123456') {
@@ -166,22 +170,42 @@ Page({
     }
 
     var type = that.data.passwordAction
-    var orders = wx.getStorageSync('allOrders') || []
-    var now = new Date()
 
+    // 从云数据库基于 shopId 清零
+    try {
+      var db = getDb()
+      var cutoff
+      if (type === 0) {
+        cutoff = todayStart()
+      } else if (type === 1) {
+        cutoff = monthStart()
+      } else {
+        cutoff = yearStart()
+      }
+      db.collection('orders').where({ shopId: shopId }).get({
+        success: function(res) {
+          (res.data || []).forEach(function(o) {
+            if (o.createdAt >= cutoff && o._id) {
+              db.collection('orders').doc(o._id).remove()
+            }
+          })
+        }
+      })
+    } catch (e) {}
+
+    // 同时清理本地缓存
+    var orders = wx.getStorageSync('allOrders') || []
     if (type === 0) {
       orders = orders.filter(function(o) {
-        return new Date(o.createdAt).toDateString() !== now.toDateString()
+        return !isSameDay(o.createdAt, Date.now())
       })
     } else if (type === 1) {
       orders = orders.filter(function(o) {
-        var d = new Date(o.createdAt)
-        return !(d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear())
+        return !isSameMonth(o.createdAt, Date.now())
       })
     } else {
       orders = orders.filter(function(o) {
-        var d = new Date(o.createdAt)
-        return d.getFullYear() !== now.getFullYear()
+        return !isSameYear(o.createdAt, Date.now())
       })
     }
 

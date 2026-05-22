@@ -16,15 +16,16 @@
     "pages/owner/settings",
     "pages/owner/contact",
     "pages/owner/tableDetail/tableDetail",
-    "pages/owner/users"
+    "pages/owner/chefs/chefs"
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#5B8C5A",
+    "navigationBarBackgroundColor": "#E8784A",
     "navigationBarTitleText": "食易特 Eat",
     "navigationBarTextStyle": "white",
-    "backgroundColor": "#f5f5f5"
+    "backgroundColor": "#FBF7F0"
   },
   "style": "v2",
-  "componentFramework": "glass-easel"
+  "componentFramework": "glass-easel",
+  "lazyCodeLoading": "requiredComponents"
 }

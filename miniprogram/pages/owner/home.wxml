@@ -35,9 +35,9 @@
       <text class="menu-title">餐桌管理</text>
       <text class="menu-arrow">›</text>
     </view>
-    <view class="menu-item" bindtap="goOrders">
-      <text class="menu-icon">📑</text>
-      <text class="menu-title">营收统计</text>
+    <view class="menu-item" bindtap="goChefs">
+      <text class="menu-icon">👨‍🍳</text>
+      <text class="menu-title">厨师管理</text>
       <text class="menu-arrow">›</text>
     </view>
     <view class="menu-item" bindtap="goSettings">
@@ -45,19 +45,19 @@
       <text class="menu-title">店铺设置</text>
       <text class="menu-arrow">›</text>
     </view>
-    <view class="menu-item" bindtap="goContact">
-      <text class="menu-icon">📱</text>
-      <text class="menu-title">联系作者</text>
-      <text class="menu-arrow">›</text>
-    </view>
-    <view class="menu-item" bindtap="goUsers">
-      <text class="menu-icon">👥</text>
-      <text class="menu-title">用户管理</text>
+    <view class="menu-item" bindtap="goOrders">
+      <text class="menu-icon">📑</text>
+      <text class="menu-title">营收统计</text>
       <text class="menu-arrow">›</text>
     </view>
     <view class="menu-item" bindtap="clearData">
       <text class="menu-icon">🗑️</text>
       <text class="menu-title">数据清理</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="goContact">
+      <text class="menu-icon">📱</text>
+      <text class="menu-title">联系作者</text>
       <text class="menu-arrow">›</text>
     </view>
   </view>

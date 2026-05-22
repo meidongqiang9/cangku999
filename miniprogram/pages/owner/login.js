@@ -84,44 +84,97 @@ Page({
     var that = this
     var users = wx.getStorageSync('ownerUsers') || []
 
-    // 硬编码测试账号
     var found = users.find(function(u) {
       return u.phone === phone && u.password === password
     })
 
-    if (!found) {
-      // 测试账号兼容
-      if (phone === '13889195545' && password === '123456') {
-        found = {
-          id: 'admin_' + Date.now(),
-          phone: '13889195545',
-          shopName: '食易特餐厅',
-          role: 'owner',
-          canUse: true
-        }
+    // 测试账号兼容
+    if (!found && phone === '13889195545' && password === '123456') {
+      found = {
+        id: 'admin_' + Date.now(),
+        phone: '13889195545',
+        shopName: '食易特餐厅',
+        role: 'owner',
+        canUse: true
       }
     }
 
     if (found) {
       found.loginAt = Date.now()
-      wx.setStorageSync('ownerUser', found)
-      that.setData({ submitting: false })
 
-      // 尝试通过云函数获取 openid 绑定
-      wx.cloud.callFunction({
-        name: 'login',
-        success: function() {},
-        fail: function() {}
-      })
+      // 确保有 shopId：优先从已存储数据，其次从云数据库查找
+      var shopId = found.shopId || ''
 
-      wx.showToast({ title: '登录成功', icon: 'success' })
-      setTimeout(function() {
-        wx.redirectTo({ url: '/pages/owner/home' })
-      }, 600)
+      if (!shopId) {
+        // 旧账号没有 shopId，尝试从 users 集合获取
+        this.ensureShopId(found, function(updatedUser) {
+          wx.setStorageSync('ownerUser', updatedUser)
+          wx.setStorageSync('currentShopId', updatedUser.shopId || '')
+          that.finishLogin()
+        })
+      } else {
+        wx.setStorageSync('ownerUser', found)
+        wx.setStorageSync('currentShopId', shopId)
+        this.finishLogin()
+      }
     } else {
       that.setData({ submitting: false })
       wx.showToast({ title: '账号或密码错误', icon: 'none' })
     }
+  },
+
+  // 兼容旧账号：无 shopId 时自动创建 shop 文档
+  ensureShopId: function(user, callback) {
+    var shopName = user.shopName || '我的店铺'
+    var phone = user.phone || ''
+
+    try {
+      var db = getDb()
+      // 查询 users 集合中是否有该手机号对应的 shopId
+      db.collection('users').where({ phone: phone, role: 'owner' }).get({
+        success: function(res) {
+          if (res.data && res.data.length > 0 && res.data[0].shopId) {
+            user.shopId = res.data[0].shopId
+            callback(user)
+          } else {
+            // 创建 shop 文档
+            db.collection('shops').add({
+              data: { shopName: shopName, phone: phone, createdAt: Date.now() },
+              success: function(addRes) {
+                var shopId = addRes._id
+                user.shopId = shopId
+                // 回写到 users 集合
+                if (res.data && res.data.length > 0) {
+                  db.collection('users').doc(res.data[0]._id).update({ data: { shopId: shopId } })
+                } else {
+                  db.collection('users').add({
+                    data: { phone: phone, shopName: shopName, role: 'owner', shopId: shopId, createdAt: Date.now() }
+                  })
+                }
+                callback(user)
+              },
+              fail: function() { callback(user) }
+            })
+          }
+        },
+        fail: function() { callback(user) }
+      })
+    } catch (e) { callback(user) }
+  },
+
+  finishLogin: function() {
+    this.setData({ submitting: false })
+
+    wx.cloud.callFunction({
+      name: 'login',
+      success: function() {},
+      fail: function() {}
+    })
+
+    wx.showToast({ title: '登录成功', icon: 'success' })
+    setTimeout(function() {
+      wx.redirectTo({ url: '/pages/owner/home' })
+    }, 600)
   },
 
   doRegister: function(phone, password) {
@@ -142,39 +195,70 @@ Page({
       return
     }
 
-    var newUser = {
-      id: 'owner_' + Date.now(),
-      phone: phone,
-      password: password,
-      shopName: shopName,
-      realName: that.data.realName.trim(),
-      role: 'owner',
-      canUse: true,
-      createdAt: Date.now()
+    // 先创建 shop 文档获取 shopId
+    that.setData({ submitting: true })
+    var shopId = ''
+    var userId = 'owner_' + Date.now()
+
+    var doCreateUser = function(shopId) {
+      var newUser = {
+        id: userId,
+        phone: phone,
+        password: password,
+        shopName: shopName,
+        realName: that.data.realName.trim(),
+        role: 'owner',
+        canUse: true,
+        shopId: shopId,
+        createdAt: Date.now()
+      }
+
+      users.push(newUser)
+      wx.setStorageSync('ownerUsers', users)
+      wx.setStorageSync('ownerUser', newUser)
+      wx.setStorageSync('currentShopId', shopId)
+
+      // 同步用户到云端（含 shopId）
+      try {
+        var db = getDb()
+        db.collection('users').add({
+          data: {
+            phone: phone,
+            shopName: shopName,
+            role: 'owner',
+            shopId: shopId,
+            createdAt: Date.now()
+          }
+        })
+      } catch (e) {}
+
+      that.setData({ submitting: false })
+      wx.showToast({ title: '注册成功', icon: 'success' })
+      setTimeout(function() {
+        wx.redirectTo({ url: '/pages/owner/home' })
+      }, 600)
     }
 
-    users.push(newUser)
-    wx.setStorageSync('ownerUsers', users)
-    wx.setStorageSync('ownerUser', newUser)
-
-    // 如果配置了云开发，同步用户到云端
+    // 尝试在云数据库创建 shop 文档
     try {
       var db = getDb()
-      db.collection('users').add({
+      db.collection('shops').add({
         data: {
-          phone: phone,
           shopName: shopName,
-          role: 'owner',
+          phone: phone,
           createdAt: Date.now()
+        },
+        success: function(res) {
+          shopId = res._id
+          doCreateUser(shopId)
+        },
+        fail: function() {
+          doCreateUser(shopId)
         }
       })
-    } catch (e) {}
-
-    that.setData({ submitting: false })
-    wx.showToast({ title: '注册成功', icon: 'success' })
-    setTimeout(function() {
-      wx.redirectTo({ url: '/pages/owner/home' })
-    }, 600)
+    } catch (e) {
+      doCreateUser(shopId)
+    }
   },
 
   onWechatLogin: function() {
@@ -191,21 +275,35 @@ Page({
                 data: { code: loginRes.code },
                 success: function(cfRes) {
                   var openid = cfRes.result.openid
+                  var shopName = userInfo.nickName + '的店铺'
+
                   var user = {
                     id: 'wx_' + openid.substring(0, 12),
                     phone: '',
-                    shopName: userInfo.nickName + '的店铺',
+                    shopName: shopName,
                     avatarUrl: userInfo.avatarUrl,
                     nickname: userInfo.nickName,
                     role: 'owner',
                     canUse: true,
                     loginAt: Date.now()
                   }
-                  wx.setStorageSync('ownerUser', user)
-                  wx.showToast({ title: '登录成功', icon: 'success' })
-                  setTimeout(function() {
-                    wx.redirectTo({ url: '/pages/owner/home' })
-                  }, 600)
+
+                  // 创建 shop 文档获取 shopId
+                  try {
+                    var db = getDb()
+                    db.collection('shops').add({
+                      data: { shopName: shopName, phone: '', createdAt: Date.now() },
+                      success: function(addRes) {
+                        user.shopId = addRes._id
+                        that.saveWechatUser(user)
+                      },
+                      fail: function() {
+                        that.saveWechatUser(user)
+                      }
+                    })
+                  } catch (e) {
+                    that.saveWechatUser(user)
+                  }
                 },
                 fail: function() {
                   wx.showToast({ title: '微信登录失败，请重试', icon: 'none' })
@@ -222,5 +320,28 @@ Page({
         wx.showToast({ title: '已取消授权', icon: 'none' })
       }
     })
+  },
+
+  saveWechatUser: function(user) {
+    wx.setStorageSync('ownerUser', user)
+    wx.setStorageSync('currentShopId', user.shopId || '')
+
+    try {
+      var db = getDb()
+      db.collection('users').add({
+        data: {
+          phone: '',
+          shopName: user.shopName,
+          role: 'owner',
+          shopId: user.shopId || '',
+          createdAt: Date.now()
+        }
+      })
+    } catch (e) {}
+
+    wx.showToast({ title: '登录成功', icon: 'success' })
+    setTimeout(function() {
+      wx.redirectTo({ url: '/pages/owner/home' })
+    }, 600)
   }
 })

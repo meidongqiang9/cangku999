@@ -17,13 +17,16 @@ Page({
 
   loadUsers: function() {
     var that = this
+    var shopId = wx.getStorageSync('currentShopId') || ''
     // 先从本地加载
     var localUsers = wx.getStorageSync('ownerUsers') || []
 
     try {
       var db = getDb()
+      var query = { role: 'owner' }
+      if (shopId) query.shopId = shopId
       db.collection('users')
-        .where({ role: 'owner' })
+        .where(query)
         .get({
           success: function(res) {
             var cloudUsers = (res.data || []).map(function(u) {

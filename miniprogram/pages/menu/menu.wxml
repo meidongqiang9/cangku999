@@ -1,18 +1,21 @@
 <view class="container">
   <!-- 顶部标题栏 -->
   <view class="header">
-    <text class="header-title">
-      {{fromOwner ? '代客加菜 (' + tableNo + '桌)' : (isAdditional ? '追加点单 (' + tableNo + '桌)' : '点餐 (' + tableNo + '桌)')}}
-    </text>
-    <text class="header-guest">{{guestCount}}人</text>
+    <view class="header-left">
+      <text class="header-title">
+        {{fromOwner ? '代客加菜' : (isAdditional ? '追加点单' : '点餐')}}
+      </text>
+      <text class="header-table">{{tableNo}}桌 · {{guestCount}}人</text>
+    </view>
   </view>
+
   <view class="owner-bar" wx:if="{{fromOwner}}">
     <text>老板代客加菜模式 — 完成后自动返回</text>
   </view>
 
   <!-- 追加模式：查看已点菜单 -->
   <view class="ordered-bar" wx:if="{{isAdditional}}" bindtap="toggleOrderedPopup">
-    <text>查看已点菜单（{{orderedItems.length}}道） ›</text>
+    <text>已点 {{orderedItems.length}} 道菜，点击查看 ›</text>
   </view>
 
   <!-- 主体：左品类导航 + 右菜品列表 -->
@@ -31,7 +34,7 @@
       </view>
     </scroll-view>
 
-    <!-- 右侧菜品瀑布流 -->
+    <!-- 右侧菜品列表 -->
     <scroll-view
       scroll-y
       class="dish-scroll"
@@ -50,47 +53,43 @@
             lazy-load
           />
           <view wx:else class="dish-image-placeholder">🍽️</view>
-          <!-- 叠加数量标签 -->
-          <view class="dish-badge" wx:if="{{cartItems.length > 0}}">
+          <!-- 已点数量徽章 -->
+          <view class="dish-qty-badge">
             <block wx:for="{{cartItems}}" wx:for-item="ci" wx:key="id">
-              <view wx:if="{{ci.id === (item._id || item.id)}}" class="badge-count">
-                {{ci.quantity}}
-              </view>
+              <text wx:if="{{ci.id === (item._id || item.id) && ci.quantity > 0}}" class="badge-num">已选 ×{{ci.quantity}}</text>
             </block>
           </view>
         </view>
 
-        <!-- 菜品信息 -->
+        <!-- 菜品信息行：菜名 + 数量控件 + 价格（同一行） -->
         <view class="dish-info">
           <text class="dish-name">{{item.name}}</text>
-          <text class="dish-price">{{item.price ? '¥' + item.price : ''}}</text>
+          <view class="dish-info-right">
+            <view wx:if="{{orderedItemIds.includes(item._id || item.id)}}" class="added-tag">已走菜</view>
+            <block wx:else>
+              <view wx:if="{{cartMap[item._id || item.id] > 0}}" class="qty-ctrl">
+                <view class="qty-btn minus" catchtap="decreaseQuantity" data-id="{{item._id || item.id}}">−</view>
+                <text class="qty-num">{{cartMap[item._id || item.id]}}</text>
+                <view class="qty-btn plus" catchtap="increaseQuantity" data-id="{{item._id || item.id}}">+</view>
+              </view>
+              <view wx:else class="add-btn" catchtap="addToCart" data-id="{{item._id || item.id}}">+</view>
+            </block>
+            <text class="dish-price" wx:if="{{item.price}}">¥{{item.price}}</text>
+          </view>
         </view>
-
-        <!-- 加号按钮 -->
-        <view
-          class="add-btn"
-          wx:if="{{!orderedItemIds.includes(item._id || item.id)}}"
-          catchtap="addToCart"
-          data-id="{{item._id || item.id}}"
-        >+</view>
-        <view
-          wx:else
-          class="added-tag"
-        >已走菜</view>
       </view>
 
-      <!-- 空状态 -->
       <view wx:if="{{categoryDishes.length === 0}}" class="empty-state">
         <text>暂无菜品</text>
-        <text class="text-placeholder">老板正在努力上架中...</text>
+        <text class="text-secondary">老板正在努力上架中...</text>
       </view>
     </scroll-view>
   </view>
 
-  <!-- 底部提交按钮 -->
+  <!-- 底部提交栏 -->
   <view class="submit-bar" wx:if="{{cartCount > 0 || isAdditional}}">
     <view class="submit-btn" wx:if="{{cartCount > 0}}" bindtap="confirmSubmit">
-      选好了（{{cartCount}}件）
+      选好了 · {{cartCount}}件
     </view>
     <view class="back-order-btn" wx:if="{{isAdditional}}" bindtap="goBackToOrder">
       返回订单

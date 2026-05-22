@@ -1,16 +1,26 @@
 const { getDb } = require('../../utils/cloud')
+const { formatTime } = require('../../utils/time')
 
 Page({
   data: {
     orders: [],
     tableNo: '',
     currentTab: 'pending',
-    watcher: null
+    watcher: null,
+    chefName: ''
   },
 
   onLoad: function(options) {
     var tableNo = options.tableNo || ''
-    this.setData({ tableNo: tableNo })
+    var chefName = options.chefName ? decodeURIComponent(options.chefName) : ''
+    var isChef = !!chefName
+    if (!chefName) {
+      var chef = wx.getStorageSync('currentChef')
+      if (chef) { chefName = chef.name || ''; isChef = true }
+    }
+    // 厨师默认显示"已完成"tab，方便查看已走菜菜品
+    var defaultTab = isChef ? 'completed' : 'pending'
+    this.setData({ tableNo: tableNo, chefName: chefName, currentTab: defaultTab })
     this.loadOrders()
     this.startWatch()
   },
@@ -23,9 +33,11 @@ Page({
 
   startWatch: function() {
     var that = this
+    var shopId = wx.getStorageSync('currentShopId') || ''
     try {
       var db = getDb()
       var watcher = db.collection('order_items')
+        .where(shopId ? { shopId: shopId } : {})
         .watch({
           onChange: function() {
             that.loadOrders()
@@ -46,9 +58,11 @@ Page({
 
   loadOrders: function() {
     var that = this
+    var shopId = wx.getStorageSync('currentShopId') || ''
     try {
       var db = getDb()
       db.collection('order_items')
+        .where(shopId ? { shopId: shopId } : {})
         .orderBy('createdAt', 'desc')
         .get({
           success: function(res) {
@@ -142,11 +156,10 @@ Page({
 
     // 格式化为 WXML 需要的格式
     filtered = filtered.map(function(o) {
-      var d = new Date(o.createdAt)
       return {
         tableNo: o.tableNo,
         createdAt: o.createdAt,
-        time: d.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+        time: formatTime(o.createdAt),
         status: o.status,
         items: o.items
       }
@@ -159,11 +172,12 @@ Page({
     var orderCreatedAt = e.currentTarget.dataset.orderid
     var itemId = e.currentTarget.dataset.itemid
     var status = e.currentTarget.dataset.status
+    var shopId = wx.getStorageSync('currentShopId') || ''
 
     try {
       var db = getDb()
       db.collection('order_items')
-        .where({ dishId: itemId })
+        .where({ dishId: itemId, shopId: shopId })
         .update({
           data: { status: status }
         })
@@ -187,12 +201,13 @@ Page({
   updateStatus: function(e) {
     var orderCreatedAt = e.currentTarget.dataset.id
     var newStatus = e.currentTarget.dataset.status
+    var shopId = wx.getStorageSync('currentShopId') || ''
 
     // 更新云数据库
     try {
       var db = getDb()
       db.collection('order_items')
-        .where({ createdAt: orderCreatedAt })
+        .where({ createdAt: orderCreatedAt, shopId: shopId })
         .update({
           data: { status: newStatus }
         })

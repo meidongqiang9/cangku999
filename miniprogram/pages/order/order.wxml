@@ -25,30 +25,35 @@
     <text>桌号：{{tableNo}}</text>
   </view>
 
-  <!-- 菜品列表（按批次分组） -->
+  <!-- 菜品列表（按批次分组，终端协助分开展示） -->
   <scroll-view scroll-y class="order-scroll">
-    <view wx:for="{{orderGroups}}" wx:key="key" class="order-group">
-      <!-- 批次标题 -->
-      <view class="group-title">
-        <text>{{item.title}}</text>
+    <block wx:for="{{orderGroups}}" wx:key="key" wx:for-index="gi">
+      <view wx:if="{{gi === 0 || item.fromOwner !== orderGroups[gi-1].fromOwner}}" class="order-section-divider">
+        <text class="section-label">{{item.fromOwner ? '终端协助' : '顾客点单'}}</text>
       </view>
+      <view class="order-group {{item.fromOwner ? 'owner-group' : ''}}">
+        <!-- 批次标题 -->
+        <view class="group-title">
+          <text>{{item.title}}</text>
+        </view>
 
-      <!-- 该批次的菜品 -->
-      <view wx:for="{{item.items}}" wx:for-item="dish" wx:key="dishId" class="dish-row">
-        <view class="dish-left">
-          <view class="status-dot {{dish.status === 'served' ? 'served' : dish.status === 'returned' ? 'returned' : 'submitted'}}"></view>
-          <view class="dish-info-wrap">
-            <text class="dish-name {{dish.status === 'returned' ? 'returned-text' : ''}}">{{dish.dishName}}</text>
-            <text class="dish-qty">x{{dish.quantity}}</text>
+        <!-- 该批次的菜品 -->
+        <view wx:for="{{item.items}}" wx:for-item="dish" wx:key="dishId" class="dish-row">
+          <view class="dish-left">
+            <view class="status-dot {{dish.status === 'served' ? 'served' : dish.status === 'returned' ? 'returned' : 'submitted'}}"></view>
+            <view class="dish-info-wrap">
+              <text class="dish-name {{dish.status === 'returned' ? 'returned-text' : ''}}">{{dish.dishName}}</text>
+              <text class="dish-qty">x{{dish.quantity}}</text>
+            </view>
           </view>
-        </view>
-        <view class="dish-right">
-          <view class="dish-status-tag {{dish.status}}">
-            {{dish.status === 'submitted' ? '已走菜' : dish.status === 'served' ? '已上菜' : '已回炉'}}
+          <view class="dish-right">
+            <view class="dish-status-tag {{dish.status}}">
+              {{dish.status === 'submitted' ? '已走菜' : dish.status === 'served' ? '已上菜' : '已回炉'}}
+            </view>
           </view>
         </view>
       </view>
-    </view>
+    </block>
 
     <!-- 空状态 -->
     <view wx:if="{{orderGroups.length === 0}}" class="empty-state">

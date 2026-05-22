@@ -73,11 +73,14 @@ Page({
   loadCategoryDishes: function(categoryId) {
     var that = this
     that.setData({ currentCategory: categoryId })
+    var shopId = wx.getStorageSync('currentShopId') || ''
 
     try {
       var db = getDb()
+      var query = { categoryId: categoryId, available: true }
+      if (shopId) query.shopId = shopId
       db.collection('dishes')
-        .where({ categoryId: categoryId, available: true })
+        .where(query)
         .get({
           success: function(res) {
             var dishes = (res.data || []).map(function(d) {
@@ -210,6 +213,19 @@ Page({
     })
   },
 
+  editCategory: function(e) {
+    var id = e.currentTarget.dataset.id
+    var name = e.currentTarget.dataset.name
+    this.setData({
+      showInputModal: true,
+      inputTitle: '修改品类名称',
+      inputValue: name,
+      inputValue2: id,
+      inputAction: 'editCategory',
+      tempImage: ''
+    })
+  },
+
   deleteCategory: function(e) {
     var id = e.currentTarget.dataset.id
     var that = this
@@ -332,7 +348,48 @@ Page({
     var that = this
     var shopId = wx.getStorageSync('currentShopId') || ''
 
-    if (that.data.inputAction === 'addCategory') {
+    if (that.data.inputAction === 'editCategory') {
+      var newName = that.data.inputValue.trim()
+      var catId = that.data.inputValue2
+      if (!newName) {
+        wx.showToast({ title: '请输入品类名称', icon: 'none' })
+        return
+      }
+
+      try {
+        var db = getDb()
+        db.collection('categories').doc(catId).update({
+          data: { name: newName },
+          success: function() {
+            var categories = that.data.categories.map(function(c) {
+              if (c.id === catId) c.name = newName
+              return c
+            })
+            wx.setStorageSync('menuCategories', categories)
+            that.setData({ categories: categories, showInputModal: false, inputValue: '', inputValue2: '' })
+            wx.showToast({ title: '修改成功', icon: 'success' })
+          },
+          fail: function() {
+            // 本地降级
+            var categories = that.data.categories.map(function(c) {
+              if (c.id === catId) c.name = newName
+              return c
+            })
+            wx.setStorageSync('menuCategories', categories)
+            that.setData({ categories: categories, showInputModal: false, inputValue: '', inputValue2: '' })
+            wx.showToast({ title: '修改成功(本地)', icon: 'success' })
+          }
+        })
+      } catch (e) {
+        var categories = that.data.categories.map(function(c) {
+          if (c.id === catId) c.name = newName
+          return c
+        })
+        wx.setStorageSync('menuCategories', categories)
+        that.setData({ categories: categories, showInputModal: false, inputValue: '', inputValue2: '' })
+        wx.showToast({ title: '修改成功(本地)', icon: 'success' })
+      }
+    } else if (that.data.inputAction === 'addCategory') {
       var value = that.data.inputValue.trim()
       if (!value) {
         wx.showToast({ title: '请输入品类名称', icon: 'none' })

@@ -3,28 +3,39 @@
     <text class="title">餐桌管理</text>
     <view class="add-btn" bindtap="addTable">+ 添加餐桌</view>
   </view>
-  
+
   <view class="table-grid">
-    <view wx:for="{{tables}}" wx:key="id" 
+    <view wx:for="{{tables}}" wx:key="id"
           class="table-item {{item.status === 'occupied' ? 'occupied' : ''}}"
           bindtap="viewTableDetail" data-id="{{item.id}}">
       <text class="table-name">{{item.name}}</text>
       <text class="table-status">{{item.statusText}}</text>
       <text wx:if="{{item.status === 'occupied' && item.guestCount}}" class="table-guest">{{item.guestCount}}人</text>
       <text wx:if="{{item.status === 'occupied'}}" class="table-amount">{{item.orders}}</text>
+
+      <!-- QR码缩略图 -->
+      <image wx:if="{{item.qrcode}}" src="{{item.qrcode}}" mode="aspectFit" class="qr-thumb"
+             catchtap="viewQRCode" data-id="{{item.id}}" data-qrcode="{{item.qrcode}}" data-name="{{item.name}}"/>
+
+      <!-- 操作按钮 -->
+      <view class="table-actions" catchtap="stopProp">
+        <text class="table-action-btn edit" catchtap="editTable" data-id="{{item.id}}" data-name="{{item.name}}">✎</text>
+        <text class="table-action-btn qr" catchtap="viewQRCode" data-id="{{item.id}}" data-qrcode="{{item.qrcode}}" data-name="{{item.name}}">◻</text>
+        <text class="table-action-btn delete" catchtap="deleteTable" data-id="{{item.id}}" data-name="{{item.name}}">×</text>
+      </view>
     </view>
-    
+
     <view class="table-item add" bindtap="addTable">
       <text class="table-name">+</text>
     </view>
   </view>
-  
-  <!-- 自定义输入弹窗 -->
+
+  <!-- 添加餐桌弹窗 -->
   <view class="input-mask" wx:if="{{showInputModal}}" bindtap="closeInputModal"></view>
   <view class="input-popup" wx:if="{{showInputModal}}">
     <view class="popup-title">添加餐桌</view>
-    <input class="popup-input" 
-           placeholder="请输入桌号（例：01桌）"
+    <input class="popup-input"
+           placeholder="请输入桌号（例：A01）"
            placeholder-class="placeholder"
            value="{{inputValue}}"
            bindinput="onInputValueChange"
@@ -34,4 +45,38 @@
       <view class="popup-confirm" bindtap="confirmInput">确定</view>
     </view>
   </view>
+
+  <!-- 编辑餐桌弹窗 -->
+  <view class="input-mask" wx:if="{{showEditModal}}" bindtap="closeEditModal"></view>
+  <view class="input-popup" wx:if="{{showEditModal}}">
+    <view class="popup-title">修改餐桌名称</view>
+    <input class="popup-input"
+           placeholder="请输入新桌号"
+           placeholder-class="placeholder"
+           value="{{editInputValue}}"
+           bindinput="onEditInputChange"
+           auto-focus="true"/>
+    <view class="popup-btns">
+      <view class="popup-cancel" bindtap="closeEditModal">取消</view>
+      <view class="popup-confirm" bindtap="confirmEdit">确定</view>
+    </view>
+  </view>
+
+  <!-- 二维码预览弹窗 -->
+  <view class="input-mask" wx:if="{{showQRPopup}}" bindtap="closeQRPopup"></view>
+  <view class="qr-popup" wx:if="{{showQRPopup}}">
+    <view class="popup-title">餐桌 {{qrTableName}} 二维码</view>
+    <image wx:if="{{qrImage}}" src="{{qrImage}}" mode="aspectFit" class="qr-full"/>
+    <view wx:if="{{!qrImage}}" class="qr-generating">
+      <text>二维码生成中...</text>
+    </view>
+    <view class="qr-btns">
+      <view class="qr-btn-close" bindtap="closeQRPopup">关闭</view>
+      <view class="qr-btn-regen" bindtap="regenerateQR">
+        <text class="regen-line">重新</text>
+        <text class="regen-line">生成</text>
+      </view>
+    </view>
+  </view>
 </view>
+<canvas type="2d" id="qrCanvas" style="position:fixed;left:-9999rpx;top:-9999rpx;width:600rpx;height:600rpx;"></canvas>

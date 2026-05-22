@@ -1,31 +1,34 @@
+@import '../../theme.wxss';
+
 page {
-  background: #f5f5f5;
+  background: var(--bg-page);
 }
 
 .container {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding-bottom: 160rpx;
+  padding-bottom: 180rpx;
 }
 
-/* 顶部 */
+/* —— 顶部标题栏 —— */
 .page-title {
-  background: #5B8C5A;
+  background: linear-gradient(160deg, #E8784A, #F09060);
   color: #fff;
-  padding: 24rpx;
+  padding: 28rpx var(--space-md);
   text-align: center;
-  font-size: 32rpx;
-  font-weight: 600;
+  font-size: 34rpx;
+  font-weight: 700;
 }
 
-/* 状态概览 */
+/* —— 状态概览 —— */
 .status-summary {
   display: flex;
-  background: #fff;
-  padding: 32rpx 0;
-  margin: 0 24rpx;
-  border-radius: 0 0 16rpx 16rpx;
+  background: var(--bg-card);
+  padding: 28rpx 0;
+  margin: 0 var(--space-md);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  box-shadow: var(--shadow-card);
 }
 
 .status-item {
@@ -36,163 +39,185 @@ page {
 }
 
 .status-num {
-  font-size: 48rpx;
-  font-weight: 700;
-  color: #5B8C5A;
+  font-size: 52rpx;
+  font-weight: 800;
+  color: var(--primary);
+  line-height: 1;
 }
 
-.status-num.served {
-  color: #4A90D9;
-}
-
-.status-num.total {
-  color: #FF8C42;
-}
+.status-num.served { color: var(--secondary); }
+.status-num.total { color: var(--accent); }
 
 .status-label {
   font-size: 24rpx;
-  color: #999;
-  margin-top: 4rpx;
+  color: var(--text-tertiary);
+  margin-top: 6rpx;
+  font-weight: 500;
 }
 
 .status-divider {
   width: 2rpx;
-  height: 60rpx;
-  background: #f0f0f0;
+  height: 56rpx;
+  background: var(--border-light);
   align-self: center;
 }
 
-/* 桌号信息 */
+/* —— 桌号信息（基准宽度）—— */
 .table-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 28rpx;
-  margin-top: 24rpx;
+  margin: var(--space-md);
+  padding: var(--space-md);
+  font-weight: 600;
 }
 
 .total-price-text {
-  font-size: 32rpx;
-  font-weight: 700;
-  color: #5B8C5A;
+  font-size: 34rpx;
+  font-weight: 800;
+  color: var(--primary);
 }
 
-/* 菜品列表 */
+/* —— 菜品列表 —— */
 .order-scroll {
   flex: 1;
-  padding: 0 24rpx;
+  padding: 0 var(--space-md);
 }
 
 .order-group {
-  margin-bottom: 24rpx;
+  margin-bottom: var(--space-md);
 }
 
 .group-title {
-  padding: 24rpx 0 16rpx;
+  padding: var(--space-md) 4rpx var(--space-sm);
   font-size: 26rpx;
-  color: #999;
-  font-weight: 500;
+  color: var(--text-tertiary);
+  font-weight: 600;
 }
 
+/* —— 分区标签 —— */
+.order-section-divider {
+  padding: 28rpx 0 12rpx;
+  text-align: center;
+}
+
+.section-label {
+  font-size: 24rpx;
+  color: var(--primary);
+  background: var(--primary-light);
+  padding: 8rpx 28rpx;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+}
+
+/* 终端协助分区 — 背景框宽度与桌号卡片一致，右侧向中心收缩 */
+.owner-group {
+  background: var(--accent-light);
+  border-radius: var(--radius-md);
+  padding: 4rpx 0;
+  margin: 8rpx 0;
+}
+
+.owner-group .dish-row {
+  background: transparent;
+  box-shadow: none;
+}
+
+/* —— 菜品行 — 宽度与桌号卡片一致 —— */
 .dish-row {
-  background: #fff;
-  border-radius: 12rpx;
-  padding: 24rpx;
-  margin-bottom: 12rpx;
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: 20rpx var(--space-md);
+  margin-bottom: 10rpx;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  box-shadow: var(--shadow-card);
 }
 
 .dish-left {
   display: flex;
   align-items: center;
   flex: 1;
+  min-width: 0;
 }
 
 .status-dot {
-  width: 12rpx;
-  height: 12rpx;
+  width: 14rpx;
+  height: 14rpx;
   border-radius: 50%;
   margin-right: 16rpx;
   flex-shrink: 0;
 }
 
-.status-dot.submitted {
-  background: #FF8C42;
-}
-
-.status-dot.served {
-  background: #5B8C5A;
-}
-
-.status-dot.returned {
-  background: #E74C3C;
-}
+.status-dot.submitted { background: var(--warning); }
+.status-dot.served { background: var(--secondary); }
+.status-dot.returned { background: var(--danger); }
 
 .dish-info-wrap {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: 10rpx;
+  min-width: 0;
 }
 
 .dish-name {
   font-size: 30rpx;
-  color: #1a1a1a;
+  color: var(--text-primary);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .dish-name.returned-text {
-  color: #ccc;
+  color: #C8BFB5;
   text-decoration: line-through;
 }
 
 .dish-qty {
   font-size: 26rpx;
-  color: #999;
-}
-
-.dish-right {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-}
-
-.dish-price-text {
-  font-size: 28rpx;
-  color: #5B8C5A;
+  color: var(--text-secondary);
   font-weight: 500;
+}
+
+/* 右侧状态标签 — 向中心收缩，不靠右 */
+.dish-right {
+  flex-shrink: 0;
+  margin-left: 20rpx;
 }
 
 .dish-status-tag {
   font-size: 22rpx;
-  padding: 4rpx 12rpx;
-  border-radius: 6rpx;
+  padding: 6rpx 14rpx;
+  border-radius: var(--radius-full);
+  font-weight: 600;
 }
 
 .dish-status-tag.submitted {
-  background: #fff3e0;
-  color: #FF8C42;
+  background: var(--warning-light);
+  color: var(--warning);
 }
 
 .dish-status-tag.served {
-  background: #e8f5e9;
-  color: #5B8C5A;
+  background: var(--success-light);
+  color: var(--success);
 }
 
 .dish-status-tag.returned {
-  background: #ffebee;
-  color: #E74C3C;
+  background: var(--danger-light);
+  color: var(--danger);
 }
 
-/* 底部操作栏 */
+/* —— 底部操作栏 —— */
 .bottom-actions {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   display: flex;
-  background: #fff;
-  box-shadow: 0 -4rpx 16rpx rgba(0,0,0,0.08);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-bottom);
   padding-bottom: env(safe-area-inset-bottom);
   z-index: 100;
 }
@@ -203,42 +228,40 @@ page {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 20rpx 0;
-  font-size: 22rpx;
-  color: #666;
+  padding: 22rpx 0;
+  font-size: 24rpx;
+  font-weight: 600;
 }
 
 .action-btn.add {
-  background: #fff;
-  color: #5B8C5A;
-  border-right: 1rpx solid #f0f0f0;
+  background: var(--bg-card);
+  color: var(--primary);
+  border-right: 1rpx solid var(--border-light);
 }
 
 .action-btn.checkout {
-  background: #5B8C5A;
+  background: linear-gradient(160deg, #E8784A, #F09060);
   color: #fff;
 }
 
 .action-btn.checkout.disabled {
-  background: #ddd;
-  color: #999;
+  background: #D5CFC8;
+  color: var(--text-tertiary);
 }
 
-.action-btn:active {
-  opacity: 0.8;
-}
+.action-btn:active { opacity: 0.85; }
 
 .action-icon {
-  font-size: 36rpx;
+  font-size: 40rpx;
   margin-bottom: 4rpx;
 }
 
-/* 空状态 */
+/* —— 空状态 —— */
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 80rpx 0;
-  color: #999;
+  padding: 100rpx 0;
+  color: var(--text-tertiary);
   gap: 8rpx;
 }
