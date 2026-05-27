@@ -68,7 +68,10 @@
         <text class="d-col-sub">小计</text>
       </view>
       <view wx:for="{{detailOrder.detailItems}}" wx:for-item="item" wx:key="name" wx:if="{{!item.fromOwner}}" class="detail-row">
-        <text class="d-col-name">{{item.name}}</text>
+        <view class="d-col-name-wrap">
+          <text class="d-col-name">{{item.name}}</text>
+          <text wx:if="{{item.taste}}" class="taste-tag">{{item.taste}}</text>
+        </view>
         <text class="d-col-qty">x{{item.quantity}}</text>
         <text class="d-col-price">💰{{item.price}}</text>
         <text class="d-col-sub">💰{{item.price * item.quantity}}</text>
@@ -84,7 +87,10 @@
           <text class="d-col-sub">小计</text>
         </view>
         <view wx:for="{{detailOrder.detailItems}}" wx:for-item="item" wx:key="name" wx:if="{{item.fromOwner}}" class="detail-row owner-row">
-          <text class="d-col-name">{{item.name}}</text>
+          <view class="d-col-name-wrap">
+            <text class="d-col-name">{{item.name}}</text>
+            <text wx:if="{{item.taste}}" class="taste-tag">{{item.taste}}</text>
+          </view>
           <text class="d-col-qty">x{{item.quantity}}</text>
           <text class="d-col-price">💰{{item.price}}</text>
           <text class="d-col-sub">💰{{item.price * item.quantity}}</text>

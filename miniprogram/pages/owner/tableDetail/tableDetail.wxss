@@ -84,6 +84,30 @@ page { background: var(--bg-page) }
 }
 
 .td-name { font-weight: 500; color: var(--text-primary); font-size: 30rpx }
+
+.td-name-wrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+}
+
+.td-name-wrap .td-name {
+  flex: none;
+  min-width: auto;
+}
+
+.taste-tag {
+  display: inline-block;
+  padding: 2rpx 10rpx;
+  font-size: 20rpx;
+  color: #fff;
+  background: var(--primary);
+  border-radius: 6rpx;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
 .td-qty  { color: var(--text-secondary); font-size: 28rpx }
 .td-price{ color: var(--text-primary); font-size: 28rpx }
 .td-sub  { color: var(--primary); font-weight: 700; font-size: 28rpx }

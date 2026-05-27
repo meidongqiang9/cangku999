@@ -99,6 +99,7 @@ Page({
         dishName: item.dishName,
         price: item.price || 0,
         quantity: item.quantity || 1,
+        taste: item.taste || '',
         fromOwner: item.fromOwner
       })
     })
@@ -132,6 +133,7 @@ Page({
           dishName: dish.dishName,
           price: dish.price,
           quantity: dish.quantity,
+          taste: dish.taste || '',
           subtotal: dishSubtotal
         }
       })

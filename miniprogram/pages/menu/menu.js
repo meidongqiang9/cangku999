@@ -15,6 +15,10 @@ Page({
     showCart: false,
     showDishDetail: false,
     showConfirmPopup: false,
+    showTastePopup: false,
+    tasteDish: null,
+    tasteOptions: ['多辣','少辣','多糖','少糖','多麻','少麻','多醋','少醋'],
+    selectedTastes: {},
     detailDish: null,
     tableNo: '',
     guestCount: '',
@@ -66,6 +70,7 @@ Page({
                 orderedItems.push({
                   name: item.dishName,
                   quantity: item.quantity,
+                  taste: item.taste || '',
                   status: item.status
                 })
               })
@@ -89,6 +94,7 @@ Page({
             orderedItems.push({
               name: item.name || item.dishName,
               quantity: item.quantity,
+              taste: item.taste || '',
               status: item.status
             })
           })
@@ -210,18 +216,59 @@ Page({
   addFromDetail: function() {
     var dish = this.data.detailDish
     if (dish) {
-      this.addToCartById(dish._id || dish.id)
+      this.setData({ showDishDetail: false, detailDish: null })
+      this.showTastePopup(dish._id || dish.id, dish)
     }
   },
 
-  addToCartById: function(id) {
+  showTastePopup: function(id, dish) {
+    this.setData({
+      showTastePopup: true,
+      tasteDish: dish,
+      selectedTastes: {},
+      _pendingAddId: id
+    })
+  },
+
+  toggleTaste: function(e) {
+    var taste = e.currentTarget.dataset.taste
+    var selected = this.data.selectedTastes
+    if (selected[taste]) {
+      delete selected[taste]
+    } else {
+      selected[taste] = true
+    }
+    this.setData({ selectedTastes: selected })
+  },
+
+  getSelectedTasteStr: function() {
+    var selected = this.data.selectedTastes
+    var result = []
+    this.data.tasteOptions.forEach(function(t) {
+      if (selected[t]) result.push(t)
+    })
+    return result.join(',')
+  },
+
+  confirmTaste: function() {
+    var taste = this.getSelectedTasteStr()
+    this.setData({ showTastePopup: false, tasteDish: null, selectedTastes: {} })
+    this.addToCartWithTaste(this.data._pendingAddId, taste)
+  },
+
+  skipTaste: function() {
+    this.setData({ showTastePopup: false, tasteDish: null, selectedTastes: {} })
+    this.addToCartWithTaste(this.data._pendingAddId, '')
+  },
+
+  addToCartWithTaste: function(id, taste) {
     var dishes = this.data.categoryDishes
     var cartItems = this.data.cartItems.slice()
     var dish = dishes.find(function(d) { return (d._id || d.id) === id })
 
     if (!dish) return
 
-    var exist = cartItems.find(function(c) { return c.id === id })
+    var exist = cartItems.find(function(c) { return c.id === id && c.taste === taste })
     if (exist) {
       exist.quantity++
     } else {
@@ -230,27 +277,28 @@ Page({
         name: dish.name,
         price: dish.price,
         image: dish.image || '',
-        quantity: 1
+        quantity: 1,
+        taste: taste
       })
     }
 
     this.updateCart(cartItems)
-    this.setData({ showDishDetail: false, detailDish: null })
     wx.vibrateShort({ type: 'light' })
   },
 
   addToCart: function(e) {
     var id = e.currentTarget.dataset.id
-    this.addToCartById(id)
+    var dish = this.data.categoryDishes.find(function(d) { return (d._id || d.id) === id })
+    if (dish) {
+      this.showTastePopup(id, dish)
+    }
   },
 
   increaseQuantity: function(e) {
     var id = e.currentTarget.dataset.id
-    var cartItems = this.data.cartItems.slice()
-    var item = cartItems.find(function(c) { return c.id === id })
-    if (item) {
-      item.quantity++
-      this.updateCart(cartItems)
+    var dish = this.data.categoryDishes.find(function(d) { return (d._id || d.id) === id })
+    if (dish) {
+      this.showTastePopup(id, dish)
     }
   },
 
@@ -275,7 +323,7 @@ Page({
     cartItems.forEach(function(item) {
       totalPrice += item.price * item.quantity
       cartCount += item.quantity
-      cartMap[item.id] = item.quantity
+      cartMap[item.id] = (cartMap[item.id] || 0) + item.quantity
     })
     this.setData({
       cartItems: cartItems,
@@ -347,6 +395,7 @@ Page({
         price: item.price,
         quantity: item.quantity,
         image: item.image,
+        taste: item.taste || '',
         status: 'submitted'
       }
       // 终端协助：保存原价作为后续调价上限
@@ -386,6 +435,7 @@ Page({
                 quantity: item.quantity,
                 image: item.image,
                 status: 'submitted',
+                taste: item.taste || '',
                 fromOwner: fromOwner,
                 createdAt: batchTime
               }
@@ -398,7 +448,8 @@ Page({
               dishId: item.dishId,
               name: item.dishName,
               price: item.price,
-              quantity: item.quantity
+              quantity: item.quantity,
+              taste: item.taste || ''
             }
           })
 

@@ -207,6 +207,30 @@ page { background: var(--bg-page) }
 }
 
 .d-col-name { flex: 2; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500 }
+
+.d-col-name-wrap {
+  flex: 2;
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  min-width: 0;
+}
+
+.d-col-name-wrap .d-col-name {
+  flex: none;
+  min-width: auto;
+}
+
+.taste-tag {
+  display: inline-block;
+  padding: 2rpx 10rpx;
+  font-size: 20rpx;
+  color: #fff;
+  background: var(--primary);
+  border-radius: 6rpx;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
 .d-col-qty { flex: 1; color: var(--text-secondary); text-align: center }
 .d-col-price { flex: 1.2; color: var(--text-secondary); text-align: right }
 .d-col-sub { flex: 1.2; color: var(--primary); font-weight: 700; text-align: right }

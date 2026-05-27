@@ -128,12 +128,14 @@ Page({
         var price = item.price || 0
         entry.allItems.push({
           name: dishName,
-          quantity: qty
+          quantity: qty,
+          taste: item.taste || ''
         })
         entry.detailItems.push({
           name: dishName,
           quantity: qty,
           price: price,
+          taste: item.taste || '',
           fromOwner: !!o.fromOwner
         })
       })

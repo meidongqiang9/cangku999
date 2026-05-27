@@ -34,7 +34,10 @@
         <!-- 普通菜品行 -->
         <block wx:if="{{group.title !== '终端协助'}}">
           <view wx:for="{{group.items}}" wx:key="id" class="table-row">
-            <text class="td-name">{{item.name}}</text>
+            <view class="td-name-wrap">
+              <text class="td-name">{{item.name}}</text>
+              <text wx:if="{{item.taste}}" class="taste-tag">{{item.taste}}</text>
+            </view>
             <text class="td-qty">×{{item.quantity}}</text>
             <text class="td-price">💰{{item.price}}</text>
             <text class="td-sub">💰{{item.price * item.quantity}}</text>
@@ -44,7 +47,10 @@
         <!-- 终端协助：数量、单价直接输入数字 -->
         <block wx:if="{{group.title === '终端协助'}}">
           <view wx:for="{{group.items}}" wx:key="id" class="table-row row-owner">
-            <text class="td-name">{{item.name}}</text>
+            <view class="td-name-wrap">
+              <text class="td-name">{{item.name}}</text>
+              <text wx:if="{{item.taste}}" class="taste-tag">{{item.taste}}</text>
+            </view>
             <input class="td-input-qty" type="number" value="{{item.quantity}}" bindblur="onOwnerQtyBlur" data-itemid="{{item.id}}" maxlength="3"/>
             <input class="td-input-price" type="digit" value="{{item.price}}" bindblur="onOwnerPriceBlur" data-itemid="{{item.id}}" data-originalprice="{{item.originalPrice}}" maxlength="6"/>
             <text class="td-sub">💰{{item.price * item.quantity}}</text>

@@ -21,7 +21,10 @@
     <view wx:for="{{allGroups}}" wx:key="label" class="table-group">
       <view class="group-label">{{item.label}} · {{item.items.length}}道<text class="group-subtotal">💰{{item.subtotal}}</text></view>
       <view wx:for="{{item.items}}" wx:for-item="dish" wx:key="dishName" class="table-row">
-        <text class="col-name">{{dish.dishName}}</text>
+        <view class="col-name-wrap">
+          <text class="col-name">{{dish.dishName}}</text>
+          <text wx:if="{{dish.taste}}" class="taste-tag">{{dish.taste}}</text>
+        </view>
         <text class="col-qty">x{{dish.quantity}}</text>
         <text class="col-price">💰{{dish.price}}</text>
         <text class="col-subtotal">💰{{dish.subtotal}}</text>

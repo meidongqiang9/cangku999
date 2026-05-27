@@ -17,7 +17,10 @@
       </view>
       <view class="order-items">
         <view wx:for="{{item.items}}" wx:for-item="dish" wx:key="id" class="dish-item {{dish.status === 'served' ? 'served' : ''}}">
-          <text>{{dish.name}} x{{dish.quantity}}</text>
+          <view class="dish-name-row">
+            <text>{{dish.name}} x{{dish.quantity}}</text>
+            <text wx:if="{{dish.taste}}" class="taste-tag">{{dish.taste}}</text>
+          </view>
           <view wx:if="{{!dish.status || dish.status !== 'served'}}" class="btn-serve" catchtap="updateItemStatus" data-orderid="{{item.createdAt}}" data-itemid="{{dish.id}}" data-status="served">标记走菜</view>
           <text wx:if="{{dish.status === 'served'}}" class="served-tag">已走菜</text>
         </view>

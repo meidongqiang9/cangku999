@@ -175,7 +175,8 @@ Page({
             price: price,
             quantity: quantity,
             dishId: item.dishId || '',
-            originalPrice: item.originalPrice || price  // 菜品原价上限
+            taste: item.taste || '',
+            originalPrice: item.originalPrice || price
           }
         })
 

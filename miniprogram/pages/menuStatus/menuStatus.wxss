@@ -149,3 +149,20 @@ page {
   color: var(--text-tertiary);
   padding: var(--space-2xl);
 }
+
+.dish-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.taste-tag {
+  display: inline-block;
+  padding: 2rpx 10rpx;
+  font-size: 20rpx;
+  color: #fff;
+  background: var(--primary);
+  border-radius: 6rpx;
+  white-space: nowrap;
+  flex-shrink: 0;
+}

@@ -43,6 +43,7 @@
             <view class="status-dot {{dish.status === 'served' ? 'served' : dish.status === 'returned' ? 'returned' : 'submitted'}}"></view>
             <view class="dish-info-wrap">
               <text class="dish-name {{dish.status === 'returned' ? 'returned-text' : ''}}">{{dish.dishName}}</text>
+              <text wx:if="{{dish.taste}}" class="taste-tag">{{dish.taste}}</text>
               <text class="dish-qty">x{{dish.quantity}}</text>
             </view>
           </view>

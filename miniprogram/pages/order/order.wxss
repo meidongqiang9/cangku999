@@ -161,6 +161,17 @@ page {
   min-width: 0;
 }
 
+.taste-tag {
+  display: inline-block;
+  padding: 2rpx 10rpx;
+  font-size: 20rpx;
+  color: #fff;
+  background: var(--primary);
+  border-radius: 6rpx;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 .dish-name {
   font-size: 30rpx;
   color: var(--text-primary);

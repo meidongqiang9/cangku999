@@ -76,6 +76,29 @@ page {
   font-weight: 600;
 }
 
+.col-name-wrap {
+  flex: 2;
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  min-width: 0;
+}
+
+.col-name-wrap .col-name {
+  flex: none;
+}
+
+.taste-tag {
+  display: inline-block;
+  padding: 2rpx 10rpx;
+  font-size: 20rpx;
+  color: #fff;
+  background: var(--primary);
+  border-radius: 6rpx;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 .col-qty {
   flex: 1;
   font-size: 26rpx;

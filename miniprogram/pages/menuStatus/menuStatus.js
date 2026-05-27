@@ -93,6 +93,7 @@ Page({
           dishName: item.name,
           quantity: item.quantity,
           status: item.status || 'submitted',
+          taste: item.taste || '',
           createdAt: o.createdAt
         })
       })
@@ -123,7 +124,8 @@ Page({
         id: item.dishId || item._id,
         name: item.dishName || '',
         quantity: item.quantity || 1,
-        status: item.status || 'submitted'
+        status: item.status || 'submitted',
+        taste: item.taste || ''
       })
 
       // 根据菜品状态推断订单状态

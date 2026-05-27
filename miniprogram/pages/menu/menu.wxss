@@ -551,6 +551,14 @@ page {
   border-bottom: 1rpx solid var(--border-light);
 }
 
+.ordered-popup-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  gap: 6rpx;
+}
+
 .ordered-popup-name {
   flex: 1;
   font-size: 28rpx;
@@ -608,4 +616,113 @@ page {
   padding: 80rpx 0;
   color: var(--text-tertiary);
   gap: 8rpx;
+}
+
+/* —— 口味选择弹窗 —— */
+.taste-mask {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 1000;
+}
+
+.taste-popup {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  width: 580rpx;
+  z-index: 1100;
+  animation: popup-bounce 250ms ease-out;
+  overflow: hidden;
+}
+
+.taste-title {
+  padding: var(--space-lg);
+  text-align: center;
+  font-size: 30rpx;
+  font-weight: 700;
+  border-bottom: 1rpx solid var(--border-light);
+  color: var(--text-primary);
+}
+
+.taste-grid {
+  display: flex;
+  flex-wrap: wrap;
+  padding: var(--space-lg);
+  gap: 16rpx;
+}
+
+.taste-option {
+  width: calc(25% - 12rpx);
+  padding: 18rpx 0;
+  text-align: center;
+  font-size: 26rpx;
+  color: var(--text-secondary);
+  background: var(--bg-page);
+  border: 2rpx solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: all 150ms;
+}
+
+.taste-option.active {
+  color: #fff;
+  background: var(--primary);
+  border-color: var(--primary);
+  font-weight: 600;
+}
+
+.taste-btns {
+  display: flex;
+  border-top: 1rpx solid var(--border-light);
+}
+
+.taste-btn {
+  flex: 1;
+  padding: 28rpx;
+  text-align: center;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.taste-btn.skip {
+  color: var(--text-secondary);
+  border-right: 1rpx solid var(--border-light);
+}
+
+.taste-btn.confirm {
+  color: var(--primary);
+}
+
+/* —— 口味标签（全局复用）—— */
+.taste-tag {
+  display: inline-block;
+  padding: 2rpx 10rpx;
+  margin-left: 8rpx;
+  font-size: 20rpx;
+  color: #fff;
+  background: var(--primary);
+  border-radius: 6rpx;
+  vertical-align: middle;
+}
+
+/* —— 确认弹窗口味显示 —— */
+.confirm-dish-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.confirm-dish-taste {
+  font-size: 20rpx;
+  color: var(--primary);
+  background: var(--primary-light);
+  padding: 2rpx 10rpx;
+  border-radius: 6rpx;
+  margin-left: 8rpx;
+  white-space: nowrap;
+  flex-shrink: 0;
 }

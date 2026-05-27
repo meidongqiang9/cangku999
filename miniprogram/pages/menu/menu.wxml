@@ -124,6 +124,25 @@
     </view>
   </view>
 
+  <!-- 口味选择弹窗 -->
+  <view class="taste-mask" wx:if="{{showTastePopup}}" bindtap="skipTaste"></view>
+  <view class="taste-popup" wx:if="{{showTastePopup}}" catchtap="stopPropagation">
+    <view class="taste-title">选择口味 — {{tasteDish.name}}</view>
+    <view class="taste-grid">
+      <view
+        wx:for="{{tasteOptions}}"
+        wx:key="*this"
+        class="taste-option {{selectedTastes[item] ? 'active' : ''}}"
+        bindtap="toggleTaste"
+        data-taste="{{item}}"
+      >{{item}}</view>
+    </view>
+    <view class="taste-btns">
+      <view class="taste-btn skip" bindtap="skipTaste">跳过</view>
+      <view class="taste-btn confirm" bindtap="confirmTaste">加入购物车</view>
+    </view>
+  </view>
+
   <!-- 确定走菜确认弹窗 -->
   <view class="confirm-mask" wx:if="{{showConfirmPopup}}" bindtap="closeConfirmPopup"></view>
   <view class="confirm-popup" wx:if="{{showConfirmPopup}}" catchtap="stopPropagation">
@@ -132,7 +151,10 @@
       <text class="confirm-count">共 {{cartCount}} 件菜品</text>
       <view class="confirm-dish-list">
         <view wx:for="{{cartItems}}" wx:key="id" class="confirm-dish">
-          <text class="confirm-dish-name">{{item.name}}</text>
+          <view class="confirm-dish-left">
+            <text class="confirm-dish-name">{{item.name}}</text>
+            <text wx:if="{{item.taste}}" class="confirm-dish-taste">{{item.taste}}</text>
+          </view>
           <text class="confirm-dish-qty">x{{item.quantity}}</text>
         </view>
       </view>
@@ -150,7 +172,10 @@
     <view class="ordered-popup-title">已点菜单</view>
     <scroll-view scroll-y class="ordered-popup-body">
       <view wx:for="{{orderedItems}}" wx:key="*this" class="ordered-popup-item">
-        <text class="ordered-popup-name">{{item.name}}</text>
+        <view class="ordered-popup-left">
+          <text class="ordered-popup-name">{{item.name}}</text>
+          <text wx:if="{{item.taste}}" class="taste-tag">{{item.taste}}</text>
+        </view>
         <view class="ordered-popup-right">
           <text class="ordered-popup-qty">x{{item.quantity}}</text>
           <text class="ordered-popup-status {{item.status === 'served' ? 'served' : ''}}">

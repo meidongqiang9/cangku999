@@ -115,6 +115,7 @@ Page({
             dishName: item.name,
             price: item.price,
             quantity: item.quantity,
+            taste: item.taste || '',
             status: item.status || 'submitted',
             createdAt: order.createdAt,
             batchLabel: order.fromOwner ? '老板加菜' : '点单'
