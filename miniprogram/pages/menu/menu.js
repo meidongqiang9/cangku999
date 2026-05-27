@@ -11,7 +11,7 @@ Page({
     cartItems: [],
     cartMap: {},
     cartCount: 0,
-    totalPrice: '¥0.00',
+    totalPrice: '💰0.00',
     showCart: false,
     showDishDetail: false,
     showConfirmPopup: false,
@@ -108,7 +108,7 @@ Page({
       var db = getDb()
       var shopId = wx.getStorageSync('currentShopId') || ''
       db.collection('categories')
-        .where(shopId ? { shopId: shopId } : {})
+        .where({ shopId: shopId })
         .orderBy('sort', 'asc')
         .get({
           success: function(res) {
@@ -416,7 +416,7 @@ Page({
             },
             success: function() {
               wx.showToast({ title: fromOwner ? '已加菜' : '已走菜', icon: 'success' })
-              that.setData({ submitting: false, cartItems: [], cartMap: {}, cartCount: 0, totalPrice: '¥0.00', showCart: false })
+              that.setData({ submitting: false, cartItems: [], cartMap: {}, cartCount: 0, totalPrice: '💰0.00', showCart: false })
               setTimeout(function() {
                 if (fromOwner) {
                   wx.navigateBack()
@@ -453,7 +453,7 @@ Page({
       wx.setStorageSync('needRefreshOrder', true)
 
       wx.showToast({ title: fromOwner ? '已加菜(本地)' : '已走菜(本地)', icon: 'success' })
-      that.setData({ submitting: false, cartItems: [], cartMap: {}, cartCount: 0, totalPrice: '¥0.00', showCart: false })
+      that.setData({ submitting: false, cartItems: [], cartMap: {}, cartCount: 0, totalPrice: '💰0.00', showCart: false })
       setTimeout(function() {
         if (fromOwner) {
           wx.navigateBack()

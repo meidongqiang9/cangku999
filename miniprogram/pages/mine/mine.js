@@ -9,7 +9,7 @@ Page({
     userInfo: null,
     orderHistory: [],
     totalOrders: 0,
-    totalSpent: '¥0.00',
+    totalSpent: '💰0.00',
     lastOrderTime: ''
   },
 
@@ -44,15 +44,20 @@ Page({
 
   handleLogin: function() {
     var that = this
-    wechatLogin().then(function(user) {
-      that.setData({
-        isLoggedIn: true,
-        userInfo: user
-      })
-      that.loadOrderHistory()
-      wx.showToast({ title: '登录成功', icon: 'success' })
-    }).catch(function() {
-      wx.showToast({ title: '已取消登录，可匿名使用', icon: 'none' })
+    var app = getApp()
+    app.showPrivacyConsent(function(agreed) {
+      if (agreed) {
+        wechatLogin().then(function(user) {
+          that.setData({
+            isLoggedIn: true,
+            userInfo: user
+          })
+          that.loadOrderHistory()
+          wx.showToast({ title: '登录成功', icon: 'success' })
+        }).catch(function() {
+          wx.showToast({ title: '已取消登录，可匿名使用', icon: 'none' })
+        })
+      }
     })
   },
 
@@ -62,7 +67,7 @@ Page({
     try {
       var db = getDb()
       db.collection('orders')
-        .where(shopId ? { shopId: shopId } : {})
+        .where({ shopId: shopId })
         .orderBy('createdAt', 'desc')
         .limit(20)
         .get({
@@ -141,7 +146,7 @@ Page({
             userInfo: null,
             orderHistory: [],
             totalOrders: 0,
-            totalSpent: '¥0.00'
+            totalSpent: '💰0.00'
           })
           wx.showToast({ title: '已退出', icon: 'success' })
         }
@@ -156,5 +161,13 @@ Page({
       showCancel: false,
       confirmText: '我知道了'
     })
+  },
+
+  goAgreement: function() {
+    wx.navigateTo({ url: '/pages/agreement/agreement/agreement?type=service' })
+  },
+
+  goPrivacy: function() {
+    wx.navigateTo({ url: '/pages/agreement/agreement/agreement?type=privacy' })
   }
 })

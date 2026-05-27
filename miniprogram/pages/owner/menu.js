@@ -21,6 +21,8 @@ Page({
   },
 
   onShow: function() {
+    // 防止因系统相册等操作触发 onShow 时重置当前选中品类
+    if (this.data.showInputModal) return
     this.loadData()
   },
 
@@ -31,7 +33,7 @@ Page({
     try {
       var db = getDb()
       db.collection('categories')
-        .where(shopId ? { shopId: shopId } : {})
+        .where({ shopId: shopId })
         .orderBy('sort', 'asc')
         .get({
           success: function(res) {
@@ -45,7 +47,10 @@ Page({
             }
             that.setData({ categories: categories })
             if (categories.length > 0) {
-              that.loadCategoryDishes(categories[0].id)
+              // 保持当前选中的品类，不强制跳回第一个
+              var curId = that.data.currentCategory
+              var exists = categories.some(function(c) { return String(c.id) === String(curId) })
+              that.loadCategoryDishes(exists ? curId : categories[0].id)
             }
           },
           fail: function() {
@@ -66,7 +71,9 @@ Page({
     ]
     this.setData({ categories: categories })
     if (categories.length > 0) {
-      this.loadCategoryDishes(categories[0].id)
+      var curId = this.data.currentCategory
+      var exists = categories.some(function(c) { return String(c.id) === String(curId) })
+      this.loadCategoryDishes(exists ? curId : categories[0].id)
     }
   },
 

@@ -37,7 +37,7 @@ Page({
     try {
       var db = getDb()
       var watcher = db.collection('order_items')
-        .where(shopId ? { shopId: shopId } : {})
+        .where({ shopId: shopId })
         .watch({
           onChange: function() {
             that.loadOrders()
@@ -62,7 +62,7 @@ Page({
     try {
       var db = getDb()
       db.collection('order_items')
-        .where(shopId ? { shopId: shopId } : {})
+        .where({ shopId: shopId })
         .orderBy('createdAt', 'desc')
         .get({
           success: function(res) {

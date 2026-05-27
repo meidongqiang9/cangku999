@@ -273,7 +273,7 @@ Page({
     }
 
     if (!guestCount) {
-      wx.showToast({ title: '请输入就餐人数', icon: 'none' })
+      wx.showToast({ title: '请输入人数', icon: 'none' })
       return
     }
 

@@ -3,7 +3,7 @@
   <view class="header">
     <view class="header-left">
       <text class="header-title">
-        {{fromOwner ? '代客加菜' : (isAdditional ? '追加点单' : '点餐')}}
+        {{fromOwner ? '代客加菜' : (isAdditional ? '追加菜单' : '点餐')}}
       </text>
       <text class="header-table">{{tableNo}}桌 · {{guestCount}}人</text>
     </view>
@@ -74,14 +74,14 @@
               </view>
               <view wx:else class="add-btn" catchtap="addToCart" data-id="{{item._id || item.id}}">+</view>
             </block>
-            <text class="dish-price" wx:if="{{item.price}}">¥{{item.price}}</text>
+            <text class="dish-price" wx:if="{{item.price}}">💰{{item.price}}</text>
           </view>
         </view>
       </view>
 
       <view wx:if="{{categoryDishes.length === 0}}" class="empty-state">
         <text>暂无菜品</text>
-        <text class="text-secondary">老板正在努力上架中...</text>
+        <text class="text-secondary">正在努力上架中...</text>
       </view>
     </scroll-view>
   </view>
@@ -92,7 +92,7 @@
       选好了 · {{cartCount}}件
     </view>
     <view class="back-order-btn" wx:if="{{isAdditional}}" bindtap="goBackToOrder">
-      返回订单
+      返回
     </view>
   </view>
 
@@ -109,7 +109,7 @@
     <view wx:else class="detail-image-placeholder">🍽️</view>
     <view class="detail-body">
       <view class="detail-name">{{detailDish.name}}</view>
-      <view class="detail-price">{{detailDish.price ? '¥' + detailDish.price : ''}}</view>
+      <view class="detail-price">{{detailDish.price ? '💰' + detailDish.price : ''}}</view>
       <view class="detail-desc" wx:if="{{detailDish.description}}">
         <text class="detail-label">简介</text>
         <text>{{detailDish.description}}</text>

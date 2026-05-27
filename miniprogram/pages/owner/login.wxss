@@ -36,10 +36,11 @@ page { background: var(--bg-page) }
 .input {
   border: 2rpx solid var(--border);
   border-radius: var(--radius-md);
-  padding: 22rpx var(--space-md);
+  padding: 0 var(--space-md);
   font-size: 30rpx;
   background: var(--bg-page);
   width: 100%;
+  height: 92rpx;
   box-sizing: border-box;
   color: var(--text-primary);
 }
@@ -47,6 +48,11 @@ page { background: var(--bg-page) }
 .input:focus {
   border-color: var(--primary);
   background: var(--bg-card);
+}
+
+.ph {
+  color: #B0A899;
+  font-size: 28rpx;
 }
 
 .toggle-pwd {
@@ -108,4 +114,189 @@ page { background: var(--bg-page) }
   font-weight: 700;
   text-align: center;
   padding: 24rpx;
+}
+
+/* —— 协议授权勾选框 —— */
+.agree-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 24rpx;
+  padding: 0 4rpx;
+}
+
+.agree-checkbox {
+  width: 40rpx;
+  height: 40rpx;
+  border: 3rpx solid var(--border);
+  border-radius: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12rpx;
+  flex-shrink: 0;
+  background: var(--bg-card);
+  transition: all 0.2s;
+}
+
+.agree-icon {
+  font-size: 28rpx;
+  color: var(--primary);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.agree-text {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+}
+
+.agree-link {
+  font-size: 24rpx;
+  color: #576B95;
+}
+
+/* —— 按钮禁用态 —— */
+.btn-submit.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* —— 微信登录协议弹窗 —— */
+.wechat-agree-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.wechat-agree-popup {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 600rpx;
+  background: #fff;
+  border-radius: var(--radius-xl);
+  z-index: 1001;
+  padding: var(--space-xl);
+  box-sizing: border-box;
+}
+
+.wechat-agree-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: center;
+  margin-bottom: var(--space-md);
+}
+
+.wechat-agree-body {
+  font-size: 26rpx;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: var(--space-lg);
+  text-align: center;
+}
+
+.wechat-agree-body .agree-link {
+  font-size: 26rpx;
+}
+
+.wechat-agree-check-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-lg);
+}
+
+.wechat-agree-check-row .agree-checkbox {
+  width: 36rpx;
+  height: 36rpx;
+  margin-right: 10rpx;
+}
+
+.wechat-agree-check-row .agree-text {
+  font-size: 26rpx;
+}
+
+.wechat-agree-btn {
+  background: linear-gradient(135deg, var(--primary), #F09060);
+  color: #fff;
+  border-radius: var(--radius-full);
+  font-size: 30rpx;
+  font-weight: 600;
+  text-align: center;
+  padding: 22rpx;
+  margin-bottom: var(--space-sm);
+}
+
+.wechat-agree-btn.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.wechat-agree-cancel {
+  text-align: center;
+  font-size: 26rpx;
+  color: var(--text-tertiary);
+  padding: 12rpx;
+}
+
+/* —— 协议/隐私政策弹窗 —— */
+.policy-mask {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1100;
+}
+
+.policy-popup {
+  position: fixed;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 620rpx;
+  max-height: 80vh;
+  background: #fff;
+  border-radius: var(--radius-xl);
+  z-index: 1101;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.policy-title {
+  padding: var(--space-lg);
+  text-align: center;
+  font-size: 34rpx;
+  font-weight: 700;
+  color: var(--text-primary);
+  border-bottom: 1rpx solid var(--border-light);
+}
+
+.policy-body {
+  flex: 1;
+  padding: var(--space-lg);
+  max-height: 56vh;
+}
+
+.policy-content {
+  font-size: 26rpx;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+.policy-close {
+  margin: 0 var(--space-lg) var(--space-lg);
+  background: linear-gradient(135deg, var(--primary), #F09060);
+  color: #fff;
+  border-radius: var(--radius-full);
+  font-size: 30rpx;
+  font-weight: 600;
+  text-align: center;
+  padding: 22rpx;
 }

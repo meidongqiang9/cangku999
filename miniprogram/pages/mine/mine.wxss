@@ -213,9 +213,12 @@ page {
   padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
   text-align: center;
   background: var(--bg-page);
+  display: flex;
+  justify-content: center;
+  gap: 24rpx;
 }
 
-.privacy-footer text {
-  font-size: 20rpx;
-  color: var(--text-tertiary);
+.privacy-link {
+  font-size: 22rpx;
+  color: #576B95;
 }

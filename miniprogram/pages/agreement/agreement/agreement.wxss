@@ -1,0 +1,20 @@
+.container {
+  min-height: 100vh;
+  background-color: #FBF7F0;
+  padding: 32rpx 28rpx;
+  box-sizing: border-box;
+}
+
+.agreement-body {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 36rpx 32rpx;
+}
+
+.agreement-content {
+  font-size: 28rpx;
+  line-height: 1.8;
+  color: #333;
+  white-space: pre-wrap;
+  word-break: break-all;
+}

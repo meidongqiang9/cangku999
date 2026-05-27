@@ -42,7 +42,7 @@ Page({
     try {
       var db = getDb()
       db.collection('orders')
-        .where(shopId ? { shopId: shopId } : {})
+        .where({ shopId: shopId })
         .get({
         success: function(res) {
           var orders = res.data || []

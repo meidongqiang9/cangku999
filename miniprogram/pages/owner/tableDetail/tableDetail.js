@@ -73,6 +73,47 @@ Page({
     this.groupAndRender(flatItems, table)
   },
 
+  // 同步 orders 快照：修改 order_items 后，更新 orders 中对应菜品的数量和价格
+  syncOrdersSnapshot: function(table, shopId, dishId, field, value) {
+    try {
+      var db = getDb()
+      db.collection('orders')
+        .where({ tableName: table.name, shopId: shopId, status: 'pending' })
+        .get({
+          success: function(res) {
+            (res.data || []).forEach(function(order) {
+              var items = order.items || []
+              var found = false
+              // 更新菜品数据
+              for (var i = 0; i < items.length; i++) {
+                if ((items[i].dishId || items[i].id) === dishId) {
+                  found = true
+                  if (field === 'quantity') items[i].quantity = value
+                  if (field === 'price') items[i].price = value
+                  break
+                }
+              }
+              if (!found) return
+              // 数量减到0则移除菜品
+              if (field === 'quantity' && value === 0) {
+                items = items.filter(function(item) {
+                  return (item.dishId || item.id) !== dishId
+                })
+              }
+              // 重算金额
+              var newTotal = 0
+              items.forEach(function(item) {
+                newTotal += (item.price || 0) * (item.quantity || 1)
+              })
+              db.collection('orders').doc(order._id).update({
+                data: { items: items, totalPrice: newTotal }
+              })
+            })
+          }
+        })
+    } catch (e) {}
+  },
+
   groupAndRender: function(items, table) {
     var that = this
     var customerTotal = 0
@@ -195,7 +236,10 @@ Page({
           success: function(res) {
             if (res.data && res.data.length > 0) {
               var item = res.data[0]
-              var cb = function() { setTimeout(function() { that.loadTableOrders() }, 150) }
+              var cb = function() {
+                that.syncOrdersSnapshot(table, shopId, itemId, 'quantity', val)
+                setTimeout(function() { that.loadTableOrders() }, 150)
+              }
               if (val === 0) {
                 db.collection('order_items').doc(item._id).remove({ success: cb, fail: cb })
               } else {
@@ -244,7 +288,10 @@ Page({
         .get({
           success: function(res) {
             if (res.data && res.data.length > 0) {
-              var cb = function() { setTimeout(function() { that.loadTableOrders() }, 150) }
+              var cb = function() {
+                that.syncOrdersSnapshot(table, shopId, itemId, 'price', val)
+                setTimeout(function() { that.loadTableOrders() }, 150)
+              }
               db.collection('order_items').doc(res.data[0]._id).update({ data: { price: val }, success: cb, fail: cb })
             } else {
               that.loadTableOrders()
@@ -290,7 +337,10 @@ Page({
               })
               wx.setStorageSync('allOrders', allOrders)
 
-              var cb = function() { setTimeout(function() { that.loadTableOrders() }, 150) }
+              var cb = function() {
+                that.syncOrdersSnapshot(table, shopId, itemId, 'price', newPrice)
+                setTimeout(function() { that.loadTableOrders() }, 150)
+              }
               db.collection('order_items').doc(item._id).update({ data: { price: newPrice }, success: cb, fail: cb })
             }
           },
@@ -326,7 +376,10 @@ Page({
         .get({
           success: function(res) {
             if (res.data && res.data.length > 0) {
-              var cb = function() { setTimeout(function() { that.loadTableOrders() }, 150) }
+              var cb = function() {
+                that.syncOrdersSnapshot(table, shopId, itemId, 'price', val)
+                setTimeout(function() { that.loadTableOrders() }, 150)
+              }
               db.collection('order_items').doc(res.data[0]._id).update({ data: { price: val }, success: cb, fail: cb })
             } else {
               that.loadTableOrders()
@@ -366,7 +419,10 @@ Page({
               })
               wx.setStorageSync('allOrders', allOrders)
 
-              var cb = function() { setTimeout(function() { that.loadTableOrders() }, 150) }
+              var cb = function() {
+                that.syncOrdersSnapshot(table, shopId, itemId, 'quantity', newQty)
+                setTimeout(function() { that.loadTableOrders() }, 150)
+              }
               if (newQty === 0) {
                 db.collection('order_items').doc(item._id).remove({ success: cb, fail: cb })
               } else {
@@ -407,7 +463,10 @@ Page({
         .get({
           success: function(res) {
             if (res.data && res.data.length > 0) {
-              var cb = function() { setTimeout(function() { that.loadTableOrders() }, 150) }
+              var cb = function() {
+                that.syncOrdersSnapshot(table, shopId, itemId, 'quantity', val)
+                setTimeout(function() { that.loadTableOrders() }, 150)
+              }
               db.collection('order_items').doc(res.data[0]._id).update({ data: { quantity: val }, success: cb, fail: cb })
             } else {
               that.loadTableOrders()

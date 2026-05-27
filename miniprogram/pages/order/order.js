@@ -10,7 +10,7 @@ Page({
     orderGroups: [],       // 按批次分组的菜品
     servedCount: 0,
     submittedCount: 0,
-    totalPrice: '¥0.00',
+    totalPrice: '💰0.00',
     allItems: [],          // 所有菜品扁平列表
     hasUnpaidOrder: false,
     watcher: null
@@ -166,9 +166,9 @@ Page({
       var time = new Date(parseInt(key) || Date.now())
       var title = ''
       if (batchIndex === 1) {
-        title = '第1次点单'
+        title = '第1次菜单'
       } else {
-        title = '第' + batchIndex + '次加菜'
+        title = '第' + batchIndex + '次菜单'
       }
       title += '  ' + formatTime(time)
 

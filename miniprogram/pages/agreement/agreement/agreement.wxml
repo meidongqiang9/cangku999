@@ -1,0 +1,5 @@
+<view class="container">
+  <view class="agreement-body">
+    <text class="agreement-content">{{content}}</text>
+  </view>
+</view>

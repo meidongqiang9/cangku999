@@ -29,7 +29,7 @@ Page({
     try {
       var db = getDb()
       db.collection('tables')
-        .where(shopId ? { shopId: shopId } : {})
+        .where({ shopId: shopId })
         .get({
           success: function(res) {
             var tables = res.data || []
@@ -66,7 +66,7 @@ Page({
       var db = getDb()
       // 查询所有活跃 sessions
       db.collection('sessions')
-        .where(shopId ? { shopId: shopId, status: 'active' } : { status: 'active' })
+        .where({ shopId: shopId, status: 'active' })
         .get({
           success: function(sessionRes) {
             var activeSessions = sessionRes.data || []
@@ -81,7 +81,7 @@ Page({
             })
 
             // 查询未结账的 order_items 统计金额（已结账的不算占用）
-            var itemQuery = shopId ? { shopId: shopId } : {}
+            var itemQuery = { shopId: shopId }
             itemQuery.status = 'submitted'
             db.collection('order_items')
               .where(itemQuery)
@@ -285,17 +285,14 @@ Page({
       },
       success: function(res) {
         var result = res.result || {}
-        if (result.code === 0) {
-          if (result.type === 'link' && result.url) {
-            // URL Link → 嵌入本地品牌 QR 码
-            that.generateLocalQRWithData(result.url, tableName, shopId, callback)
-          } else if (result.type === 'image' && result.fileID) {
-            // 微信菊花码图片（降级方案）
-            callback(result.fileID)
-          } else {
-            that.generateLocalQR(tableName, shopId, callback)
-          }
+        if (result.code === 0 && result.type === 'link' && result.url) {
+          // URL Link → 嵌入本地品牌 QR 码（需小程序过审）
+          that.generateLocalQRWithData(result.url, tableName, shopId, callback)
+        } else if (result.code === 0 && result.type === 'image' && result.fileID) {
+          // 微信菊花码图片（降级，无品牌但能扫码打开，需小程序过审）
+          callback(result.fileID)
         } else {
+          // 全部不可用 → 本地品牌 QR（文本模式，需小程序内手动扫码）
           that.generateLocalQR(tableName, shopId, callback)
         }
       },

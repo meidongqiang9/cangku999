@@ -55,8 +55,9 @@
   <!-- 退出登录 -->
   <view class="logout-btn" wx:if="{{isLoggedIn}}" bindtap="handleLogout">退出登录</view>
 
-  <!-- 底部隐私声明 -->
+  <!-- 底部协议链接 -->
   <view class="privacy-footer">
-    <text>使用本小程序即代表已阅读并同意隐私政策</text>
+    <text class="privacy-link" bindtap="goAgreement">《用户服务协议》</text>
+    <text class="privacy-link" bindtap="goPrivacy">《隐私政策》</text>
   </view>
 </view>

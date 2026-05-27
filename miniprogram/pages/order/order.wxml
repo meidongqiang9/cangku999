@@ -29,7 +29,7 @@
   <scroll-view scroll-y class="order-scroll">
     <block wx:for="{{orderGroups}}" wx:key="key" wx:for-index="gi">
       <view wx:if="{{gi === 0 || item.fromOwner !== orderGroups[gi-1].fromOwner}}" class="order-section-divider">
-        <text class="section-label">{{item.fromOwner ? '终端协助' : '顾客点单'}}</text>
+        <text class="section-label">{{item.fromOwner ? '终端协助' : '顾客菜单'}}</text>
       </view>
       <view class="order-group {{item.fromOwner ? 'owner-group' : ''}}">
         <!-- 批次标题 -->
@@ -66,11 +66,10 @@
   <view class="bottom-actions">
     <view class="action-btn add" bindtap="addDish">
       <text class="action-icon">＋</text>
-      <text>追加点单</text>
+      <text>追加</text>
     </view>
     <view class="action-btn checkout {{hasUnpaidOrder ? '' : 'disabled'}}" bindtap="checkout">
       <text class="action-icon">💳</text>
-      <text>结账</text>
     </view>
   </view>
 </view>

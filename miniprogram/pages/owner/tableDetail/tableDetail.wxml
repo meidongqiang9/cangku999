@@ -4,16 +4,16 @@
   </view>
 
   <view class="total-row">
-    <text>顾客消费</text>
-    <text class="total">¥{{totalPrice}}</text>
+    <text>顾客</text>
+    <text class="total">💰{{totalPrice}}</text>
   </view>
   <view class="total-row owner-total" wx:if="{{ownerTotal > 0}}">
     <text>协助点餐</text>
-    <text class="total owner">¥{{ownerTotal}}</text>
+    <text class="total owner">💰{{ownerTotal}}</text>
   </view>
   <view class="total-row total-all">
-    <text>合计消费</text>
-    <text class="total all">¥{{totalAll}}</text>
+    <text>合计</text>
+    <text class="total all">💰{{totalAll}}</text>
   </view>
 
   <scroll-view scroll-y class="item-list">
@@ -21,7 +21,7 @@
       <view class="group-section" wx:if="{{group.items.length > 0}}">
         <view class="section-head">
           <text>{{group.title}} · {{group.items.length}}道</text>
-          <text class="section-subtotal">¥{{group.subtotal}}</text>
+          <text class="section-subtotal">💰{{group.subtotal}}</text>
         </view>
 
         <view class="table-header">
@@ -36,8 +36,8 @@
           <view wx:for="{{group.items}}" wx:key="id" class="table-row">
             <text class="td-name">{{item.name}}</text>
             <text class="td-qty">×{{item.quantity}}</text>
-            <text class="td-price">¥{{item.price}}</text>
-            <text class="td-sub">¥{{item.price * item.quantity}}</text>
+            <text class="td-price">💰{{item.price}}</text>
+            <text class="td-sub">💰{{item.price * item.quantity}}</text>
           </view>
         </block>
 
@@ -47,7 +47,7 @@
             <text class="td-name">{{item.name}}</text>
             <input class="td-input-qty" type="number" value="{{item.quantity}}" bindblur="onOwnerQtyBlur" data-itemid="{{item.id}}" maxlength="3"/>
             <input class="td-input-price" type="digit" value="{{item.price}}" bindblur="onOwnerPriceBlur" data-itemid="{{item.id}}" data-originalprice="{{item.originalPrice}}" maxlength="6"/>
-            <text class="td-sub">¥{{item.price * item.quantity}}</text>
+            <text class="td-sub">💰{{item.price * item.quantity}}</text>
           </view>
         </block>
       </view>

@@ -34,10 +34,10 @@
       </view>
     </view>
     <view class="input-item">
-      <view class="label">就餐人数</view>
+      <view class="label">人数</view>
       <input
         class="input"
-        placeholder="请输入就餐人数"
+        placeholder="请输入人数"
         value="{{guestCount}}"
         bindinput="onGuestInput"
         type="number"
@@ -47,9 +47,9 @@
     </view>
   </view>
 
-  <!-- 继续上次点餐按钮 -->
+  <!-- 继续上次按钮 -->
   <view class="continue-btn" wx:if="{{hasActiveSession}}" bindtap="continueOrder">
-    <text>继续上次点餐 ›</text>
+    <text>继续上次 ›</text>
   </view>
 
   <!-- 开始点餐按钮 -->
@@ -57,7 +57,7 @@
     class="btn-primary start-btn {{tableDisabled ? 'disabled' : ''}}"
     bindtap="{{tableDisabled ? '' : 'startOrder'}}"
   >
-    开始点餐
+    查看菜谱
   </view>
 
   <!-- 底部入口 -->

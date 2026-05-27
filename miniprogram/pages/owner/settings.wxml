@@ -16,7 +16,7 @@
   </view>
 
   <view class="section">
-    <view class="section-title">扫码通知 <text class="hint-text">(顾客扫码后弹出)</text></view>
+    <view class="section-title">扫码通知 <text class="hint-text">(餐桌码扫描后弹出)</text></view>
     <view class="input-row">
       <text class="label">通知标题</text>
       <input class="input" value="{{noticeTitle}}" bindinput="onNoticeTitleInput" placeholder="通知"/>
@@ -46,26 +46,27 @@
     </view>
   </view>
   
-  <view class="section">
-    <view class="section-title">金额设置</view>
+  <!-- 收米设置暂时隐藏：个人用户需公司资质才能使用微信支付收款功能，代码保留 -->
+  <view class="section" wx:if="{{false}}">
+    <view class="section-title">收米设置</view>
     <view class="input-row">
-      <text class="label">收款通道</text>
-      <picker bindchange="onPayTypeChange" value="{{payType}}" range="{{['微信支付商户', '个人收款码']}}">
-        <view class="picker-value">{{payType === 0 ? '微信支付商户' : '个人收款码'}}</view>
+      <text class="label">收米通道</text>
+      <picker bindchange="onPayTypeChange" value="{{payType}}" range="{{['微信zhifu商户', '个人收款码']}}">
+        <view class="picker-value">{{payType === 0 ? '微信zhifu商户' : '个人收款码'}}</view>
       </picker>
     </view>
-    
+
     <block wx:if="{{payType === 0}}">
       <view class="input-row">
         <text class="label">商户号</text>
-        <input class="input" value="{{mchId}}" bindinput="onMchIdInput" placeholder="微信支付商户号"/>
+        <input class="input" value="{{mchId}}" bindinput="onMchIdInput" placeholder="微信zhifu商户号"/>
       </view>
       <view class="input-row">
         <text class="label">商户密钥</text>
         <input class="input" password="true" value="{{mchKey}}" bindinput="onMchKeyInput" placeholder="API密钥"/>
       </view>
     </block>
-    
+
     <block wx:if="{{payType === 1}}">
       <view class="input-row">
         <text class="label">个人收款码</text>

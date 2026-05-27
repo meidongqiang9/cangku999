@@ -10,7 +10,10 @@ Page({
     monthAmount: '0.00',
     showPasswordModal: false,
     passwordAction: 0,
-    password: ''
+    password: '',
+    referralCode: '',
+    referralCount: 0,
+    referralCredit: '0'
   },
 
   onLoad: function() {
@@ -61,9 +64,35 @@ Page({
   loadData: function() {
     var user = wx.getStorageSync('ownerUser')
     if (user) {
-      this.setData({ shopName: user.shopName || '我的店铺' })
+      this.setData({
+        shopName: user.shopName || '我的店铺',
+        referralCode: user.referralCode || ''
+      })
     }
+    this.loadReferralStats()
     this.loadStats()
+  },
+
+  loadReferralStats: function() {
+    var that = this
+    var shopId = wx.getStorageSync('currentShopId') || ''
+    if (!shopId) return
+    try {
+      var db = getDb()
+      db.collection('shops').doc(shopId).get({
+        success: function(res) {
+          if (res.data) {
+            var count = res.data.referralCount || 0
+            that.setData({
+              referralCode: res.data.referralCode || that.data.referralCode,
+              referralCount: count,
+              referralCredit: (count * 10).toString()
+            })
+          }
+        },
+        fail: function() {}
+      })
+    } catch (e) {}
   },
 
   loadStats: function() {
@@ -72,7 +101,7 @@ Page({
     try {
       var db = getDb()
       db.collection('orders')
-        .where(shopId ? { shopId: shopId } : {})
+        .where({ shopId: shopId })
         .get({
         success: function(res) {
           that.calcStats(res.data || [])
@@ -220,12 +249,27 @@ Page({
   },
 
   logout: function() {
+    var that = this
     wx.showModal({
       title: '确认退出',
       content: '确定要退出登录吗？',
       success: function(res) {
         if (res.confirm) {
-          wx.removeStorageSync('ownerUser')
+          var keys = [
+            'ownerUser', 'ownerUsers', 'currentShopId', 'shopConfig', 'shopBanners',
+            'homeTitle', 'shopName', 'menuCategories', 'menuDishes',
+            'tables', 'allOrders', 'currentTable', 'currentSession',
+            'currentTableDetail', 'currentChef', 'needRefreshOrder'
+          ]
+          keys.forEach(function(k) { wx.removeStorageSync(k) })
+          try {
+            var info = wx.getStorageInfoSync()
+            info.keys.forEach(function(k) {
+              if (k.indexOf('chefs_') === 0 || k.indexOf('menuCategories_') === 0 || k.indexOf('menuDishes_') === 0) {
+                wx.removeStorageSync(k)
+              }
+            })
+          } catch (e) {}
           wx.redirectTo({ url: '/pages/owner/login' })
         }
       }

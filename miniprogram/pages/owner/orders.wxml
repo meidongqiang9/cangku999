@@ -22,7 +22,7 @@
     </view>
     <view class="summary-row">
       <view class="summary-item">
-        <text class="label">已结金额</text>
+        <text class="label">已结</text>
         <text class="value completed">{{completedAmount}}</text>
       </view>
       <view class="summary-item">
@@ -43,7 +43,7 @@
       <view class="order-card-summary">
         <text class="summary-stat">{{item.items.length}}道菜</text>
         <text class="summary-stat">{{item.guestCount}}人</text>
-        <text class="summary-stat highlight">¥{{item.totalPrice}}</text>
+        <text class="summary-stat highlight">💰{{item.totalPrice}}</text>
       </view>
       <view class="order-card-footer">
         <text class="status {{item.status}}">{{item.statusText}}</text>
@@ -70,8 +70,8 @@
       <view wx:for="{{detailOrder.detailItems}}" wx:for-item="item" wx:key="name" wx:if="{{!item.fromOwner}}" class="detail-row">
         <text class="d-col-name">{{item.name}}</text>
         <text class="d-col-qty">x{{item.quantity}}</text>
-        <text class="d-col-price">¥{{item.price}}</text>
-        <text class="d-col-sub">¥{{item.price * item.quantity}}</text>
+        <text class="d-col-price">💰{{item.price}}</text>
+        <text class="d-col-sub">💰{{item.price * item.quantity}}</text>
       </view>
 
       <!-- 终端协助 -->
@@ -86,14 +86,14 @@
         <view wx:for="{{detailOrder.detailItems}}" wx:for-item="item" wx:key="name" wx:if="{{item.fromOwner}}" class="detail-row owner-row">
           <text class="d-col-name">{{item.name}}</text>
           <text class="d-col-qty">x{{item.quantity}}</text>
-          <text class="d-col-price">¥{{item.price}}</text>
-          <text class="d-col-sub">¥{{item.price * item.quantity}}</text>
+          <text class="d-col-price">💰{{item.price}}</text>
+          <text class="d-col-sub">💰{{item.price * item.quantity}}</text>
         </view>
       </block>
     </view>
     <view class="detail-total">
       <text>合计</text>
-      <text class="detail-total-val">¥{{detailOrder.totalPrice}}</text>
+      <text class="detail-total-val">💰{{detailOrder.totalPrice}}</text>
     </view>
     <view class="detail-close-btn" bindtap="closeDetail">关闭</view>
   </view>

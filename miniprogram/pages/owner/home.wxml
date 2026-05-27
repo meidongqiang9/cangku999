@@ -12,7 +12,7 @@
     </view>
     <view class="stat-item">
       <text class="stat-value">{{todayAmount}}</text>
-      <text class="stat-label">今日营收</text>
+      <text class="stat-label">今日</text>
     </view>
     <view class="stat-item">
       <text class="stat-value">{{monthOrders}}</text>
@@ -20,10 +20,28 @@
     </view>
     <view class="stat-item">
       <text class="stat-value">{{monthAmount}}</text>
-      <text class="stat-label">本月营收</text>
+      <text class="stat-label">本月</text>
     </view>
   </view>
-  
+
+  <view class="referral-card">
+    <view class="referral-header">
+      <text class="referral-title">我的推荐码（待开发）</text>
+      <text class="referral-code">{{referralCode}}</text>
+    </view>
+    <view class="referral-stats">
+      <view class="referral-stat">
+        <text class="referral-num">{{referralCount}}</text>
+        <text class="referral-label">已推荐人数</text>
+      </view>
+      <view class="referral-stat">
+        <text class="referral-num">{{referralCredit}}</text>
+        <text class="referral-label">待返</text>
+      </view>
+    </view>
+    <view class="referral-hint">每推荐1人，返10.00</view>
+  </view>
+
   <view class="menu-list">
     <view class="menu-item" bindtap="goMenu">
       <text class="menu-icon">📋</text>
@@ -47,7 +65,7 @@
     </view>
     <view class="menu-item" bindtap="goOrders">
       <text class="menu-icon">📑</text>
-      <text class="menu-title">营收统计</text>
+      <text class="menu-title">数据统计</text>
       <text class="menu-arrow">›</text>
     </view>
     <view class="menu-item" bindtap="clearData">

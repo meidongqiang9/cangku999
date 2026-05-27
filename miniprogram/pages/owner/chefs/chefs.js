@@ -27,7 +27,7 @@ Page({
     try {
       var db = getDb()
       db.collection('chefs')
-        .where(shopId ? { shopId: shopId } : {})
+        .where({ shopId: shopId })
         .orderBy('createdAt', 'asc')
         .get({
           success: function(res) {
@@ -166,17 +166,14 @@ Page({
       },
       success: function(res) {
         var result = res.result || {}
-        if (result.code === 0) {
-          if (result.type === 'link' && result.url) {
-            // URL Link → 嵌入本地品牌 QR 码
-            that.generateLocalChefQRWithUrl(result.url, name, position, chefId, shopId, callback)
-          } else if (result.type === 'image' && result.fileID) {
-            // 微信菊花码图片（降级方案）
-            callback(result.fileID)
-          } else {
-            that.generateLocalChefQR(name, position, chefId, shopId, callback)
-          }
+        if (result.code === 0 && result.type === 'link' && result.url) {
+          // URL Link → 嵌入本地品牌 QR 码（需小程序过审）
+          that.generateLocalChefQRWithUrl(result.url, name, position, chefId, shopId, callback)
+        } else if (result.code === 0 && result.type === 'image' && result.fileID) {
+          // 微信菊花码图片（降级，无品牌但能扫码打开，需小程序过审）
+          callback(result.fileID)
         } else {
+          // 全部不可用 → 本地品牌 QR（文本模式，需小程序内手动扫码）
           that.generateLocalChefQR(name, position, chefId, shopId, callback)
         }
       },

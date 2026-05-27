@@ -64,6 +64,68 @@ page { background: var(--bg-page) }
 }
 
 /* —— 功能菜单 —— */
+/* —— 推荐码卡片 —— */
+.referral-card {
+  background: linear-gradient(135deg, #FFF8EE, #FFF0E0);
+  margin: var(--space-md);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md) var(--space-lg);
+  border: 2rpx solid #F5A623;
+}
+
+.referral-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-sm);
+}
+
+.referral-title {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.referral-code {
+  font-size: 42rpx;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: 8rpx;
+  background: #fff;
+  padding: 8rpx 20rpx;
+  border-radius: var(--radius-sm);
+  border: 2rpx dashed var(--accent);
+}
+
+.referral-stats {
+  display: flex;
+  gap: 40rpx;
+  margin-bottom: var(--space-sm);
+}
+
+.referral-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.referral-num {
+  font-size: 36rpx;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.referral-label {
+  font-size: 22rpx;
+  color: var(--text-tertiary);
+}
+
+.referral-hint {
+  font-size: 22rpx;
+  color: #B87A14;
+  font-weight: 500;
+}
+
+/* —— 菜单列表 —— */
 .menu-list {
   background: var(--bg-card);
   margin: var(--space-md);

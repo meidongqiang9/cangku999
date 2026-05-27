@@ -7,7 +7,7 @@ Page({
     tableNo: '',
     items: [],
     allGroups: [],
-    totalPrice: '¥0.00',
+    totalPrice: '💰0.00',
     rawTotal: 0,
     paying: false,
     paid: false
@@ -57,7 +57,7 @@ Page({
     }).sort(function(a, b) { return a.createdAt - b.createdAt }).forEach(function(order) {
       groupIndex++
       if (order.items) {
-        var label = groupIndex === 1 ? '首次点单' : '第' + groupIndex + '次加菜'
+        var label = groupIndex === 1 ? '首次菜单' : '第' + groupIndex + '次菜单'
         if (order.fromOwner) label = '老板' + label.substring(2)
         groupLabels[label] = groupLabels[label] || []
         order.items.forEach(function(item) {
@@ -118,9 +118,9 @@ Page({
       if (isOwner) {
         label = '终端协助'
       } else if (batchIndex === 1) {
-        label = '首次点单'
+        label = '首次菜单'
       } else {
-        label = '第' + batchIndex + '次加菜'
+        label = '第' + batchIndex + '次菜单'
       }
 
       var subtotal = 0
@@ -171,7 +171,7 @@ Page({
       that.setData({ paying: false })
       wx.showModal({
         title: '提示',
-        content: '请到前台扫码结账',
+        content: '请到前台扫码',
         showCancel: false,
         confirmText: '我知道了'
       })

@@ -16,7 +16,8 @@
     "pages/owner/settings",
     "pages/owner/contact",
     "pages/owner/tableDetail/tableDetail",
-    "pages/owner/chefs/chefs"
+    "pages/owner/chefs/chefs",
+    "pages/agreement/agreement/agreement"
   ],
   "window": {
     "backgroundTextStyle": "light",
