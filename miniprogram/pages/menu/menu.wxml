@@ -18,6 +18,11 @@
     <text>已点 {{orderedItems.length}} 道菜，点击查看 ›</text>
   </view>
 
+  <!-- 有活跃订单时，显示继续上次 -->
+  <view class="continue-bar" wx:if="{{hasActiveOrder && !isAdditional && !fromOwner}}" bindtap="goToOrder">
+    <text>📋 您有进行中的订单，点击继续点单 ›</text>
+  </view>
+
   <!-- 主体：左品类导航 + 右菜品列表 -->
   <view class="main-body">
     <!-- 左侧品类导航 -->
@@ -124,24 +129,7 @@
     </view>
   </view>
 
-  <!-- 口味选择弹窗 -->
-  <view class="taste-mask" wx:if="{{showTastePopup}}" bindtap="skipTaste"></view>
-  <view class="taste-popup" wx:if="{{showTastePopup}}" catchtap="stopPropagation">
-    <view class="taste-title">选择口味 — {{tasteDish.name}}</view>
-    <view class="taste-grid">
-      <view
-        wx:for="{{tasteOptions}}"
-        wx:key="*this"
-        class="taste-option {{selectedTastes[item] ? 'active' : ''}}"
-        bindtap="toggleTaste"
-        data-taste="{{item}}"
-      >{{item}}</view>
-    </view>
-    <view class="taste-btns">
-      <view class="taste-btn skip" bindtap="skipTaste">跳过</view>
-      <view class="taste-btn confirm" bindtap="confirmTaste">加入购物车</view>
-    </view>
-  </view>
+  <!-- 口味选择弹窗（已取消） -->
 
   <!-- 确定走菜确认弹窗 -->
   <view class="confirm-mask" wx:if="{{showConfirmPopup}}" bindtap="closeConfirmPopup"></view>

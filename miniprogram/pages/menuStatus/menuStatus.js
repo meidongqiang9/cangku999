@@ -121,6 +121,7 @@ Page({
 
       var order = orderMap[key]
       order.items.push({
+        _id: item._id || '',
         id: item.dishId || item._id,
         name: item.dishName || '',
         quantity: item.quantity || 1,
@@ -173,16 +174,23 @@ Page({
   updateItemStatus: function(e) {
     var orderCreatedAt = e.currentTarget.dataset.orderid
     var itemId = e.currentTarget.dataset.itemid
+    var docId = e.currentTarget.dataset.docid
     var status = e.currentTarget.dataset.status
     var shopId = wx.getStorageSync('currentShopId') || ''
 
     try {
       var db = getDb()
-      db.collection('order_items')
-        .where({ dishId: itemId, shopId: shopId })
-        .update({
+      if (docId) {
+        db.collection('order_items').doc(docId).update({
           data: { status: status }
         })
+      } else {
+        db.collection('order_items')
+          .where({ dishId: itemId, shopId: shopId })
+          .update({
+            data: { status: status }
+          })
+      }
     } catch (err) {}
 
     // 同步更新本地
@@ -200,16 +208,54 @@ Page({
     wx.showToast({ title: '已更新', icon: 'success' })
   },
 
+  revertItemStatus: function(e) {
+    var orderCreatedAt = e.currentTarget.dataset.orderid
+    var itemId = e.currentTarget.dataset.itemid
+    var docId = e.currentTarget.dataset.docid
+    var shopId = wx.getStorageSync('currentShopId') || ''
+
+    try {
+      var db = getDb()
+      if (docId) {
+        db.collection('order_items').doc(docId).update({
+          data: { status: 'submitted' }
+        })
+      } else {
+        db.collection('order_items')
+          .where({ dishId: itemId, shopId: shopId })
+          .update({
+            data: { status: 'submitted' }
+          })
+      }
+    } catch (err) {}
+
+    var orders = wx.getStorageSync('allOrders') || []
+    orders.forEach(function(order) {
+      if (order.createdAt === orderCreatedAt && order.items) {
+        order.items.forEach(function(item) {
+          if (item.id === itemId) item.status = 'submitted'
+        })
+      }
+    })
+    wx.setStorageSync('allOrders', orders)
+
+    this.loadOrders()
+    wx.showToast({ title: '已退回', icon: 'success' })
+  },
+
   updateStatus: function(e) {
-    var orderCreatedAt = e.currentTarget.dataset.id
+    var orderCreatedAt = parseInt(e.currentTarget.dataset.id) || 0
     var newStatus = e.currentTarget.dataset.status
+    var tableNo = e.currentTarget.dataset.tableno || ''
     var shopId = wx.getStorageSync('currentShopId') || ''
 
     // 更新云数据库
     try {
       var db = getDb()
+      var where = { createdAt: orderCreatedAt, shopId: shopId }
+      if (tableNo) where.tableName = tableNo
       db.collection('order_items')
-        .where({ createdAt: orderCreatedAt, shopId: shopId })
+        .where(where)
         .update({
           data: { status: newStatus }
         })

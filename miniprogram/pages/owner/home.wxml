@@ -26,20 +26,21 @@
 
   <view class="referral-card">
     <view class="referral-header">
-      <text class="referral-title">我的推荐码（待开发）</text>
-      <text class="referral-code">{{referralCode}}</text>
+      <text class="referral-title">元宝余额</text>
+      <text class="referral-code {{frozen ? 'frozen' : ''}}">🪙 {{yuanbao}}</text>
+      <text wx:if="{{frozen}}" class="frozen-tip">（已冻结）</text>
     </view>
     <view class="referral-stats">
+      <view class="referral-stat">
+        <text class="referral-num">{{referralCode || '未生成'}}</text>
+        <text class="referral-label">推荐码</text>
+      </view>
       <view class="referral-stat">
         <text class="referral-num">{{referralCount}}</text>
         <text class="referral-label">已推荐人数</text>
       </view>
-      <view class="referral-stat">
-        <text class="referral-num">{{referralCredit}}</text>
-        <text class="referral-label">待返</text>
-      </view>
     </view>
-    <view class="referral-hint">每推荐1人，返10.00</view>
+    <view class="referral-hint">每推荐1人注册，返10元宝 · 每日扣1元宝</view>
   </view>
 
   <view class="menu-list">

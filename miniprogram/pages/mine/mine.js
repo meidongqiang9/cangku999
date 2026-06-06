@@ -67,7 +67,7 @@ Page({
     try {
       var db = getDb()
       db.collection('orders')
-        .where({ shopId: shopId })
+        .where({ shopId: shopId, _openid: '{openid}' })
         .orderBy('createdAt', 'desc')
         .limit(20)
         .get({

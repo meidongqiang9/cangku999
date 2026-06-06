@@ -1,4 +1,4 @@
-const { getDb } = require('../../utils/cloud')
+const { getDb, getSafeShopId } = require('../../utils/cloud')
 
 Page({
   data: {
@@ -17,7 +17,7 @@ Page({
 
   loadUsers: function() {
     var that = this
-    var shopId = wx.getStorageSync('currentShopId') || ''
+    var shopId = getSafeShopId()
     // 先从本地加载
     var localUsers = wx.getStorageSync('ownerUsers') || []
 
@@ -33,6 +33,7 @@ Page({
               return {
                 id: u._id,
                 phone: u.phone || '',
+                password: u.password || '',
                 shopName: u.shopName || '',
                 role: u.role || 'owner',
                 canUse: u.canUse !== false,
@@ -40,10 +41,14 @@ Page({
               }
             })
 
-            // 合并云端和本地用户（去重）
+            // 合并云端和本地用户（去重，保留本地密码）
             var merged = cloudUsers.slice()
             localUsers.forEach(function(local) {
-              if (!merged.some(function(m) { return m.phone === local.phone })) {
+              var exist = merged.find(function(m) { return m.phone === local.phone })
+              if (exist) {
+                // 本地有密码但云端没有 → 用本地密码
+                if (!exist.password && local.password) exist.password = local.password
+              } else {
                 merged.push(local)
               }
             })

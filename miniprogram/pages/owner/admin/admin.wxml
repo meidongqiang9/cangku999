@@ -1,0 +1,73 @@
+<view class="container">
+  <view class="header">
+    <text class="title">管理端</text>
+    <view class="header-actions">
+      <text class="btn-broadcast" bindtap="showBroadcast">📢 群发</text>
+      <text class="btn-back" bindtap="goBack">退出</text>
+    </view>
+  </view>
+
+  <view class="stats-row">
+    <view class="stat-item">
+      <text class="stat-num">{{totalOwners}}</text>
+      <text class="stat-label">注册店铺</text>
+    </view>
+    <view class="stat-item">
+      <text class="stat-num">{{totalYuanbao}}</text>
+      <text class="stat-label">元宝总量</text>
+    </view>
+    <view class="stat-item">
+      <text class="stat-num frozen">{{frozenCount}}</text>
+      <text class="stat-label">已冻结</text>
+    </view>
+  </view>
+
+  <view class="search-bar">
+    <input class="search-input" placeholder="搜索店铺名或手机号" bindinput="onSearchInput" value="{{searchKeyword}}" />
+  </view>
+
+  <scroll-view scroll-y class="owner-list">
+    <view wx:for="{{owners}}" wx:key="_id" class="owner-card {{item.frozen ? 'frozen' : ''}}">
+      <view class="owner-info" bindtap="viewOwnerDetail" data-shopid="{{item._id}}">
+        <view class="owner-name-row">
+          <text class="owner-name">{{item.shopName}}</text>
+          <text wx:if="{{item.frozen}}" class="frozen-tag">已冻结</text>
+        </view>
+        <text class="owner-phone">📱 {{item.phone || '未绑定'}}</text>
+        <view class="owner-meta">
+          <text class="meta-item">🪙 {{item.yuanbao}} 元宝</text>
+          <text class="meta-item">👥 推荐 {{item.referralCount}} 人</text>
+          <text class="meta-item">📅 {{item.createdTime || '未知'}}</text>
+        </view>
+      </view>
+      <view class="owner-actions">
+        <text class="action-btn recharge" bindtap="showRecharge" data-shopid="{{item._id}}" data-shopname="{{item.shopName}}">充值</text>
+        <text class="action-btn {{item.frozen ? 'unfreeze' : 'freeze'}}" bindtap="toggleFreeze" data-shopid="{{item._id}}" data-frozen="{{item.frozen}}">{{item.frozen ? '解冻' : '冻结'}}</text>
+        <text class="action-btn notify" bindtap="showIndividualAnnounce" data-shopid="{{item._id}}" data-shopname="{{item.shopName}}">通知</text>
+      </view>
+    </view>
+    <view wx:if="{{owners.length === 0}}" class="empty">暂无注册店铺</view>
+  </scroll-view>
+
+  <!-- 充值弹窗 -->
+  <view class="modal-mask" wx:if="{{showRechargeModal}}" bindtap="closeRechargeModal"></view>
+  <view class="modal-popup" wx:if="{{showRechargeModal}}">
+    <view class="modal-title">元宝充值 - {{rechargeShopName}}</view>
+    <input class="modal-input" type="number" placeholder="请输入充值数量" bindinput="onRechargeAmountInput" value="{{rechargeAmount}}" />
+    <view class="modal-btns">
+      <text class="modal-btn cancel" bindtap="closeRechargeModal">取消</text>
+      <text class="modal-btn confirm" bindtap="confirmRecharge">确认充值</text>
+    </view>
+  </view>
+
+  <!-- 通知弹窗 -->
+  <view class="modal-mask" wx:if="{{showAnnounceModal}}" bindtap="closeAnnounceModal"></view>
+  <view class="modal-popup" wx:if="{{showAnnounceModal}}">
+    <view class="modal-title">{{announceType === 'broadcast' ? '群发通知' : '发送通知 - ' + announceShopName}}</view>
+    <textarea class="modal-textarea" placeholder="请输入通知内容" bindinput="onAnnounceContentInput" value="{{announceContent}}" maxlength="200" />
+    <view class="modal-btns">
+      <text class="modal-btn cancel" bindtap="closeAnnounceModal">取消</text>
+      <text class="modal-btn confirm" bindtap="confirmAnnounce">发送</text>
+    </view>
+  </view>
+</view>

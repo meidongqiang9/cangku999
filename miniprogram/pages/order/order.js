@@ -33,32 +33,37 @@ Page({
       tableNo: tableNo
     })
 
-    that.loadOrderData()
+    that.setupWatcher(tableNo)
+    that.fetchOrderItems(tableNo)
+
+    // 兜底定时刷新（30秒），防止 watcher 漏事件
+    var timer = setInterval(function() {
+      if (that.data.tableNo) that.fetchOrderItems(that.data.tableNo)
+    }, 30000)
+    that.setData({ refreshTimer: timer })
   },
 
   onShow: function() {
-    // 每次显示时刷新数据
-    this.loadOrderData()
-  },
-
-  onUnload: function() {
-    // 清理 watch 监听
-    if (this.data.watcher) {
-      this.data.watcher.close()
+    var tableNo = this.data.tableNo
+    if (tableNo) {
+      this.fetchOrderItems(tableNo)
     }
   },
 
-  // 加载订单数据
-  loadOrderData: function() {
-    var that = this
-    var tableNo = that.data.tableNo
-    var shopId = wx.getStorageSync('currentShopId') || ''
+  onUnload: function() {
+    if (this.data.watcher) { this.data.watcher.close() }
+    if (this.data.refreshTimer) { clearInterval(this.data.refreshTimer) }
+  },
 
+  setupWatcher: function(tableNo) {
+    var that = this
+    var shopId = wx.getStorageSync('currentShopId') || ''
+    if (!tableNo) return
     try {
       var db = getDb()
-      // 只监听未结账的菜品（翻台后已结账的不再显示）
+      var _ = db.command
       var watcher = db.collection('order_items')
-        .where({ tableName: tableNo, shopId: shopId, status: 'submitted' })
+        .where({ tableName: tableNo, shopId: shopId, status: _.in(['submitted','cooking','served','completed','returned']) })
         .watch({
           onChange: function() {
             that.fetchOrderItems(tableNo)
@@ -68,11 +73,7 @@ Page({
           }
         })
       that.setData({ watcher: watcher })
-
-      that.fetchOrderItems(tableNo)
-    } catch (e) {
-      that.loadFromStorage(tableNo)
-    }
+    } catch (e) {}
   },
 
   // 从云数据库取数据
@@ -81,9 +82,9 @@ Page({
     var shopId = wx.getStorageSync('currentShopId') || ''
     try {
       var db = getDb()
-      // 只查未结账的菜品，已结账（paid）的不显示
+      var _ = db.command
       db.collection('order_items')
-        .where({ tableName: tableNo, shopId: shopId, status: 'submitted' })
+        .where({ tableName: tableNo, shopId: shopId, status: _.in(['submitted','cooking','served','completed','returned']) })
         .orderBy('createdAt', 'asc')
         .get({
           success: function(res) {

@@ -101,7 +101,9 @@ Page({
           status: orderStatus,
           createdAt: o.createdAt || Date.now(),
           allItems: [],
-          detailItems: []
+          detailItems: [],
+          detailGroups: [],
+          customerItemsMap: {}
         }
       }
 
@@ -122,6 +124,9 @@ Page({
 
       // 合并菜品
       var items = o.items || []
+      var isOwner = !!o.fromOwner
+      var batchTime = o.createdAt || Date.now()
+
       items.forEach(function(item) {
         var dishName = item.name || item.dishName || ''
         var qty = item.quantity || 1
@@ -136,8 +141,28 @@ Page({
           quantity: qty,
           price: price,
           taste: item.taste || '',
-          fromOwner: !!o.fromOwner
+          fromOwner: isOwner
         })
+
+        // 按批次分组（与餐桌详情和顾客端格式一致）
+        if (isOwner) {
+          if (!entry.customerItemsMap['_owner']) {
+            entry.customerItemsMap['_owner'] = []
+          }
+          entry.customerItemsMap['_owner'].push({
+            name: dishName, quantity: qty, price: price,
+            taste: item.taste || '', batchTime: batchTime
+          })
+        } else {
+          var batchKey = String(batchTime)
+          if (!entry.customerItemsMap[batchKey]) {
+            entry.customerItemsMap[batchKey] = []
+          }
+          entry.customerItemsMap[batchKey].push({
+            name: dishName, quantity: qty, price: price,
+            taste: item.taste || '', batchTime: batchTime
+          })
+        }
       })
 
       // 累加金额
@@ -177,7 +202,8 @@ Page({
         status: entry.status,
         totalPrice: entry.totalPrice.toFixed(2),
         items: entry.allItems,
-        detailItems: entry.detailItems
+        detailItems: entry.detailItems,
+        detailGroups: buildDetailGroups(entry)
       })
     })
 
@@ -203,3 +229,41 @@ Page({
     this.setData({ showDetailPopup: false, detailOrder: {} })
   }
 })
+
+function buildDetailGroups(entry) {
+  var map = entry.customerItemsMap || {}
+  var groups = []
+
+  // 顾客点单：按批次时间排序，首次=首次点单，后续=第N次加菜
+  var customerKeys = Object.keys(map).filter(function(k) { return k !== '_owner' }).sort()
+  customerKeys.forEach(function(key, idx) {
+    var sub = 0
+    map[key].forEach(function(it) { sub += it.price * it.quantity })
+    groups.push({
+      title: idx === 0 ? '首次点单' : '第' + toChinese(idx + 1) + '次加菜',
+      items: map[key],
+      subtotal: sub.toFixed(2),
+      isOwner: false
+    })
+  })
+
+  // 终端协助
+  if (map['_owner'] && map['_owner'].length > 0) {
+    var sub = 0
+    map['_owner'].forEach(function(it) { sub += it.price * it.quantity })
+    groups.push({
+      title: '终端协助',
+      items: map['_owner'],
+      subtotal: sub.toFixed(2),
+      isOwner: true
+    })
+  }
+
+  return groups
+}
+
+function toChinese(num) {
+  var nums = ['零','一','二','三','四','五','六','七','八','九','十']
+  if (num <= 10) return nums[num]
+  return String(num)
+}

@@ -1,0 +1,33 @@
+.container { padding: 0 24rpx 60rpx; min-height: 100vh; background: #FBF7F0; }
+.header { display: flex; align-items: center; padding: 30rpx 0 20rpx; gap: 20rpx; }
+.back-btn { font-size: 28rpx; color: #E8784A; }
+.title { font-size: 36rpx; font-weight: 700; color: #333; }
+
+.info-card { background: #fff; border-radius: 16rpx; padding: 30rpx; margin-bottom: 20rpx; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04); }
+.info-row { display: flex; justify-content: space-between; padding: 16rpx 0; border-bottom: 1rpx solid #f5f5f5; }
+.info-row:last-child { border-bottom: none; }
+.label { font-size: 28rpx; color: #999; }
+.value { font-size: 28rpx; color: #333; font-weight: 500; }
+.value.yuanbao { color: #E8784A; font-weight: 700; }
+.value.yuanbao.frozen { color: #E74C3C; }
+
+.section { margin-bottom: 20rpx; }
+.section-title { font-size: 30rpx; font-weight: 600; color: #333; display: block; margin-bottom: 16rpx; }
+
+.tx-item { background: #fff; border-radius: 12rpx; padding: 20rpx 24rpx; margin-bottom: 12rpx; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.03); }
+.tx-left { flex: 1; }
+.tx-type { font-size: 26rpx; color: #333; font-weight: 500; display: block; }
+.tx-desc { font-size: 24rpx; color: #999; display: block; margin-top: 4rpx; }
+.tx-time { font-size: 22rpx; color: #bbb; display: block; margin-top: 4rpx; }
+.tx-right { text-align: right; }
+.tx-amount { font-size: 30rpx; font-weight: 700; display: block; }
+.tx-amount.positive { color: #27AE60; }
+.tx-amount.negative { color: #E74C3C; }
+.tx-balance { font-size: 22rpx; color: #999; display: block; margin-top: 4rpx; }
+
+.ref-item { background: #fff; border-radius: 12rpx; padding: 20rpx 24rpx; margin-bottom: 12rpx; display: flex; align-items: center; gap: 20rpx; box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.03); }
+.ref-phone { font-size: 26rpx; color: #333; flex: 1; }
+.ref-bonus { font-size: 26rpx; color: #27AE60; font-weight: 600; }
+.ref-time { font-size: 22rpx; color: #bbb; }
+
+.empty { text-align: center; color: #999; padding: 40rpx 0; font-size: 26rpx; }

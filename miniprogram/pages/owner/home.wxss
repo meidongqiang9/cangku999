@@ -125,6 +125,16 @@ page { background: var(--bg-page) }
   font-weight: 500;
 }
 
+.referral-code.frozen {
+  color: #E74C3C;
+}
+
+.frozen-tip {
+  font-size: 22rpx;
+  color: #E74C3C;
+  margin-left: 8rpx;
+}
+
 /* —— 菜单列表 —— */
 .menu-list {
   background: var(--bg-card);

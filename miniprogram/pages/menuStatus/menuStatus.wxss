@@ -125,6 +125,26 @@ page {
   font-weight: 500;
 }
 
+.served-line {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.btn-revert {
+  color: #E74C3C;
+  font-size: 22rpx;
+  padding: 4rpx 12rpx;
+  border: 1rpx solid #E74C3C;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+}
+
+.btn-revert:active {
+  background: #E74C3C;
+  color: #fff;
+}
+
 .action-btns {
   margin-top: var(--space-sm);
   display: flex;

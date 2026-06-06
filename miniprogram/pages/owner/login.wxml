@@ -9,8 +9,12 @@
     </view>
 
     <view class="input-item">
-      <input class="input" placeholder="请输入密码" placeholder-class="ph" password="{{!showPassword}}" bindinput="onPasswordInput" value="{{password}}" />
+      <input class="input" placeholder="请输入密码" placeholder-class="ph" password bindinput="onPasswordInput" value="{{password}}" />
       <view class="toggle-pwd" bindtap="togglePassword">{{showPassword ? '隐藏' : '显示'}}</view>
+    </view>
+    <view wx:if="{{showPassword}}" class="pwd-show-row">
+      <text class="pwd-show-label">当前输入：</text>
+      <text class="pwd-show-value">{{password}}</text>
     </view>
 
     <view class="input-item" wx:if="{{!isLogin}}">

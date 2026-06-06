@@ -1,0 +1,59 @@
+<view class="container">
+  <view class="header">
+    <view class="back-btn" bindtap="goBack">← 返回</view>
+    <text class="title">店铺详情</text>
+  </view>
+
+  <view wx:if="{{shopInfo}}" class="info-card">
+    <view class="info-row">
+      <text class="label">店铺名称</text>
+      <text class="value">{{shopInfo.shopName}}</text>
+    </view>
+    <view class="info-row">
+      <text class="label">手机号</text>
+      <text class="value">{{shopInfo.phone}}</text>
+    </view>
+    <view class="info-row">
+      <text class="label">元宝余额</text>
+      <text class="value yuanbao {{shopInfo.frozen ? 'frozen' : ''}}">{{shopInfo.yuanbao}} {{shopInfo.frozen ? '(已冻结)' : ''}}</text>
+    </view>
+    <view class="info-row">
+      <text class="label">推荐码</text>
+      <text class="value">{{shopInfo.referralCode || '未生成'}}</text>
+    </view>
+    <view class="info-row">
+      <text class="label">推荐人数</text>
+      <text class="value">{{shopInfo.referralCount}} 人</text>
+    </view>
+    <view class="info-row">
+      <text class="label">注册时间</text>
+      <text class="value">{{shopInfo.createdAt}}</text>
+    </view>
+  </view>
+
+  <view class="section">
+    <text class="section-title">元宝流水</text>
+    <view wx:if="{{transactions.length === 0}}" class="empty">暂无记录</view>
+    <view wx:for="{{transactions}}" wx:key="time" class="tx-item">
+      <view class="tx-left">
+        <text class="tx-type">{{item.type}}</text>
+        <text class="tx-desc">{{item.description}}</text>
+        <text class="tx-time">{{item.time}}</text>
+      </view>
+      <view class="tx-right">
+        <text class="tx-amount {{item.isPositive ? 'positive' : 'negative'}}">{{item.isPositive ? '+' : ''}}{{item.amount}}</text>
+        <text class="tx-balance">余额 {{item.balance}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <text class="section-title">推荐记录</text>
+    <view wx:if="{{referrals.length === 0}}" class="empty">暂无记录</view>
+    <view wx:for="{{referrals}}" wx:key="time" class="ref-item">
+      <text class="ref-phone">📱 {{item.referredPhone}}</text>
+      <text class="ref-bonus">+{{item.bonus}} 元宝</text>
+      <text class="ref-time">{{item.time}}</text>
+    </view>
+  </view>
+</view>

@@ -65,6 +65,20 @@ page { background: var(--bg-page) }
   font-weight: 500;
 }
 
+.pwd-show-row {
+  margin-top: 12rpx;
+  margin-bottom: 28rpx;
+  padding: 18rpx 24rpx;
+  background: #FFF3E0;
+  border-radius: 12rpx;
+  border: 2rpx solid #E8784A;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+.pwd-show-label { font-size: 24rpx; color: #E8784A; }
+.pwd-show-value { font-size: 30rpx; color: #333; font-weight: 700; letter-spacing: 3rpx; }
+
 /* —— 按钮 —— */
 .btn-submit {
   background: linear-gradient(135deg, var(--primary), #F09060);

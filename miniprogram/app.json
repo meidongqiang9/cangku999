@@ -17,6 +17,8 @@
     "pages/owner/contact",
     "pages/owner/tableDetail/tableDetail",
     "pages/owner/chefs/chefs",
+    "pages/owner/admin/admin",
+    "pages/owner/admin/ownerDetail/ownerDetail",
     "pages/agreement/agreement/agreement"
   ],
   "window": {

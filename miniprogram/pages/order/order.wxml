@@ -10,7 +10,7 @@
     </view>
     <view class="status-divider"></view>
     <view class="status-item">
-      <text class="status-num served">{{servedCount}}</text>
+      <text class="status-num served">{{servedCount > 0 ? servedCount : '-'}}</text>
       <text class="status-label">已上菜</text>
     </view>
     <view class="status-divider"></view>
@@ -49,7 +49,7 @@
           </view>
           <view class="dish-right">
             <view class="dish-status-tag {{dish.status}}">
-              {{dish.status === 'submitted' ? '已走菜' : dish.status === 'served' ? '已上菜' : '已回炉'}}
+              {{dish.status === 'submitted' ? '已走菜' : dish.status === 'cooking' ? '制作中' : dish.status === 'served' ? '已上菜' : dish.status === 'completed' ? '已完成' : '已回炉'}}
             </view>
           </view>
         </view>

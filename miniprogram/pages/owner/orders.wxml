@@ -59,41 +59,22 @@
   <view class="detail-popup" wx:if="{{showDetailPopup}}">
     <view class="detail-popup-title">{{detailOrder.tableNo}}桌 · 结账单</view>
     <view class="detail-table">
-      <!-- 顾客点单 -->
-      <view class="detail-section-label">顾客点单</view>
-      <view class="detail-head">
-        <text class="d-col-name">菜品</text>
-        <text class="d-col-qty">数量</text>
-        <text class="d-col-price">单价</text>
-        <text class="d-col-sub">小计</text>
-      </view>
-      <view wx:for="{{detailOrder.detailItems}}" wx:for-item="item" wx:key="name" wx:if="{{!item.fromOwner}}" class="detail-row">
-        <view class="d-col-name-wrap">
-          <text class="d-col-name">{{item.name}}</text>
-          <text wx:if="{{item.taste}}" class="taste-tag">{{item.taste}}</text>
-        </view>
-        <text class="d-col-qty">x{{item.quantity}}</text>
-        <text class="d-col-price">💰{{item.price}}</text>
-        <text class="d-col-sub">💰{{item.price * item.quantity}}</text>
-      </view>
-
-      <!-- 终端协助 -->
-      <block wx:if="{{detailOrder.detailItems}}">
-        <view class="detail-section-label owner">终端协助</view>
+      <block wx:for="{{detailOrder.detailGroups}}" wx:key="title">
+        <view class="detail-section-label {{item.isOwner ? 'owner' : ''}}">{{item.title}} · {{item.items.length}}道</view>
         <view class="detail-head">
           <text class="d-col-name">菜品</text>
           <text class="d-col-qty">数量</text>
           <text class="d-col-price">单价</text>
           <text class="d-col-sub">小计</text>
         </view>
-        <view wx:for="{{detailOrder.detailItems}}" wx:for-item="item" wx:key="name" wx:if="{{item.fromOwner}}" class="detail-row owner-row">
+        <view wx:for="{{item.items}}" wx:for-item="d" wx:key="name" class="detail-row {{item.isOwner ? 'owner-row' : ''}}">
           <view class="d-col-name-wrap">
-            <text class="d-col-name">{{item.name}}</text>
-            <text wx:if="{{item.taste}}" class="taste-tag">{{item.taste}}</text>
+            <text class="d-col-name">{{d.name}}</text>
+            <text wx:if="{{d.taste}}" class="taste-tag">{{d.taste}}</text>
           </view>
-          <text class="d-col-qty">x{{item.quantity}}</text>
-          <text class="d-col-price">💰{{item.price}}</text>
-          <text class="d-col-sub">💰{{item.price * item.quantity}}</text>
+          <text class="d-col-qty">x{{d.quantity}}</text>
+          <text class="d-col-price">💰{{d.price}}</text>
+          <text class="d-col-sub">💰{{d.price * d.quantity}}</text>
         </view>
       </block>
     </view>

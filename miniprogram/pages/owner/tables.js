@@ -12,15 +12,42 @@ Page({
     showQRPopup: false,
     qrImage: '',
     qrTableName: '',
-    qrTableId: ''
+    qrTableId: '',
+    watcher: null,
+    refreshTimer: null
   },
 
   onLoad: function() {
     this.loadTables()
+    this.startWatch()
   },
 
   onShow: function() {
     this.loadTables()
+  },
+
+  onUnload: function() {
+    if (this.data.watcher) { this.data.watcher.close() }
+    if (this.data.refreshTimer) { clearInterval(this.data.refreshTimer) }
+  },
+
+  startWatch: function() {
+    var that = this
+    var shopId = wx.getStorageSync('currentShopId') || ''
+    if (!shopId) return
+    try {
+      var db = getDb()
+      var watcher = db.collection('order_items')
+        .where({ shopId: shopId, status: 'submitted' })
+        .watch({
+          onChange: function() { that.loadTables() },
+          onError: function() {}
+        })
+      that.setData({ watcher: watcher })
+    } catch (e) {}
+    // 兜底：每 10 秒刷新一次
+    var timer = setInterval(function() { that.loadTables() }, 10000)
+    that.setData({ refreshTimer: timer })
   },
 
   loadTables: function() {

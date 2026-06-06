@@ -27,11 +27,26 @@ function processReferral(db, referrerCode, newShopId, newPhone, callback) {
             createdAt: Date.now()
           }
         })
-        // 增加推荐人的推荐计数
+        // 增加推荐人的推荐计数 + 元宝返利
         var newCount = (referrer.referralCount || 0) + 1
+        var newYuanbao = (referrer.yuanbao || 0) + 10
         db.collection('shops').doc(referrer._id).update({
-          data: { referralCount: newCount }
+          data: { referralCount: newCount, yuanbao: newYuanbao }
         })
+        // 记录元宝交易
+        try {
+          db.collection('yuanbao_transactions').add({
+            data: {
+              shopId: referrer._id,
+              amount: 10,
+              type: 'referral_bonus',
+              description: '推荐奖励：新店铺注册',
+              balance: newYuanbao,
+              relatedShopId: newShopId,
+              createdAt: Date.now()
+            }
+          })
+        } catch (e) {}
       }
       callback()
     },
@@ -111,7 +126,7 @@ Page({
   },
 
   onReferralCodeInput: function(e) {
-    this.setData({ referralCode: e.detail.value.toUpperCase() })
+    this.setData({ referralCode: (e.detail.value || '').toUpperCase() })
   },
 
   togglePassword: function() {
@@ -170,78 +185,164 @@ Page({
       return u.phone === phone && u.password === password
     })
 
-    // 测试账号兼容
-    if (!found && phone === '13889195545' && password === '123456') {
+    // 管理账号
+    if (!found && phone === '13889195545' && password === 'M@dq616699') {
       found = {
         id: 'admin_' + Date.now(),
         phone: '13889195545',
         shopName: '食易特餐厅',
-        role: 'owner',
+        role: 'admin',
         canUse: true
       }
     }
 
-    if (found) {
-      found.loginAt = Date.now()
-
-      // 确保有 shopId：优先从已存储数据，其次从云数据库查找
-      var shopId = found.shopId || ''
-
-      if (!shopId) {
-        // 旧账号没有 shopId，尝试从 users 集合获取
-        this.ensureShopId(found, function(updatedUser) {
-          wx.setStorageSync('ownerUser', updatedUser)
-          wx.setStorageSync('currentShopId', updatedUser.shopId || '')
-          that.finishLogin()
+    // 本地找不到时，从云端 shops 验证（密码在注册时写入 shops）
+    if (!found) {
+      try {
+        var db = getDb()
+        db.collection('shops').where({ phone: phone }).get({
+          success: function(res) {
+            if (res.data && res.data.length > 0 && res.data[0].password === password) {
+              var s = res.data[0]
+              that.restoreLoginFromCloud({
+                _id: s._id, phone: phone, shopName: s.shopName || '',
+                shopId: s._id, referralCode: s.referralCode || '', createdAt: s.createdAt
+              }, phone, password)
+              return
+            }
+            that.setData({ submitting: false })
+            wx.showToast({ title: '账号或密码错误', icon: 'none' })
+          },
+          fail: function() {
+            that.setData({ submitting: false })
+            wx.showToast({ title: '账号或密码错误', icon: 'none' })
+          }
         })
-      } else {
-        wx.setStorageSync('ownerUser', found)
-        wx.setStorageSync('currentShopId', shopId)
-        this.finishLogin()
+      } catch (e) {
+        that.setData({ submitting: false })
+        wx.showToast({ title: '账号或密码错误', icon: 'none' })
       }
-    } else {
+      return
+    }
+
+    that.doLoginComplete(found)
+  },
+
+  doLoginComplete: function(found) {
+    var that = this
+    found.loginAt = Date.now()
+
+    if (found.role === 'admin') {
+      wx.setStorageSync('ownerUser', found)
       that.setData({ submitting: false })
-      wx.showToast({ title: '账号或密码错误', icon: 'none' })
+      wx.showToast({ title: '管理员登录成功', icon: 'success' })
+      setTimeout(function() {
+        wx.redirectTo({ url: '/pages/owner/admin/admin' })
+      }, 600)
+      return
+    }
+
+    var shopId = found.shopId || ''
+    if (!shopId) {
+      this.ensureShopId(found, function(updatedUser) {
+        wx.setStorageSync('ownerUser', updatedUser)
+        wx.setStorageSync('currentShopId', updatedUser.shopId || '')
+        if (found.phone === '13889195545') {
+          var users = wx.getStorageSync('ownerUsers') || []
+          var idx = users.findIndex(function(u) { return u.phone === '13889195545' && u.shopName === '食易特餐厅' })
+          if (idx >= 0) { users[idx] = updatedUser }
+          else { users.push(updatedUser) }
+          wx.setStorageSync('ownerUsers', users)
+        }
+        that.finishLogin()
+      })
+    } else {
+      wx.setStorageSync('ownerUser', found)
+      wx.setStorageSync('currentShopId', shopId)
+      this.finishLogin()
     }
   },
 
-  // 兼容旧账号：无 shopId 时自动创建 shop 文档
+  restoreLoginFromCloud: function(cloudUser, phone, password) {
+    var restored = {
+      id: cloudUser._id || ('owner_' + Date.now()),
+      phone: phone,
+      password: password,
+      shopName: cloudUser.shopName || '',
+      role: 'owner',
+      canUse: true,
+      shopId: cloudUser.shopId || '',
+      referralCode: cloudUser.referralCode || '',
+      createdAt: cloudUser.createdAt || Date.now(),
+      loginAt: Date.now()
+    }
+    var localUsers = wx.getStorageSync('ownerUsers') || []
+    var idx = localUsers.findIndex(function(u) { return u.phone === phone })
+    if (idx >= 0) { localUsers[idx] = restored }
+    else { localUsers.push(restored) }
+    wx.setStorageSync('ownerUsers', localUsers)
+    this.doLoginComplete(restored)
+  },
+
+  tryShopsLogin: function(db, phone, password) {
+    var that = this
+    db.collection('shops').where({ phone: phone }).get({
+      success: function(res) {
+        if (res.data && res.data.length > 0 && res.data[0].password === password) {
+          var s = res.data[0]
+          that.restoreLoginFromCloud({
+            _id: s._id, phone: phone, shopName: s.shopName || '',
+            shopId: s._id, referralCode: s.referralCode || '', createdAt: s.createdAt
+          }, phone, password)
+          return
+        }
+        that.setData({ submitting: false })
+        wx.showToast({ title: '账号或密码错误', icon: 'none' })
+      },
+      fail: function() {
+        that.setData({ submitting: false })
+        wx.showToast({ title: '账号或密码错误', icon: 'none' })
+      }
+    })
+  },
+
+  // 兼容旧账号：无 shopId 时自动创建或找回 shop 文档
   ensureShopId: function(user, callback) {
     var shopName = user.shopName || '我的店铺'
     var phone = user.phone || ''
 
     try {
       var db = getDb()
-      // 查询 users 集合中是否有该手机号对应的 shopId
-      db.collection('users').where({ phone: phone, role: 'owner' }).get({
+      // 按手机号+店铺名精确匹配，防止跨租户数据泄露
+      db.collection('users').where({ phone: phone, shopName: shopName, role: 'owner' }).get({
         success: function(res) {
           if (res.data && res.data.length > 0 && res.data[0].shopId) {
             user.shopId = res.data[0].shopId
             callback(user)
           } else {
-            // 创建 shop 文档
-            db.collection('shops').add({
-              data: { shopName: shopName, phone: phone, createdAt: Date.now() },
-              success: function(addRes) {
-                var shopId = addRes._id
-                user.shopId = shopId
-                // 回写到 users 集合
-                if (res.data && res.data.length > 0) {
-                  db.collection('users').doc(res.data[0]._id).update({ data: { shopId: shopId } })
-                } else {
-                  db.collection('users').add({
-                    data: { phone: phone, shopName: shopName, role: 'owner', shopId: shopId, createdAt: Date.now() }
-                  })
-                }
-                callback(user)
-              },
-              fail: function() { callback(user) }
-            })
+            // 无精确匹配则创建新店铺，绝不复用他人店铺
+            createNewShop(db, user, callback)
           }
         },
         fail: function() { callback(user) }
       })
     } catch (e) { callback(user) }
+
+    function createNewShop(db, user, callback) {
+      var shopName = user.shopName || '我的店铺'
+      var phone = user.phone || ''
+      db.collection('shops').add({
+        data: { shopName: shopName, phone: phone, createdAt: Date.now() },
+        success: function(addRes) {
+          user.shopId = addRes._id
+          db.collection('users').add({
+            data: { phone: phone, shopName: shopName, role: 'owner', shopId: addRes._id, createdAt: Date.now() }
+          })
+          callback(user)
+        },
+        fail: function() { callback(user) }
+      })
+    }
   },
 
   finishLogin: function() {
@@ -302,20 +403,32 @@ Page({
       wx.setStorageSync('ownerUser', newUser)
       wx.setStorageSync('currentShopId', shopId)
 
-      // 同步用户到云端（含 shopId）
+      // 同步用户到云端（含密码，本地丢失时云端可验证）
       try {
         var db = getDb()
+        var saveOk = false
         db.collection('users').add({
           data: {
             phone: phone,
+            password: password,
             shopName: shopName,
             role: 'owner',
             shopId: shopId,
             referralCode: refCode,
             createdAt: Date.now()
-          }
+          },
+          success: function() { saveOk = true },
+          fail: function(err) { wx.showToast({ title: '云端同步失败: ' + (err.errMsg || '未知'), icon: 'none', duration: 3000 }) }
         })
-      } catch (e) {}
+        if (shopId) {
+          db.collection('shops').doc(shopId).update({
+            data: { phone: phone, password: password },
+            fail: function(err) { wx.showToast({ title: 'shops同步失败', icon: 'none' }) }
+          })
+        }
+      } catch (e) {
+        wx.showToast({ title: '云端未初始化', icon: 'none' })
+      }
 
       // 处理推荐关系
       var inputRefCode = that.data.referralCode.trim()
@@ -341,14 +454,31 @@ Page({
         data: {
           shopName: shopName,
           phone: phone,
+          password: password,
           referralCode: refCode,
           referralCodeUsed: inputRefCode || '',
           referredBy: '',
           referralCount: 0,
+          yuanbao: 30,
+          frozen: false,
+          lastDeductionDate: '',
           createdAt: Date.now()
         },
         success: function(res) {
           shopId = res._id
+          // 记录初始元宝
+          try {
+            db.collection('yuanbao_transactions').add({
+              data: {
+                shopId: shopId,
+                amount: 30,
+                type: 'initial',
+                description: '新店注册赠送元宝',
+                balance: 30,
+                createdAt: Date.now()
+              }
+            })
+          } catch (e) {}
           doCreateUser(shopId, refCode)
         },
         fail: function() {
@@ -356,7 +486,7 @@ Page({
         }
       })
     } catch (e) {
-      doCreateUser(shopId)
+      doCreateUser(shopId, refCode)
     }
   },
 
@@ -498,10 +628,26 @@ Page({
           referralCodeUsed: inputRefCode || '',
           referredBy: '',
           referralCount: 0,
+          yuanbao: 30,
+          frozen: false,
+          lastDeductionDate: '',
           createdAt: Date.now()
         },
         success: function(addRes) {
           user.shopId = addRes._id
+          // 记录初始元宝
+          try {
+            db.collection('yuanbao_transactions').add({
+              data: {
+                shopId: addRes._id,
+                amount: 30,
+                type: 'initial',
+                description: '新店注册赠送元宝',
+                balance: 30,
+                createdAt: Date.now()
+              }
+            })
+          } catch (e) {}
           if (inputRefCode) {
             processReferral(db, inputRefCode, addRes._id, '', function() {})
           }

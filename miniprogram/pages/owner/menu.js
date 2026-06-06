@@ -1,4 +1,4 @@
-const { getDb } = require('../../utils/cloud')
+const { getDb, getSafeShopId } = require('../../utils/cloud')
 
 Page({
   data: {
@@ -80,7 +80,7 @@ Page({
   loadCategoryDishes: function(categoryId) {
     var that = this
     that.setData({ currentCategory: categoryId })
-    var shopId = wx.getStorageSync('currentShopId') || ''
+    var shopId = getSafeShopId()
 
     try {
       var db = getDb()
@@ -430,7 +430,7 @@ Page({
     } else if (that.data.inputAction === 'addDish') {
       var name = that.data.inputValue.trim()
       var price = parseFloat(that.data.inputPrice) || 0
-      var desc = (that.data.inputValue2 || '').substring(0, 10)
+      var desc = (that.data.inputValue2 || '').substring(0, 30)
 
       if (!name) { wx.showToast({ title: '请输入名称', icon: 'none' }); return }
       if (!price) { wx.showToast({ title: '请填入价格', icon: 'none' }); return }
@@ -488,7 +488,7 @@ Page({
       }
     } else if (that.data.inputAction === 'editDish') {
       var priceVal = parseFloat(that.data.inputValue) || 0
-      var descVal = (that.data.inputValue2 || '').substring(0, 10)
+      var descVal = (that.data.inputValue2 || '').substring(0, 30)
       var dishId = that.data.editingDishId
 
       var doEdit = function(imageUrl) {

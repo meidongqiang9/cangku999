@@ -11,30 +11,14 @@
     </swiper-item>
   </swiper>
 
-  <!-- 扫码按钮 -->
-  <view class="scan-area" bindtap="scanCode">
-    <view class="scan-icon">📷</view>
-    <text class="scan-text">扫描桌面二维码</text>
-  </view>
-
-  <!-- 输入区域 -->
+  <!-- 桌号（锁定显示） -->
   <view class="input-section card">
-    <view class="input-item">
-      <view class="label">桌号/包房号</view>
-      <view class="table-locked-wrap {{tableLocked ? 'locked' : ''}}">
-        <input
-          class="input {{tableLocked ? 'input-locked' : ''}}"
-          placeholder="请扫描桌面二维码"
-          value="{{tableNo}}"
-          bindinput="onTableInput"
-          maxlength="10"
-          disabled="{{tableLocked}}"
-        />
-        <text wx:if="{{tableLocked}}" class="lock-icon">🔒</text>
-      </view>
+    <view class="table-locked-display">
+      <text class="table-locked-label">桌号</text>
+      <text class="table-locked-value">🔒 {{tableNo}}</text>
     </view>
     <view class="input-item">
-      <view class="label">人数</view>
+      <view class="label">就餐人数</view>
       <input
         class="input"
         placeholder="请输入人数"
@@ -42,33 +26,13 @@
         bindinput="onGuestInput"
         type="number"
         maxlength="2"
-        focus="{{tableLocked && !guestCount}}"
+        focus="{{!guestCount}}"
       />
     </view>
   </view>
 
-  <!-- 继续上次按钮 -->
-  <view class="continue-btn" wx:if="{{hasActiveSession}}" bindtap="continueOrder">
-    <text>继续上次 ›</text>
-  </view>
-
-  <!-- 开始点餐按钮 -->
-  <view
-    class="btn-primary start-btn {{tableDisabled ? 'disabled' : ''}}"
-    bindtap="{{tableDisabled ? '' : 'startOrder'}}"
-  >
-    查看菜谱
-  </view>
-
-  <!-- 底部入口 -->
-  <view class="bottom-entries">
-    <view class="entry-item" bindtap="goMine">
-      <text>我的</text>
-    </view>
-    <view class="entry-item" bindtap="goOwnerLogin">
-      <text>管理入口</text>
-    </view>
-  </view>
+  <!-- 开始点餐 -->
+  <view class="btn-primary start-btn" bindtap="startOrder">查看菜谱</view>
 
   <!-- 通知弹窗 -->
   <view class="notice-mask" wx:if="{{showNotice}}" bindtap="closeNotice"></view>

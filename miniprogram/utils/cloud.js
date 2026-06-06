@@ -23,4 +23,9 @@ function getDb() {
   return db
 }
 
-module.exports = { init, getDb }
+function getSafeShopId() {
+  var id = wx.getStorageSync('currentShopId')
+  return (id != null && id !== '') ? id : null
+}
+
+module.exports = { init, getDb, getSafeShopId }

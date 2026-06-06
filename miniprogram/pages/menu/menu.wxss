@@ -63,6 +63,15 @@ page {
   font-weight: 600;
 }
 
+.continue-bar {
+  background: #E3F2FD;
+  color: #1565C0;
+  text-align: center;
+  padding: 16rpx var(--space-md);
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
 /* —— 主体布局 —— */
 .main-body {
   flex: 1;

@@ -28,9 +28,10 @@ Page({
 
     try {
       var db = getDb()
-      // 只查未结账的菜品（翻台后已结账的不再显示）
+      var _ = db.command
+      // 查所有未结账的菜品（含 submitted / cooking / served / completed）
       db.collection('order_items')
-        .where({ tableName: table.name, shopId: shopId, status: 'submitted' })
+        .where({ tableName: table.name, shopId: shopId, status: _.neq('paid') })
         .orderBy('createdAt', 'asc')
         .get({
           success: function(res) {
@@ -74,11 +75,12 @@ Page({
   },
 
   // 同步 orders 快照：修改 order_items 后，更新 orders 中对应菜品的数量和价格
+  // 仅更新老板协助订单（fromOwner: true），不影响顾客订单
   syncOrdersSnapshot: function(table, shopId, dishId, field, value) {
     try {
       var db = getDb()
       db.collection('orders')
-        .where({ tableName: table.name, shopId: shopId, status: 'pending' })
+        .where({ tableName: table.name, shopId: shopId, status: 'pending', fromOwner: true })
         .get({
           success: function(res) {
             (res.data || []).forEach(function(order) {
@@ -170,6 +172,7 @@ Page({
             customerTotal += price * quantity
           }
           return {
+            _id: item._id || '',
             id: item.dishId || item._id,
             name: item.dishName || item.name || '',
             price: price,
@@ -203,6 +206,7 @@ Page({
   // 终端协助：直接输入数量
   onOwnerQtyBlur: function(e) {
     var itemId = e.currentTarget.dataset.itemid
+    var docId = e.currentTarget.dataset.docid
     var val = parseInt(e.detail.value)
     var table = this.data.table
     var shopId = wx.getStorageSync('currentShopId') || ''
@@ -231,33 +235,42 @@ Page({
     // 更新云数据库，完成后刷新
     try {
       var db = getDb()
-      db.collection('order_items')
-        .where({ dishId: itemId, tableName: table.name, shopId: shopId, fromOwner: true, status: 'submitted' })
-        .get({
-          success: function(res) {
-            if (res.data && res.data.length > 0) {
-              var item = res.data[0]
-              var cb = function() {
-                that.syncOrdersSnapshot(table, shopId, itemId, 'quantity', val)
-                setTimeout(function() { that.loadTableOrders() }, 150)
-              }
-              if (val === 0) {
-                db.collection('order_items').doc(item._id).remove({ success: cb, fail: cb })
+      var cb = function() {
+        that.syncOrdersSnapshot(table, shopId, itemId, 'quantity', val)
+        setTimeout(function() { that.loadTableOrders() }, 150)
+      }
+      if (docId) {
+        if (val === 0) {
+          db.collection('order_items').doc(docId).remove({ success: cb, fail: cb })
+        } else {
+          db.collection('order_items').doc(docId).update({ data: { quantity: val }, success: cb, fail: cb })
+        }
+      } else {
+        db.collection('order_items')
+          .where({ dishId: itemId, tableName: table.name, shopId: shopId, fromOwner: true, status: 'submitted' })
+          .get({
+            success: function(res) {
+              if (res.data && res.data.length > 0) {
+                var item = res.data[0]
+                if (val === 0) {
+                  db.collection('order_items').doc(item._id).remove({ success: cb, fail: cb })
+                } else {
+                  db.collection('order_items').doc(item._id).update({ data: { quantity: val }, success: cb, fail: cb })
+                }
               } else {
-                db.collection('order_items').doc(item._id).update({ data: { quantity: val }, success: cb, fail: cb })
+                that.loadTableOrders()
               }
-            } else {
-              that.loadTableOrders()
-            }
-          },
-          fail: function() { that.loadTableOrders() }
-        })
+            },
+            fail: function() { that.loadTableOrders() }
+          })
+      }
     } catch (err) { that.loadTableOrders() }
   },
 
   // 终端协助：直接输入单价
   onOwnerPriceBlur: function(e) {
     var itemId = e.currentTarget.dataset.itemid
+    var docId = e.currentTarget.dataset.docid
     var val = parseFloat(e.detail.value)
     var maxPrice = parseFloat(e.currentTarget.dataset.originalprice) || 0
     var table = this.data.table
@@ -284,22 +297,26 @@ Page({
     // 更新云数据库，完成后刷新
     try {
       var db = getDb()
-      db.collection('order_items')
-        .where({ dishId: itemId, tableName: table.name, shopId: shopId, fromOwner: true, status: 'submitted' })
-        .get({
-          success: function(res) {
-            if (res.data && res.data.length > 0) {
-              var cb = function() {
-                that.syncOrdersSnapshot(table, shopId, itemId, 'price', val)
-                setTimeout(function() { that.loadTableOrders() }, 150)
+      var cb = function() {
+        that.syncOrdersSnapshot(table, shopId, itemId, 'price', val)
+        setTimeout(function() { that.loadTableOrders() }, 150)
+      }
+      if (docId) {
+        db.collection('order_items').doc(docId).update({ data: { price: val }, success: cb, fail: cb })
+      } else {
+        db.collection('order_items')
+          .where({ dishId: itemId, tableName: table.name, shopId: shopId, fromOwner: true, status: 'submitted' })
+          .get({
+            success: function(res) {
+              if (res.data && res.data.length > 0) {
+                db.collection('order_items').doc(res.data[0]._id).update({ data: { price: val }, success: cb, fail: cb })
+              } else {
+                that.loadTableOrders()
               }
-              db.collection('order_items').doc(res.data[0]._id).update({ data: { price: val }, success: cb, fail: cb })
-            } else {
-              that.loadTableOrders()
-            }
-          },
-          fail: function() { that.loadTableOrders() }
-        })
+            },
+            fail: function() { that.loadTableOrders() }
+          })
+      }
     } catch (err) { that.loadTableOrders() }
   },
 
@@ -496,24 +513,6 @@ Page({
           var clearTime = Date.now()
           var shopId = wx.getStorageSync('currentShopId') || ''
 
-          try {
-            var db = getDb()
-            // 关闭会话（保留记录）
-            db.collection('sessions')
-              .where({ tableName: table.name, status: 'active', shopId: shopId })
-              .update({ data: { status: 'closed', clearedAt: clearTime } })
-
-            // 标记订单为已结账（保留菜品明细供营收统计）
-            db.collection('orders')
-              .where({ tableName: table.name, shopId: shopId, status: 'pending' })
-              .update({ data: { status: 'paid', paidAt: clearTime } })
-
-            // 标记菜品项为已结账（不删除，营收统计需要）
-            db.collection('order_items')
-              .where({ tableName: table.name, shopId: shopId })
-              .update({ data: { status: 'paid', paidAt: clearTime } })
-          } catch (err) {}
-
           // 本地订单标记为已结账（保留供营收统计降级使用）
           var allOrders = wx.getStorageSync('allOrders') || []
           allOrders.forEach(function(o) {
@@ -527,8 +526,38 @@ Page({
           wx.removeStorageSync('currentTable')
           wx.removeStorageSync('currentSession')
 
-          that.setData({ allItems: [], totalPrice: '0.00', ownerTotal: '0.00', totalAll: '0.00' })
-          that.loadTableOrders()
+          // 等待所有云端更新完成后再刷新，避免查到未更新的数据
+          var finishClear = function() {
+            that.setData({ allItems: [], totalPrice: '0.00', ownerTotal: '0.00', totalAll: '0.00' })
+            that.loadTableOrders()
+          }
+          var pending = 3
+          var onComplete = function() {
+            pending--
+            if (pending <= 0) finishClear()
+          }
+
+          try {
+            var db = getDb()
+            db.collection('sessions')
+              .where({ tableName: table.name, status: 'active', shopId: shopId })
+              .update({
+                data: { status: 'closed', clearedAt: clearTime },
+                success: onComplete, fail: onComplete
+              })
+            db.collection('orders')
+              .where({ tableName: table.name, shopId: shopId, status: 'pending' })
+              .update({
+                data: { status: 'paid', paidAt: clearTime },
+                success: onComplete, fail: onComplete
+              })
+            db.collection('order_items')
+              .where({ tableName: table.name, shopId: shopId, status: 'submitted' })
+              .update({
+                data: { status: 'paid', paidAt: clearTime },
+                success: onComplete, fail: onComplete
+              })
+          } catch (err) { finishClear() }
           wx.showToast({ title: '已清台，账单已存档', icon: 'success' })
         }
       }

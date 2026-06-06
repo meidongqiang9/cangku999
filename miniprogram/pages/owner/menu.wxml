@@ -52,13 +52,14 @@
              placeholder-class="placeholder"
              value="{{inputValue}}"
              bindinput="onInputValueChange"/>
-      <input class="popup-input" 
-             placeholder="请输入简介（10字以内）"
+      <input class="popup-input"
+             placeholder="请输入简介（30字以内）"
+             maxlength="30"
              placeholder-class="placeholder"
              value="{{inputValue2}}"
              bindinput="onInputValue2Change"/>
     </block>
-    
+
     <block wx:if="{{inputAction === 'addCategory' || inputAction === 'editCategory'}}">
       <input class="popup-input"
              placeholder="请输入品类名称"
@@ -82,8 +83,9 @@
              placeholder-class="placeholder"
              value="{{inputPrice}}"
              bindinput="onInputPriceChange"/>
-      <input class="popup-input" 
-             placeholder="请输入简介（10字以内）"
+      <input class="popup-input"
+             placeholder="请输入简介（30字以内）"
+             maxlength="30"
              placeholder-class="placeholder"
              value="{{inputValue2}}"
              bindinput="onInputValue2Change"/>

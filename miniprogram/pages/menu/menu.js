@@ -1,4 +1,4 @@
-const { getDb } = require('../../utils/cloud')
+const { getDb, getSafeShopId } = require('../../utils/cloud')
 const { formatPrice } = require('../../utils/currency')
 const { debounce } = require('../../utils/debounce')
 
@@ -28,6 +28,7 @@ Page({
     orderedItems: [],
     showOrderedPopup: false,
     orderCount: 0,
+    hasActiveOrder: false,
     submitting: false
   },
 
@@ -47,8 +48,45 @@ Page({
     if (isAdditional) {
       this.loadOrderedItems(tableNo)
     }
+    if (tableNo && !isAdditional && !fromOwner) {
+      this.checkActiveOrder(tableNo)
+    }
 
     this.loadCategories()
+  },
+
+  onShow: function() {
+    var tableNo = this.data.tableNo
+    if (tableNo && !this.data.isAdditional && !this.data.fromOwner) {
+      this.checkActiveOrder(tableNo)
+    }
+  },
+
+  checkActiveOrder: function(tableNo) {
+    var that = this
+    var shopId = wx.getStorageSync('currentShopId') || ''
+    try {
+      var db = getDb()
+      db.collection('order_items')
+        .where({ tableName: tableNo, shopId: shopId, status: 'submitted' })
+        .limit(1)
+        .get({
+          success: function(res) {
+            that.setData({ hasActiveOrder: res.data && res.data.length > 0 })
+          },
+          fail: function() {}
+        })
+    } catch (e) {}
+  },
+
+  goToOrder: function() {
+    var tableNo = this.data.tableNo
+    var session = wx.getStorageSync('currentSession')
+    if (session && session._id) {
+      wx.navigateTo({ url: '/pages/order/order?sessionId=' + session._id + '&tableNo=' + tableNo })
+    } else {
+      wx.navigateTo({ url: '/pages/order/order?tableNo=' + tableNo })
+    }
   },
 
   loadOrderedItems: function(tableNo) {
@@ -160,7 +198,7 @@ Page({
   loadDishes: function(categoryId) {
     var that = this
     that.setData({ currentCategory: categoryId })
-    var shopId = wx.getStorageSync('currentShopId') || ''
+    var shopId = getSafeShopId()
 
     try {
       var db = getDb()
@@ -290,7 +328,7 @@ Page({
     var id = e.currentTarget.dataset.id
     var dish = this.data.categoryDishes.find(function(d) { return (d._id || d.id) === id })
     if (dish) {
-      this.showTastePopup(id, dish)
+      this.addToCartDirect(id, dish)
     }
   },
 
@@ -298,8 +336,27 @@ Page({
     var id = e.currentTarget.dataset.id
     var dish = this.data.categoryDishes.find(function(d) { return (d._id || d.id) === id })
     if (dish) {
-      this.showTastePopup(id, dish)
+      this.addToCartDirect(id, dish)
     }
+  },
+
+  addToCartDirect: function(id, dish) {
+    var cartItems = this.data.cartItems.slice()
+    var exist = cartItems.find(function(c) { return (c._id || c.id) === id })
+    if (exist) {
+      exist.quantity++
+    } else {
+      cartItems.push({
+        id: id,
+        name: dish.name,
+        price: dish.price,
+        image: dish.image || '',
+        quantity: 1,
+        taste: ''
+      })
+    }
+    this.updateCart(cartItems)
+    wx.vibrateShort({ type: 'light' })
   },
 
   decreaseQuantity: function(e) {

@@ -13,7 +13,7 @@
     <view wx:for="{{orders}}" wx:key="createdAt" class="order-item">
       <view class="order-header">
         <text class="table-no">桌{{item.tableNo}}</text>
-        <text class="time">{{item.createdAt}}</text>
+        <text class="time">{{item.time}}</text>
       </view>
       <view class="order-items">
         <view wx:for="{{item.items}}" wx:for-item="dish" wx:key="id" class="dish-item {{dish.status === 'served' ? 'served' : ''}}">
@@ -21,13 +21,16 @@
             <text>{{dish.name}} x{{dish.quantity}}</text>
             <text wx:if="{{dish.taste}}" class="taste-tag">{{dish.taste}}</text>
           </view>
-          <view wx:if="{{!dish.status || dish.status !== 'served'}}" class="btn-serve" catchtap="updateItemStatus" data-orderid="{{item.createdAt}}" data-itemid="{{dish.id}}" data-status="served">标记走菜</view>
-          <text wx:if="{{dish.status === 'served'}}" class="served-tag">已走菜</text>
+          <view wx:if="{{!dish.status || dish.status !== 'served'}}" class="btn-serve" catchtap="updateItemStatus" data-orderid="{{item.createdAt}}" data-itemid="{{dish.id}}" data-docid="{{dish._id}}" data-status="served">标记走菜</view>
+          <view wx:if="{{dish.status === 'served'}}" class="served-line">
+            <text class="served-tag">已走菜</text>
+            <view class="btn-revert" catchtap="revertItemStatus" data-orderid="{{item.createdAt}}" data-itemid="{{dish.id}}" data-docid="{{dish._id}}">退回</view>
+          </view>
         </view>
       </view>
       <view class="action-btns">
-        <view wx:if="{{item.status === 'pending'}}" class="btn-action" bindtap="updateStatus" data-id="{{item.createdAt}}" data-status="cooking">开始制作</view>
-        <view wx:if="{{item.status === 'cooking'}}" class="btn-action" bindtap="updateStatus" data-id="{{item.createdAt}}" data-status="completed">已完成</view>
+        <view wx:if="{{item.status === 'pending'}}" class="btn-action" bindtap="updateStatus" data-id="{{item.createdAt}}" data-tableno="{{item.tableNo}}" data-status="cooking">开始制作</view>
+        <view wx:if="{{item.status === 'cooking'}}" class="btn-action" bindtap="updateStatus" data-id="{{item.createdAt}}" data-tableno="{{item.tableNo}}" data-status="completed">已完成</view>
       </view>
     </view>
     <view wx:if="{{orders.length === 0}}" class="empty">暂无订单</view>

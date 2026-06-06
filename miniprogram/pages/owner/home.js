@@ -13,12 +13,15 @@ Page({
     password: '',
     referralCode: '',
     referralCount: 0,
-    referralCredit: '0'
+    referralCredit: '0',
+    yuanbao: 0,
+    frozen: false
   },
 
   onLoad: function() {
     this.checkAuth()
     this.loadData()
+    this.checkAndDeductYuanbao()
   },
 
   onShow: function() {
@@ -59,6 +62,19 @@ Page({
       })
       return
     }
+
+    if (user.frozen) {
+      wx.showModal({
+        title: '账户已冻结',
+        content: '您的元宝余额已耗尽，请联系客服充值解冻',
+        showCancel: false,
+        success: function() {
+          wx.removeStorageSync('ownerUser')
+          wx.redirectTo({ url: '/pages/owner/login' })
+        }
+      })
+      return
+    }
   },
 
   loadData: function() {
@@ -83,16 +99,89 @@ Page({
         success: function(res) {
           if (res.data) {
             var count = res.data.referralCount || 0
+            var yuanbao = res.data.yuanbao || 0
             that.setData({
               referralCode: res.data.referralCode || that.data.referralCode,
               referralCount: count,
-              referralCredit: (count * 10).toString()
+              referralCredit: (count * 10).toString(),
+              yuanbao: yuanbao,
+              frozen: res.data.frozen || false
             })
           }
         },
         fail: function() {}
       })
     } catch (e) {}
+  },
+
+  checkAndDeductYuanbao: function() {
+    var that = this
+    var shopId = wx.getStorageSync('currentShopId') || ''
+    if (!shopId) return
+    try {
+      var db = getDb()
+      db.collection('shops').doc(shopId).get({
+        success: function(res) {
+          var shop = res.data || {}
+          if (shop.frozen) return
+          var today = that.getDateString()
+          var lastDate = shop.lastDeductionDate || ''
+          if (lastDate === today) return
+
+          var yuanbao = shop.yuanbao || 0
+          if (lastDate) {
+            var lastTime = new Date(lastDate.replace(/-/g, '/') + 'T00:00:00').getTime()
+            var todayTime = new Date(today.replace(/-/g, '/') + 'T00:00:00').getTime()
+            var daysMissed = Math.floor((todayTime - lastTime) / 86400000)
+            daysMissed = Math.min(daysMissed, 30)
+            yuanbao = Math.max(0, yuanbao - daysMissed)
+          } else {
+            yuanbao = Math.max(0, yuanbao - 1)
+          }
+
+          var frozen = yuanbao <= 0
+          db.collection('shops').doc(shopId).update({
+            data: { yuanbao: yuanbao, frozen: frozen, lastDeductionDate: today }
+          })
+          if (yuanbao < (shop.yuanbao || 0)) {
+            try {
+              db.collection('yuanbao_transactions').add({
+                data: {
+                  shopId: shopId,
+                  amount: -(shop.yuanbao - yuanbao),
+                  type: 'daily_deduction',
+                  description: '每日扣费',
+                  balance: yuanbao,
+                  createdAt: Date.now()
+                }
+              })
+            } catch (e) {}
+          }
+          that.setData({ yuanbao: yuanbao, frozen: frozen })
+          if (frozen) {
+            var user = wx.getStorageSync('ownerUser') || {}
+            user.frozen = true
+            wx.setStorageSync('ownerUser', user)
+            wx.showModal({
+              title: '账户已冻结',
+              content: '您的元宝余额已耗尽，请联系客服充值解冻',
+              showCancel: false,
+              success: function() {
+                wx.removeStorageSync('ownerUser')
+                wx.redirectTo({ url: '/pages/owner/login' })
+              }
+            })
+          }
+        }
+      })
+    } catch (e) {}
+  },
+
+  getDateString: function() {
+    var d = new Date()
+    return d.getFullYear() + '-' +
+      String(d.getMonth() + 1).padStart(2, '0') + '-' +
+      String(d.getDate()).padStart(2, '0')
   },
 
   loadStats: function() {
@@ -164,7 +253,7 @@ Page({
   clearData: function() {
     var that = this
     wx.showActionSheet({
-      itemList: ['清零今日数据', '清零本月数据', '清零本年数据'],
+      itemList: ['清零今日数据', '清零本月数据', '清零本年数据', '重置测试数据(订单+菜品+会话)'],
       success: function(res) {
         that.setData({
           showPasswordModal: true,
@@ -187,7 +276,7 @@ Page({
     var shopId = wx.getStorageSync('currentShopId') || ''
 
     var valid = false
-    if (user && pwd === '123456') {
+    if (user && pwd === 'M@dq616699') {
       valid = true
     } else if (users.some(function(u) { return u.password === pwd })) {
       valid = true
@@ -199,6 +288,42 @@ Page({
     }
 
     var type = that.data.passwordAction
+
+    // 重置全部测试数据：清 sessions + orders + order_items
+    if (type === 3) {
+      var done = 0
+      var cols = ['sessions', 'orders', 'order_items']
+      try {
+        var db = getDb()
+        cols.forEach(function(coll) {
+          db.collection(coll).where({ shopId: shopId }).get({
+            success: function(res) {
+              (res.data || []).forEach(function(d) { if (d._id) db.collection(coll).doc(d._id).remove() })
+              done++
+              if (done >= 3) {
+                wx.removeStorageSync('allOrders')
+                wx.removeStorageSync('currentTable')
+                wx.removeStorageSync('currentSession')
+                that.loadStats()
+                wx.showToast({ title: '测试数据已重置', icon: 'success' })
+              }
+            },
+            fail: function() {
+              done++
+              if (done >= 3) {
+                wx.removeStorageSync('allOrders')
+                wx.removeStorageSync('currentTable')
+                wx.removeStorageSync('currentSession')
+                that.loadStats()
+                wx.showToast({ title: '重置完成', icon: 'success' })
+              }
+            }
+          })
+        })
+      } catch (e) { wx.showToast({ title: '重置失败', icon: 'none' }) }
+      that.setData({ showPasswordModal: false, password: '' })
+      return
+    }
 
     // 从云数据库基于 shopId 清零
     try {
@@ -218,6 +343,9 @@ Page({
               db.collection('orders').doc(o._id).remove()
             }
           })
+          // 同步刷新本地数据和UI
+          that.loadStats()
+          wx.showToast({ title: '数据已清零', icon: 'success' })
         }
       })
     } catch (e) {}
@@ -256,7 +384,7 @@ Page({
       success: function(res) {
         if (res.confirm) {
           var keys = [
-            'ownerUser', 'ownerUsers', 'currentShopId', 'shopConfig', 'shopBanners',
+            'ownerUser', 'currentShopId', 'shopConfig', 'shopBanners',
             'homeTitle', 'shopName', 'menuCategories', 'menuDishes',
             'tables', 'allOrders', 'currentTable', 'currentSession',
             'currentTableDetail', 'currentChef', 'needRefreshOrder'
