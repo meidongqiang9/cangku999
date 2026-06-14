@@ -45,34 +45,5 @@
     <view class="toggle-mode" bindtap="toggleMode">
       <text>{{isLogin ? '没有账号？去注册' : '已有账号？去登录'}}</text>
     </view>
-    
-    <view class="divider">
-      <view class="line"></view>
-      <text class="or">或</text>
-      <view class="line"></view>
-    </view>
-    
-    <button class="btn-wechat" bindtap="onWechatLogin">微信一键登录</button>
-  </view>
-
-  <!-- 微信登录协议弹窗 -->
-  <view class="wechat-agree-mask" wx:if="{{showWechatAgreeModal}}" bindtap="closeWechatAgreeModal"></view>
-  <view class="wechat-agree-popup" wx:if="{{showWechatAgreeModal}}">
-    <view class="wechat-agree-title">用户协议与隐私政策</view>
-    <view class="wechat-agree-body">
-      <text>欢迎使用食易特Eat！我们将依据</text>
-      <text class="agree-link" bindtap="showAgreement">《用户服务协议》</text>
-      <text>和</text>
-      <text class="agree-link" bindtap="showPrivacy">《隐私政策》</text>
-      <text>处理您的个人信息。</text>
-    </view>
-    <view class="wechat-agree-check-row">
-      <view class="agree-checkbox" bindtap="toggleWechatAgree">
-        <text class="agree-icon">{{wechatAgreed ? '✓' : ''}}</text>
-      </view>
-      <text class="agree-text">我已阅读并同意上述协议</text>
-    </view>
-    <view class="wechat-agree-btn {{wechatAgreed ? '' : 'disabled'}}" bindtap="confirmWechatLogin">确认并登录</view>
-    <view class="wechat-agree-cancel" bindtap="closeWechatAgreeModal">取消</view>
   </view>
 </view>

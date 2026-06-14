@@ -30,7 +30,8 @@
 .action-btn.recharge { background: #27AE60; }
 .action-btn.unfreeze { background: #27AE60; }
 .action-btn.freeze { background: #E74C3C; }
-.action-btn.notify { background: #3498DB; }
+.action-btn.deduct { background: #F39C12; }
+.action-btn.delete { background: #E74C3C; }
 
 .empty { text-align: center; color: #999; padding: 80rpx 0; font-size: 28rpx; }
 

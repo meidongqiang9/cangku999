@@ -1,0 +1,9 @@
+{
+  "name": "adminOps",
+  "version": "1.0.0",
+  "description": "管理端操作（删除账号等）",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

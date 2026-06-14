@@ -12,11 +12,16 @@ Page({
     rechargeShopId: '',
     rechargeShopName: '',
     rechargeAmount: 0,
+    rechargeType: 'recharge',
     showAnnounceModal: false,
     announceType: 'broadcast',
     announceShopId: '',
     announceShopName: '',
-    announceContent: ''
+    announceContent: '',
+    showAddModal: false,
+    newPhone: '',
+    newPassword: '',
+    newShopName: ''
   },
 
   onLoad: function() {
@@ -98,7 +103,18 @@ Page({
       showRechargeModal: true,
       rechargeShopId: e.currentTarget.dataset.shopid,
       rechargeShopName: e.currentTarget.dataset.shopname,
-      rechargeAmount: 0
+      rechargeAmount: 0,
+      rechargeType: 'recharge'
+    })
+  },
+
+  showDeduct: function(e) {
+    this.setData({
+      showRechargeModal: true,
+      rechargeShopId: e.currentTarget.dataset.shopid,
+      rechargeShopName: e.currentTarget.dataset.shopname,
+      rechargeAmount: 0,
+      rechargeType: 'deduct'
     })
   },
 
@@ -110,40 +126,22 @@ Page({
     var that = this
     var amount = that.data.rechargeAmount
     if (amount <= 0) {
-      wx.showToast({ title: '请输入充值金额', icon: 'none' })
+      wx.showToast({ title: '请输入金额', icon: 'none' })
       return
     }
+    var isDeduct = that.data.rechargeType === 'deduct'
+    var change = isDeduct ? -amount : amount
     var shopId = that.data.rechargeShopId
-    try {
-      var db = getDb()
-      db.collection('shops').doc(shopId).get({
-        success: function(res) {
-          var shop = res.data || {}
-          var newBalance = (shop.yuanbao || 0) + amount
-          var updates = { yuanbao: newBalance }
-          if (newBalance > 0) updates.frozen = false
-
-          db.collection('shops').doc(shopId).update({ data: updates })
-
-          try {
-            db.collection('yuanbao_transactions').add({
-              data: {
-                shopId: shopId,
-                amount: amount,
-                type: 'admin_recharge',
-                description: '管理员充值 ' + amount + ' 元宝',
-                balance: newBalance,
-                createdAt: Date.now()
-              }
-            })
-          } catch (e) {}
-
-          that.setData({ showRechargeModal: false })
-          wx.showToast({ title: '充值成功', icon: 'success' })
-          that.loadOwners()
-        }
-      })
-    } catch (e) {}
+    wx.cloud.callFunction({
+      name: 'adminOps',
+      data: { action: 'recharge', shopId: shopId, amount: change },
+      success: function() {
+        that.setData({ showRechargeModal: false })
+        wx.showToast({ title: isDeduct ? '已扣减' : '已充值', icon: 'success' })
+        that.loadOwners()
+      },
+      fail: function() { wx.showToast({ title: '操作失败', icon: 'none' }) }
+    })
   },
 
   closeRechargeModal: function() {
@@ -151,15 +149,14 @@ Page({
   },
 
   toggleFreeze: function(e) {
+    var that = this
     var shopId = e.currentTarget.dataset.shopid
-    var isFrozen = e.currentTarget.dataset.frozen === true || String(e.currentTarget.dataset.frozen) === 'true'
-    try {
-      var db = getDb()
-      var updates = isFrozen ? { frozen: false } : { frozen: true }
-      db.collection('shops').doc(shopId).update({ data: updates })
-      wx.showToast({ title: isFrozen ? '已解冻' : '已冻结', icon: 'success' })
-      this.loadOwners()
-    } catch (err) {}
+    wx.cloud.callFunction({
+      name: 'adminOps',
+      data: { action: 'toggleFreeze', shopId: shopId },
+      success: function() { wx.showToast({ title: '操作成功', icon: 'success' }); that.loadOwners() },
+      fail: function() { wx.showToast({ title: '操作失败', icon: 'none' }) }
+    })
   },
 
   showBroadcast: function() {
@@ -211,6 +208,86 @@ Page({
 
   closeAnnounceModal: function() {
     this.setData({ showAnnounceModal: false })
+  },
+
+  // 新增老板账号
+  showAddOwner: function() {
+    this.setData({ showAddModal: true, newPhone: '', newPassword: '', newShopName: '' })
+  },
+
+  closeAddModal: function() {
+    this.setData({ showAddModal: false })
+  },
+
+  onNewPhoneInput: function(e) { this.setData({ newPhone: e.detail.value }) },
+  onNewPasswordInput: function(e) { this.setData({ newPassword: e.detail.value }) },
+  onNewShopNameInput: function(e) { this.setData({ newShopName: e.detail.value }) },
+
+  confirmAddOwner: function() {
+    var that = this
+    var phone = that.data.newPhone.trim()
+    var password = that.data.newPassword.trim()
+    var shopName = that.data.newShopName.trim()
+    if (!phone || !/^1\d{10}$/.test(phone)) { wx.showToast({ title: '请输入正确手机号', icon: 'none' }); return }
+    if (!password || password.length < 6) { wx.showToast({ title: '密码至少6位', icon: 'none' }); return }
+    if (!shopName) { wx.showToast({ title: '请输入店铺名称', icon: 'none' }); return }
+
+    try {
+      var db = getDb()
+      var refCode = ''
+      var chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'
+      for (var i = 0; i < 6; i++) refCode += chars.charAt(Math.floor(Math.random() * chars.length))
+
+      db.collection('shops').add({
+        data: {
+          shopName: shopName, phone: phone, password: password,
+          referralCode: refCode, referralCount: 0,
+          yuanbao: 30, frozen: false, lastDeductionDate: '',
+          createdAt: Date.now()
+        },
+        success: function(res) {
+          var shopId = res._id
+          try {
+            db.collection('users').add({
+              data: { phone: phone, password: password, shopName: shopName, role: 'owner', shopId: shopId, referralCode: refCode, createdAt: Date.now() }
+            })
+            db.collection('yuanbao_transactions').add({
+              data: { shopId: shopId, amount: 30, type: 'initial', description: '管理员创建店铺赠送元宝', balance: 30, createdAt: Date.now() }
+            })
+          } catch (e) {}
+          that.setData({ showAddModal: false })
+          wx.showToast({ title: '账号已创建', icon: 'success' })
+          that.loadOwners()
+        },
+        fail: function() { wx.showToast({ title: '创建失败', icon: 'none' }) }
+      })
+    } catch (e) { wx.showToast({ title: '创建失败', icon: 'none' }) }
+  },
+
+  // 删除老板账号
+  deleteOwner: function(e) {
+    var that = this
+    var shopId = e.currentTarget.dataset.shopid
+    var shopName = e.currentTarget.dataset.shopname
+    wx.showModal({
+      title: '确认删除',
+      content: '确定删除「' + shopName + '」及其所有数据吗？此操作不可恢复。',
+      confirmText: '确认删除',
+      confirmColor: '#E74C3C',
+      success: function(res) {
+        if (res.confirm) {
+          wx.cloud.callFunction({
+            name: 'adminOps',
+            data: { action: 'delete', shopId: shopId },
+            success: function() {
+              wx.showToast({ title: '已删除', icon: 'success' })
+              that.loadOwners()
+            },
+            fail: function() { wx.showToast({ title: '删除失败', icon: 'none' }) }
+          })
+        }
+      }
+    })
   },
 
   goBack: function() {
