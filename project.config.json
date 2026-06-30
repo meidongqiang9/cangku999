@@ -33,5 +33,6 @@
   "appid": "wx5027d0147d5299bb",
   "editorSetting": {},
   "libVersion": "3.15.2",
-  "cloudfunctionRoot": "miniprogram/cloudfunctions/"
+  "cloudfunctionRoot": "miniprogram/cloudfunctions/",
+  "cloudfunctionTemplateRoot": "cloudfunctionTemplate/"
 }
