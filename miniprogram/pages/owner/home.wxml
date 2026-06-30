@@ -61,7 +61,7 @@
     </view>
     <view class="menu-item" bindtap="goSettings">
       <text class="menu-icon">⚙️</text>
-      <text class="menu-title">店铺设置</text>
+      <text class="menu-title">界面设置</text>
       <text class="menu-arrow">›</text>
     </view>
     <view class="menu-item" bindtap="goOrders">
