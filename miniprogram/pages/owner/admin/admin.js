@@ -30,40 +30,11 @@ Page({
       wx.redirectTo({ url: '/pages/owner/login' })
       return
     }
-    this.checkAdminAccess()
+    this.loadOwners()
   },
 
   onShow: function() {
-    this.checkAdminAccess()
-  },
-
-  checkAdminAccess: function() {
-    var that = this
-    try {
-      var db = getDb()
-      db.collection('config').doc('adminSwitch').get({
-        success: function(res) {
-          var enabled = res.data && res.data.enabled
-          if (enabled !== false) {
-            that.loadOwners()
-          } else {
-            wx.showModal({
-              title: '功能维护中',
-              content: '管理后台暂不可用，请联系客服',
-              showCancel: false,
-              success: function() {
-                wx.redirectTo({ url: '/pages/owner/home' })
-              }
-            })
-          }
-        },
-        fail: function() {
-          that.loadOwners()
-        }
-      })
-    } catch (e) {
-      this.loadOwners()
-    }
+    this.loadOwners()
   },
 
   loadOwners: function() {
