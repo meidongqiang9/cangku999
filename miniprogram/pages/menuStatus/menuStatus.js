@@ -7,7 +7,9 @@ Page({
     tableNo: '',
     currentTab: 'pending',
     watcher: null,
-    chefName: ''
+    chefName: '',
+    _chefCheckTime: 0,
+    _notifiedNewTables: {}
   },
 
   onLoad: function(options) {
@@ -20,9 +22,20 @@ Page({
     }
     // 厨师默认显示"已完成"tab，方便查看已走菜菜品
     var defaultTab = isChef ? 'completed' : 'pending'
-    this.setData({ tableNo: tableNo, chefName: chefName, currentTab: defaultTab })
+    this.setData({
+      tableNo: tableNo,
+      chefName: chefName,
+      currentTab: defaultTab,
+      _chefCheckTime: Date.now()
+    })
     this.loadOrders()
     this.startWatch()
+  },
+
+  onShow: function() {
+    // 切回页面时重置检查时间，避免漏掉前台期间产生的新订单通知
+    this.data._chefCheckTime = Date.now()
+    this.loadOrders()
   },
 
   onUnload: function() {
@@ -41,12 +54,71 @@ Page({
         .watch({
           onChange: function() {
             that.loadOrders()
+            // 检测新订单并通知
+            that.checkNewOrders()
           },
           onError: function(err) {
             console.error('watch error:', err)
           }
         })
       that.setData({ watcher: watcher })
+    } catch (e) {}
+  },
+
+  // 检测并通知厨师有新订单
+  checkNewOrders: function() {
+    var that = this
+    var shopId = wx.getStorageSync('currentShopId') || ''
+    if (!shopId) return
+    var checkTime = that.data._chefCheckTime
+    try {
+      var db = getDb()
+      db.collection('order_items')
+        .where({ shopId: shopId, status: 'submitted' })
+        .orderBy('createdAt', 'asc')
+        .get({
+          success: function(res) {
+            var items = res.data || []
+            var newTables = {}
+            var hasNew = false
+
+            items.forEach(function(item) {
+              if ((item.createdAt || 0) >= checkTime && item.tableName) {
+                var key = item.tableName
+                if (!that.data._notifiedNewTables[key]) {
+                  newTables[key] = true
+                  hasNew = true
+                }
+              }
+            })
+
+            if (hasNew) {
+              var tableNames = Object.keys(newTables)
+              var notified = that.data._notifiedNewTables
+              tableNames.forEach(function(name) {
+                notified[name] = true
+              })
+              that.setData({ _notifiedNewTables: notified })
+
+              // 震动+弹窗通知厨师
+              wx.vibrateShort({ type: 'medium' })
+
+              var content = tableNames.join('、') + ' 有新订单，请查收'
+              wx.showModal({
+                title: '新订单通知',
+                content: content,
+                confirmText: '查看',
+                cancelText: '忽略',
+                success: function(res) {
+                  if (res.confirm) {
+                    that.setData({ currentTab: 'pending' })
+                    that.loadOrders()
+                  }
+                }
+              })
+            }
+          }
+        })
     } catch (e) {}
   },
 

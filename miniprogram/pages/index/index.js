@@ -16,18 +16,22 @@ Page({
     noticeContent: ''
   },
 
-  onLoad: function(options) {
-    var that = this
-    var shopId = options.shopId || ''
-    var tableNo = options.tableNo || ''
+  extractQrParams: function(options) {
+    var shopId = ''
+    var tableNo = ''
+
+    if (options) {
+      shopId = options.shopId || ''
+      tableNo = options.tableNo || ''
+    }
 
     // 从 launchOptions / enterOptions 兜底
     if (!shopId || !tableNo) {
       try {
         var launchOpts = wx.getLaunchOptionsSync()
         if (launchOpts && launchOpts.query) {
-          shopId = launchOpts.query.shopId || ''
-          tableNo = launchOpts.query.tableNo || ''
+          shopId = shopId || launchOpts.query.shopId || ''
+          tableNo = tableNo || launchOpts.query.tableNo || ''
         }
       } catch (e) {}
     }
@@ -35,44 +39,71 @@ Page({
       try {
         var enterOpts = wx.getEnterOptionsSync()
         if (enterOpts && enterOpts.query) {
-          shopId = enterOpts.query.shopId || ''
-          tableNo = enterOpts.query.tableNo || ''
+          shopId = shopId || enterOpts.query.shopId || ''
+          tableNo = tableNo || enterOpts.query.tableNo || ''
         }
       } catch (e) {}
     }
 
     // 解析 scene 参数 (s<shopId>t<tableNo>)
-    if ((!shopId || !tableNo) && options.scene) {
+    if ((!shopId || !tableNo) && options && options.scene) {
       var scene = decodeURIComponent(options.scene)
       if (scene.charAt(0) === 's') {
         var tIdx = scene.indexOf('t', 1)
         if (tIdx > 1) {
-          shopId = scene.substring(1, tIdx)
-          tableNo = scene.substring(tIdx + 1)
+          shopId = shopId || scene.substring(1, tIdx)
+          tableNo = tableNo || scene.substring(tIdx + 1)
         }
       }
     }
 
-    // 没有扫码参数 → 跳转老板登录页
+    // 最后兜底：使用 app.onShow 缓存的扫码参数
     if (!shopId || !tableNo) {
+      var cached = wx.getStorageSync('qrScanParams')
+      if (cached && cached.shopId && cached.tableNo) {
+        shopId = shopId || cached.shopId
+        tableNo = tableNo || cached.tableNo
+      }
+    }
+
+    return { shopId: shopId, tableNo: tableNo }
+  },
+
+  onLoad: function(options) {
+    var that = this
+    var params = that.extractQrParams(options)
+
+    // 没有扫码参数 → 跳转老板登录页
+    if (!params.shopId || !params.tableNo) {
       wx.redirectTo({ url: '/pages/owner/login' })
       return
     }
 
     // 扫码进入：锁定桌号，加载店铺信息
-    wx.setStorageSync('currentShopId', shopId)
-    that.setData({ shopId: shopId, tableNo: tableNo, tableLocked: true, loading: true })
-    that.loadShopInfo(shopId)
+    wx.setStorageSync('currentShopId', params.shopId)
+    that.setData({ shopId: params.shopId, tableNo: params.tableNo, tableLocked: true, loading: true })
+    that.loadShopInfo(params.shopId)
 
     // 厨师扫码
-    var chefId = options.chefId || ''
-    var chefName = options.chefName ? decodeURIComponent(options.chefName) : ''
+    var chefId = (options && options.chefId) || ''
+    var chefName = (options && options.chefName) ? decodeURIComponent(options.chefName) : ''
     if (chefId && chefName) {
       wx.setStorageSync('currentChef', { id: chefId, name: chefName })
       wx.navigateTo({
         url: '/pages/menuStatus/menuStatus?chefId=' + chefId + '&chefName=' + encodeURIComponent(chefName),
         fail: function() { wx.showToast({ title: '后厨页面不可用', icon: 'none' }) }
       })
+    }
+  },
+
+  // 处理从后台切到前台时的扫码（warm start）
+  onShow: function() {
+    var that = this
+    var cached = wx.getStorageSync('qrScanParams')
+    if (cached && cached.shopId && cached.tableNo && !that.data.shopId) {
+      wx.setStorageSync('currentShopId', cached.shopId)
+      that.setData({ shopId: cached.shopId, tableNo: cached.tableNo, tableLocked: true, loading: true })
+      that.loadShopInfo(cached.shopId)
     }
   },
 

@@ -1,4 +1,5 @@
 const { getDb } = require('../../utils/cloud')
+const { startOwnerNotifier, stopOwnerNotifier } = require('../../utils/ownerNotifier')
 const { isSameDay, isSameMonth, isSameYear, todayStart, monthStart, yearStart } = require('../../utils/time')
 
 Page({
@@ -27,6 +28,15 @@ Page({
   onShow: function() {
     this.checkAuth()
     this.loadStats()
+    startOwnerNotifier(this)
+  },
+
+  onHide: function() {
+    stopOwnerNotifier()
+  },
+
+  onUnload: function() {
+    stopOwnerNotifier()
   },
 
   checkAuth: function() {

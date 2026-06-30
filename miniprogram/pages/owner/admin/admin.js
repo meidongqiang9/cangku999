@@ -39,6 +39,26 @@ Page({
 
   loadOwners: function() {
     var that = this
+    // 先执行每日元宝扣减
+    that.dailyDeduct(function() {
+      that._loadOwners()
+    })
+  },
+
+  dailyDeduct: function(callback) {
+    wx.cloud.callFunction({
+      name: 'adminOps',
+      data: { action: 'dailyDeduct' },
+      success: function() {},
+      fail: function() {},
+      complete: function() {
+        if (callback) callback()
+      }
+    })
+  },
+
+  _loadOwners: function() {
+    var that = this
     try {
       var db = getDb()
       db.collection('shops').get({

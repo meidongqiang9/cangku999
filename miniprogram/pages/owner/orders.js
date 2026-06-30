@@ -1,4 +1,5 @@
 const { getDb } = require('../../utils/cloud')
+const { startOwnerNotifier, stopOwnerNotifier } = require('../../utils/ownerNotifier')
 const { formatDateTime, isSameDay, isSameMonth, isSameYear } = require('../../utils/time')
 
 Page({
@@ -20,6 +21,15 @@ Page({
 
   onShow: function() {
     this.loadOrders()
+    startOwnerNotifier(this)
+  },
+
+  onHide: function() {
+    stopOwnerNotifier()
+  },
+
+  onUnload: function() {
+    stopOwnerNotifier()
   },
 
   setFilter: function(e) {

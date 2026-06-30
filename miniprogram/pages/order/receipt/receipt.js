@@ -164,6 +164,8 @@ Page({
       return
     }
 
+    that.markCheckoutRequested()
+
     // 检查商户号是否已配置
     var shopConfig = wx.getStorageSync('shopConfig') || {}
     var mchId = shopConfig.mchId || ''
@@ -195,6 +197,25 @@ Page({
       }
     })
   }, 300),
+
+  markCheckoutRequested: function() {
+    var that = this
+    try {
+      var db = getDb()
+      var shopId = wx.getStorageSync('currentShopId') || ''
+      var tableNo = that.data.tableNo || ''
+      if (!shopId || !tableNo) return
+      var now = Date.now()
+      db.collection('orders')
+        .where({ tableName: tableNo, shopId: shopId, status: 'pending' })
+        .update({
+          data: {
+            checkoutRequested: true,
+            checkoutRequestedAt: now
+          }
+        })
+    } catch (e) {}
+  },
 
   goBackToOrder: function() {
     wx.redirectTo({ url: '/pages/order/order?tableNo=' + this.data.tableNo })
